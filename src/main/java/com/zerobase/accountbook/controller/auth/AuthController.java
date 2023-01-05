@@ -1,10 +1,7 @@
 package com.zerobase.accountbook.controller.auth;
 
 import com.zerobase.accountbook.common.dto.ApiResponse;
-import com.zerobase.accountbook.controller.auth.dto.request.CompleteAuthEmailRequestDto;
-import com.zerobase.accountbook.controller.auth.dto.request.CreateMemberRequestDto;
-import com.zerobase.accountbook.controller.auth.dto.request.SendAuthEmailRequestDto;
-import com.zerobase.accountbook.controller.auth.dto.request.ValidateEmailRequestDto;
+import com.zerobase.accountbook.controller.auth.dto.request.*;
 import com.zerobase.accountbook.service.auth.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -49,5 +46,13 @@ public class AuthController {
     ) {
         authService.createMember(request);
         return ApiResponse.SUCCESS;
+    }
+
+    @PostMapping("/signin") // endpoint에는 소문자만 사용가능
+    public ApiResponse<String> signIn(
+            @Valid @RequestBody LoginRequestDto request
+    ) {
+        String token = authService.signIn(request.getEmail(), request.getPassword());
+        return ApiResponse.success(token);
     }
 }
