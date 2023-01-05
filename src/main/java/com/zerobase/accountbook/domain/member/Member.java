@@ -26,6 +26,8 @@ public class Member {
     @Enumerated(EnumType.STRING)
     private MemberRole role;
 
+    private Integer monthlyBudget;
+
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;

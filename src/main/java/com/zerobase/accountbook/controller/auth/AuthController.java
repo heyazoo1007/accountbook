@@ -2,6 +2,9 @@ package com.zerobase.accountbook.controller.auth;
 
 import com.zerobase.accountbook.common.dto.ApiResponse;
 import com.zerobase.accountbook.controller.auth.dto.request.*;
+import com.zerobase.accountbook.controller.auth.dto.response.GetMemberInfoResponseDto;
+import com.zerobase.accountbook.controller.auth.dto.response.UpdateMemberInfoResponseDto;
+import com.zerobase.accountbook.controller.auth.dto.response.UpdateMemberPasswordResponseDto;
 import com.zerobase.accountbook.service.auth.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -54,5 +57,29 @@ public class AuthController {
     ) {
         String token = authService.signIn(request.getEmail(), request.getPassword());
         return ApiResponse.success(token);
+    }
+
+    @GetMapping("/member/{memberId}")
+    public ApiResponse<GetMemberInfoResponseDto> getMemberInfo(
+            @PathVariable long memberId
+    ) {
+        GetMemberInfoResponseDto response = authService.getMemberInfo(memberId);
+        return ApiResponse.success(response);
+    }
+
+    @PutMapping("/member/update")
+    public ApiResponse<UpdateMemberInfoResponseDto> updateMemberInfo(
+            @Valid @RequestBody UpdateMemberInfoRequestDto request
+    ) {
+        UpdateMemberInfoResponseDto response = authService.updateMemberInfo(request);
+        return ApiResponse.success(response);
+    }
+
+    @PutMapping("/member/update/password")
+    public ApiResponse<UpdateMemberPasswordResponseDto> updateMemberPassword(
+            @RequestBody UpdateMemberPasswordRequestDto request
+    ) {
+        UpdateMemberPasswordResponseDto response = authService.updateMemberPassword(request);
+        return ApiResponse.success(response);
     }
 }
