@@ -177,7 +177,7 @@ public class AuthService {
         }
 
         // 이메일에 비밀번호가 매치되지 않는 경우
-        // 비밀번호가 틀렸는데 or 문으로 에러메시지를 한 이유는 혹시모를 개인정보 유출 때문 
+        // 비밀번호가 틀렸는데 아이디 혹은 비밀번호로 출력하는 이뉴는 혹시 모를 개인 정보 유출 때문
         if (!passwordEncoder.matches(password, optionalMember.get().getPassword())) {
             throw new AccountBookException(
                     "이메일 혹은 비밀번호가 틀렸습니다.",
