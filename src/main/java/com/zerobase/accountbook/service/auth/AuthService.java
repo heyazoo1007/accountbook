@@ -1,12 +1,15 @@
 package com.zerobase.accountbook.service.auth;
 
-import com.zerobase.accountbook.common.exception.ErrorCode;
 import com.zerobase.accountbook.common.exception.model.AccountBookException;
 import com.zerobase.accountbook.common.repository.RedisRepository;
 import com.zerobase.accountbook.controller.auth.dto.request.CompleteAuthEmailRequestDto;
+import com.zerobase.accountbook.controller.auth.dto.request.CreateMemberRequestDto;
 import com.zerobase.accountbook.controller.auth.dto.request.SendAuthEmailRequestDto;
 import com.zerobase.accountbook.controller.auth.dto.response.ValidateEmailResponseDto;
+import com.zerobase.accountbook.domain.member.Member;
 import com.zerobase.accountbook.domain.member.MemberRepository;
+import com.zerobase.accountbook.domain.member.MemberRole;
+import com.zerobase.accountbook.controller.auth.dto.response.CreateMemberResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -15,6 +18,7 @@ import org.springframework.stereotype.Service;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
+import java.time.LocalDateTime;
 import java.util.Random;
 
 import static com.zerobase.accountbook.common.exception.ErrorCode.*;
@@ -57,7 +61,7 @@ public class AuthService {
                     VALIDATION_AUTH_EMAIL_HAS_ALREADY_BEEN_SENT
             );
         }
-        
+
         String authKey = getAuthKey();
 
         String subject = "짠짠이 가입을 위한 인증 이메일입니다.";
@@ -115,6 +119,37 @@ public class AuthService {
                 "EMAIL-AUTH:${" + email + "}",
                 "이메일 인증 완료",
                 AuthEmailRequestWillExpireIn);
+    }
+
+    public CreateMemberResponseDto createMember(CreateMemberRequestDto request) {
+
+        String email = request.getEmail();
+
+        validateEmail(email);
+
+        // 인증 신청하지 않은 이메일인 경우
+        if(redisRepository.getData(email) == null) {
+            throw new AccountBookException(
+                    "이메일 인증 완료 후 회원가입 할 수 있습니다.",
+                    UNAUTHORIZED_EMAIL_EXCEPTION
+            );
+        }
+
+        // 이메일 인증 신청했지만, 인증키를 입력하지 않은 경우
+        if (redisRepository.getData(email).equals("이메일 인증 신청")) {
+            throw new AccountBookException(
+                    "인증키를 입력 해주세요.",
+                    UNAUTHORIZED_AUTH_KEY_EXCEPTION
+            );
+        }
+
+        return CreateMemberResponseDto.of(memberRepository.save(Member.builder()
+                .memberName(request.getMemberName())
+                .email(request.getEmail())
+                .password(request.getPassword())
+                .role(MemberRole.ROLE_MEMBER)
+                .createdAt(LocalDateTime.now())
+                .build()));
     }
 
     private String getAuthKey() {
