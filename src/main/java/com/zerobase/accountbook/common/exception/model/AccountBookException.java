@@ -2,6 +2,7 @@ package com.zerobase.accountbook.common.exception.model;
 
 import com.zerobase.accountbook.common.exception.ErrorCode;
 import lombok.Getter;
+import org.springframework.http.HttpStatus;
 
 @Getter
 public class AccountBookException extends RuntimeException {
@@ -13,7 +14,7 @@ public class AccountBookException extends RuntimeException {
         this.errorCode = errorCode;
     }
 
-    public int getStatus() {
-        return errorCode.getStatus();
+    public HttpStatus getStatus() {
+        return errorCode.getStatusCode();
     }
 }

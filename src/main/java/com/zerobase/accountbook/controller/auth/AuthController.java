@@ -40,7 +40,7 @@ public class AuthController {
         return ApiResponse.SUCCESS;
     }
 
-    @PostMapping("/signup")
+    @PostMapping("/sign-up")
     public ApiResponse<String> createMember(
             @Valid @RequestBody CreateMemberRequestDto request
     ) {
@@ -48,7 +48,7 @@ public class AuthController {
         return ApiResponse.SUCCESS;
     }
 
-    @PostMapping("/signin") // endpoint에는 소문자만 사용가능
+    @PostMapping("/sign-in")
     public ApiResponse<String> signIn(
             @Valid @RequestBody LoginRequestDto request
     ) {
