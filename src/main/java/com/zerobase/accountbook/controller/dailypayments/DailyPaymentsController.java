@@ -5,6 +5,7 @@ import com.zerobase.accountbook.controller.dailypayments.dto.request.CreateDaily
 import com.zerobase.accountbook.controller.dailypayments.dto.request.ModifyDailyPaymentsRequestDto;
 import com.zerobase.accountbook.controller.dailypayments.dto.response.CreateDailyPaymentsResponseDto;
 import com.zerobase.accountbook.controller.dailypayments.dto.response.ModifyDailyPaymentsResponseDto;
+import com.zerobase.accountbook.controller.dailypayments.dto.request.DeleteDailyPaymentsRequestDto;
 import com.zerobase.accountbook.service.dailypaymetns.DailyPaymentsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -32,5 +33,12 @@ public class DailyPaymentsController {
     ) {
         ModifyDailyPaymentsResponseDto response = dailyPaymentsService.modifyDailyPayments(request);
         return ApiResponse.success(response);
+    }
+
+    @DeleteMapping("/delete")
+    public void deleteDailyPayments(
+            @Valid @RequestBody DeleteDailyPaymentsRequestDto request
+    ) {
+        dailyPaymentsService.deleteDailyPayments(request);
     }
 }
