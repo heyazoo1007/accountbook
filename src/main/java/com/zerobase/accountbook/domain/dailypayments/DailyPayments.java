@@ -24,7 +24,7 @@ public class DailyPayments {
     @JoinColumn(name = "MEMBER_ID")
     private Member member;
 
-    private Long paidAmount;
+    private Integer paidAmount;
 
     private String paidWhere;
 

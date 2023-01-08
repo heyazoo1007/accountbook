@@ -1,4 +1,4 @@
-package com.zerobase.accountbook.domain.Category;
+package com.zerobase.accountbook.domain.category;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

@@ -1,4 +1,4 @@
-package com.zerobase.accountbook.domain.Category;
+package com.zerobase.accountbook.domain.category;
 
 import com.zerobase.accountbook.domain.dailypayments.DailyPayments;
 import com.zerobase.accountbook.domain.member.Member;
