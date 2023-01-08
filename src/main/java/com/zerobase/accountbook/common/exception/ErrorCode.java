@@ -47,6 +47,7 @@ public enum ErrorCode {
     NOT_FOUND_ROOM_EXCEPTION(NOT_FOUND, "삭제되었거나 존재하지 않는 방입니다"),
     NOT_FOUND_FEED_EXCEPTION(NOT_FOUND, "삭제되었거나 존재하지 않는 피드입니다"),
     NOT_FOUND_EMAIL_EXCEPTION(NOT_FOUND, "가입되지 않은 이메일입니다."),
+    NOT_FOUND_DAILY_PAYMENTS_EXCEPTION(NOT_FOUND, "가입되지 않은 이메일입니다."),
 
     // 405 Method Not Allowed
     METHOD_NOT_ALLOWED_EXCEPTION(METHOD_NOT_ALLOWED, "지원하지 않는 메소드 입니다"),

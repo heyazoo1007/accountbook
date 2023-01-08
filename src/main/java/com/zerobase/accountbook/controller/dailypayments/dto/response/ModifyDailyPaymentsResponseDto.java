@@ -8,28 +8,31 @@ import lombok.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreateDailyPaymentsResponseDto {
+public class ModifyDailyPaymentsResponseDto {
 
-    private Long dailyPaymentsId;
+    private long dailyPaymentsId;
 
     private Integer paidAmount;
 
     private String paidWhere;
 
-    private String categoryName;
-
     private String methodOfPayment;
 
-    private String createdAt;
+    private String categoryName;
 
-    public static CreateDailyPaymentsResponseDto of(DailyPayments dailyPayments) {
-        return CreateDailyPaymentsResponseDto.builder()
+    private String hashTags;
+
+    private String updatedAt;
+
+    // hashTags 는 추후에 수정할 예정
+    public static ModifyDailyPaymentsResponseDto of(DailyPayments dailyPayments) {
+        return ModifyDailyPaymentsResponseDto.builder()
                 .dailyPaymentsId(dailyPayments.getId())
                 .paidAmount(dailyPayments.getPaidAmount())
                 .paidWhere(dailyPayments.getPaidWhere())
-                .categoryName(dailyPayments.getCategoryName())
                 .methodOfPayment(dailyPayments.getMethodOfPayment())
-                .createdAt(dailyPayments.getCreatedAt())
+                .categoryName(dailyPayments.getCategoryName())
+                .updatedAt(dailyPayments.getUpdatedAt())
                 .build();
     }
 }
