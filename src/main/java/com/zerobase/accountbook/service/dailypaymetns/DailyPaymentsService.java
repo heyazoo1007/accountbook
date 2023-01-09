@@ -5,16 +5,24 @@ import com.zerobase.accountbook.controller.dailypayments.dto.request.CreateDaily
 import com.zerobase.accountbook.controller.dailypayments.dto.request.DeleteDailyPaymentsRequestDto;
 import com.zerobase.accountbook.controller.dailypayments.dto.request.ModifyDailyPaymentsRequestDto;
 import com.zerobase.accountbook.controller.dailypayments.dto.response.CreateDailyPaymentsResponseDto;
+import com.zerobase.accountbook.controller.dailypayments.dto.response.GetDailyPaymentsResponseDto;
 import com.zerobase.accountbook.controller.dailypayments.dto.response.ModifyDailyPaymentsResponseDto;
 import com.zerobase.accountbook.domain.dailypayments.DailyPayments;
 import com.zerobase.accountbook.domain.dailypayments.DailyPaymentsRepository;
 import com.zerobase.accountbook.domain.member.Member;
 import com.zerobase.accountbook.domain.member.MemberRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.YearMonth;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.zerobase.accountbook.common.exception.ErrorCode.*;
 
@@ -41,6 +49,7 @@ public class DailyPaymentsService {
                 .build()));
     }
 
+    @CachePut(value = "dailyPayments", key = "#request.dailyPaymentsId")
     public ModifyDailyPaymentsResponseDto modifyDailyPayments(ModifyDailyPaymentsRequestDto request) {
 
         Member member = validateMember(request.getMemberEmail());
@@ -60,6 +69,7 @@ public class DailyPaymentsService {
         return ModifyDailyPaymentsResponseDto.of(dailyPaymentsRepository.save(dailyPayments));
     }
 
+    @CacheEvict(value = "dailyPayments", allEntries = true)
     public void deleteDailyPayments(DeleteDailyPaymentsRequestDto request) {
 
         Member member = validateMember(request.getMemberEmail());
@@ -69,6 +79,25 @@ public class DailyPaymentsService {
         forbiddenMember(member, dailyPayments);
 
         dailyPaymentsRepository.delete(dailyPayments);
+    }
+
+    @Transactional(readOnly = true)
+    public GetDailyPaymentsResponseDto getDailyPayments(Long dailyPaymentsId) {
+
+        DailyPayments dailyPayments = validateDailyPayments(dailyPaymentsId);
+
+        return GetDailyPaymentsResponseDto.of(dailyPayments);
+    }
+
+    @Transactional(readOnly = true)
+    @Cacheable("dailyPayments")
+    public List<GetDailyPaymentsResponseDto> getDailyPaymentsList() {
+        List<DailyPayments> all = dailyPaymentsRepository.findAll();
+
+        return all.stream()
+                .map(DailyPayments -> GetDailyPaymentsResponseDto.of(DailyPayments))
+                .collect(Collectors.toList());
+
     }
 
     private static void forbiddenMember(Member member, DailyPayments dailyPayments) {
