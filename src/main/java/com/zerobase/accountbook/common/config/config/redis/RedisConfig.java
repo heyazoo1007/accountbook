@@ -39,7 +39,7 @@ public class RedisConfig {
                 RedisCacheConfiguration.defaultCacheConfig()
                 .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer())) // Value Serializer 변경
                 .prefixKeysWith("DailyPayments:") // Key Prefix 로 "DailyPayments:"를 앞에 붙여 저장
-                .entryTtl(Duration.ofMinutes(1)); // 캐시 수명 1분
+                .entryTtl(Duration.ofMinutes(5)); // 캐시 수명 5분
 
         builder.cacheDefaults(configuration);
         return builder.build();
