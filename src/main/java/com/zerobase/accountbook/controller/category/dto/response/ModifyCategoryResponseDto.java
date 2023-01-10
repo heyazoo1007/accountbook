@@ -8,15 +8,12 @@ import lombok.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreateCategoryResponseDto {
-
-    private long categoryId;
+public class ModifyCategoryResponseDto {
 
     private String categoryName;
 
-    public static CreateCategoryResponseDto of(Category category) {
-        return CreateCategoryResponseDto.builder()
-                .categoryId(category.getId())
+    public static ModifyCategoryResponseDto of(Category category) {
+        return ModifyCategoryResponseDto.builder()
                 .categoryName(category.getCategoryName())
                 .build();
     }

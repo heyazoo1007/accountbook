@@ -9,10 +9,12 @@ import javax.validation.constraints.Email;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreateCategoryRequestDto {
+public class ModifyCategoryRequestDto {
 
     @Email
     private String memberEmail;
+
+    private long categoryId;
 
     private String categoryName;
 }

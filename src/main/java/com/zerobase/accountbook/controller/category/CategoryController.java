@@ -2,13 +2,12 @@ package com.zerobase.accountbook.controller.category;
 
 import com.zerobase.accountbook.common.dto.ApiResponse;
 import com.zerobase.accountbook.controller.category.dto.request.CreateCategoryRequestDto;
+import com.zerobase.accountbook.controller.category.dto.request.ModifyCategoryRequestDto;
 import com.zerobase.accountbook.controller.category.dto.response.CreateCategoryResponseDto;
+import com.zerobase.accountbook.controller.category.dto.response.ModifyCategoryResponseDto;
 import com.zerobase.accountbook.service.category.CategoryService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
@@ -24,6 +23,14 @@ public class CategoryController {
             @Valid @RequestBody CreateCategoryRequestDto request
     ) {
         CreateCategoryResponseDto response = categoryService.createCategory(request);
+        return ApiResponse.success(response);
+    }
+
+    @PutMapping("/modify")
+    public ApiResponse<ModifyCategoryResponseDto> modifyCategory(
+            @Valid @RequestBody ModifyCategoryRequestDto request
+    ) {
+        ModifyCategoryResponseDto response = categoryService.modifyCategory(request);
         return ApiResponse.success(response);
     }
 }
