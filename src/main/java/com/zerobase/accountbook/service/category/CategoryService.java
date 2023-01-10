@@ -1,6 +1,5 @@
 package com.zerobase.accountbook.service.category;
 
-import com.zerobase.accountbook.common.exception.ErrorCode;
 import com.zerobase.accountbook.common.exception.model.AccountBookException;
 import com.zerobase.accountbook.controller.category.dto.request.CreateCategoryRequestDto;
 import com.zerobase.accountbook.controller.category.dto.request.DeleteCategoryRequestDto;
@@ -33,6 +32,9 @@ public class CategoryService {
     public CreateCategoryResponseDto createCategory(CreateCategoryRequestDto request) {
 
         Member member = validateMember(request.getMemberEmail());
+        
+        // 생성하려는 카테고리 이름이 중복될 경우
+        validateUniqueCategoryName(request.getCategoryName());
 
         return CreateCategoryResponseDto.of(categoryRepository.save(Category.builder()
                 .member(member)
@@ -48,6 +50,8 @@ public class CategoryService {
         Category category = validateCategory(request.getCategoryId());
 
         forbiddenMember(member, category);
+
+        validateUniqueCategoryName(request.getCategoryName());
 
         category.setCategoryName(request.getCategoryName());
         category.setUpdatedAt(LocalDateTime.now());
@@ -79,6 +83,12 @@ public class CategoryService {
         return all.stream()
                 .map(category -> GetCategoryListResponseDto.of(category))
                 .collect(Collectors.toList());
+    }
+
+    private void validateUniqueCategoryName(String categoryName) {
+        if (categoryRepository.existsByCategoryName(categoryName)) {
+            throw new AccountBookException("카테고리 이름이 중복됩니다.", CONFLIC_CATEGORY_NAME_EXCEPTION);
+        }
     }
 
     private static void forbiddenMember(Member member, Category category) {

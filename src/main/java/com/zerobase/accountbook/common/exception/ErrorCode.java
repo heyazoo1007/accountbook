@@ -59,6 +59,7 @@ public enum ErrorCode {
     CONFLICT_EXCEPTION(CONFLICT, "이미 존재합니다"),
     CONFLICT_EMAIL_EXCEPTION(CONFLICT, "이미 사용중인 이메일입니다.\n다른 이메일을 이용해주세요"),
     CONFLICT_USER_EXCEPTION(CONFLICT, "이미 해당 계정으로 회원가입하셨습니다.\n로그인 해주세요"),
+    CONFLIC_CATEGORY_NAME_EXCEPTION(CONFLICT, "이미 존재하는 카테고리 이름입니다."),
 
     // 415 Unsupported Media Type
     UNSUPPORTED_MEDIA_TYPE_EXCEPTION(UNSUPPORTED_MEDIA_TYPE, "해당하는 미디어 타입을 지원하지 않습니다."),
