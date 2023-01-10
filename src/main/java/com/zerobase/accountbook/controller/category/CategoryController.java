@@ -5,12 +5,14 @@ import com.zerobase.accountbook.controller.category.dto.request.CreateCategoryRe
 import com.zerobase.accountbook.controller.category.dto.request.DeleteCategoryRequestDto;
 import com.zerobase.accountbook.controller.category.dto.request.ModifyCategoryRequestDto;
 import com.zerobase.accountbook.controller.category.dto.response.CreateCategoryResponseDto;
+import com.zerobase.accountbook.controller.category.dto.response.GetCategoryListResponseDto;
 import com.zerobase.accountbook.controller.category.dto.response.ModifyCategoryResponseDto;
 import com.zerobase.accountbook.service.category.CategoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @RequestMapping("/v1/category")
 @RestController
@@ -41,5 +43,11 @@ public class CategoryController {
     ) {
         categoryService.deleteCategory(request);
         return ApiResponse.SUCCESS;
+    }
+
+    @GetMapping("/list")
+    public ApiResponse<List<GetCategoryListResponseDto>> getCategoryList() {
+        List<GetCategoryListResponseDto> response = categoryService.getCategoryList();
+        return ApiResponse.success(response);
     }
 }

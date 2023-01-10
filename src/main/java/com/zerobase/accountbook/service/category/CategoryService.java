@@ -6,6 +6,7 @@ import com.zerobase.accountbook.controller.category.dto.request.CreateCategoryRe
 import com.zerobase.accountbook.controller.category.dto.request.DeleteCategoryRequestDto;
 import com.zerobase.accountbook.controller.category.dto.request.ModifyCategoryRequestDto;
 import com.zerobase.accountbook.controller.category.dto.response.CreateCategoryResponseDto;
+import com.zerobase.accountbook.controller.category.dto.response.GetCategoryListResponseDto;
 import com.zerobase.accountbook.controller.category.dto.response.ModifyCategoryResponseDto;
 import com.zerobase.accountbook.domain.category.Category;
 import com.zerobase.accountbook.domain.category.CategoryRepository;
@@ -15,7 +16,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.zerobase.accountbook.common.exception.ErrorCode.*;
 
@@ -68,6 +71,14 @@ public class CategoryService {
         // 매일 지출내역 main에 머지 후 pull해서 dailypaymentrepository DI 할 예정
 
         categoryRepository.deleteById(request.getCategoryId());
+    }
+
+    public List<GetCategoryListResponseDto> getCategoryList() {
+
+        List<Category> all = categoryRepository.findAll();
+        return all.stream()
+                .map(category -> GetCategoryListResponseDto.of(category))
+                .collect(Collectors.toList());
     }
 
     private static void forbiddenMember(Member member, Category category) {
