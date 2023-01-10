@@ -2,6 +2,7 @@ package com.zerobase.accountbook.controller.category;
 
 import com.zerobase.accountbook.common.dto.ApiResponse;
 import com.zerobase.accountbook.controller.category.dto.request.CreateCategoryRequestDto;
+import com.zerobase.accountbook.controller.category.dto.request.DeleteCategoryRequestDto;
 import com.zerobase.accountbook.controller.category.dto.request.ModifyCategoryRequestDto;
 import com.zerobase.accountbook.controller.category.dto.response.CreateCategoryResponseDto;
 import com.zerobase.accountbook.controller.category.dto.response.ModifyCategoryResponseDto;
@@ -32,5 +33,13 @@ public class CategoryController {
     ) {
         ModifyCategoryResponseDto response = categoryService.modifyCategory(request);
         return ApiResponse.success(response);
+    }
+
+    @DeleteMapping("/delete")
+    public ApiResponse<String> deleteCategory(
+            @Valid @RequestBody DeleteCategoryRequestDto request
+    ) {
+        categoryService.deleteCategory(request);
+        return ApiResponse.SUCCESS;
     }
 }
