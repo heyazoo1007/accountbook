@@ -25,7 +25,8 @@ public class DailyPaymentsController {
     public ApiResponse<CreateDailyPaymentsResponseDto> createDailyPayments(
             @Valid @RequestBody CreateDailyPaymentsRequestDto request
     ) {
-        CreateDailyPaymentsResponseDto response = dailyPaymentsService.createDailyPayments(request);
+        CreateDailyPaymentsResponseDto response =
+                dailyPaymentsService.createDailyPayments(request);
         return ApiResponse.success(response);
     }
 
@@ -33,11 +34,12 @@ public class DailyPaymentsController {
     public ApiResponse<ModifyDailyPaymentsResponseDto> modifyDailyPayments(
             @Valid @RequestBody ModifyDailyPaymentsRequestDto request
     ) {
-        ModifyDailyPaymentsResponseDto response = dailyPaymentsService.modifyDailyPayments(request);
+        ModifyDailyPaymentsResponseDto response =
+                dailyPaymentsService.modifyDailyPayments(request);
         return ApiResponse.success(response);
     }
 
-    @DeleteMapping("/delete")
+    @DeleteMapping("/")
     public void deleteDailyPayments(
             @Valid @RequestBody DeleteDailyPaymentsRequestDto request
     ) {
@@ -55,7 +57,8 @@ public class DailyPaymentsController {
 
     @GetMapping("/list")
     public ApiResponse<List<GetDailyPaymentsResponseDto>> getDailyPaymentsList() {
-        List<GetDailyPaymentsResponseDto> response = dailyPaymentsService.getDailyPaymentsList();
+        List<GetDailyPaymentsResponseDto> response =
+                dailyPaymentsService.getDailyPaymentsList();
         return ApiResponse.success(response);
     }
 }

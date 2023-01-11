@@ -34,12 +34,15 @@ public class DailyPaymentsService {
 
     private final MemberRepository memberRepository;
 
-    public CreateDailyPaymentsResponseDto createDailyPayments(CreateDailyPaymentsRequestDto request) {
+    public CreateDailyPaymentsResponseDto createDailyPayments(
+            CreateDailyPaymentsRequestDto request
+    ) {
 
         Member member = validateMember(request.getMemberEmail());
 
         // 해시태그 부분 추후에 추가 예정
-        return CreateDailyPaymentsResponseDto.of(dailyPaymentsRepository.save(DailyPayments.builder()
+        return CreateDailyPaymentsResponseDto.of(
+                dailyPaymentsRepository.save(DailyPayments.builder()
                 .member(member)
                 .paidAmount(request.getPaidAmount())
                 .paidWhere(request.getPaidWhere())
@@ -50,14 +53,16 @@ public class DailyPaymentsService {
     }
 
     @CachePut(value = "dailyPayments", key = "#request.dailyPaymentsId")
-    public ModifyDailyPaymentsResponseDto modifyDailyPayments(ModifyDailyPaymentsRequestDto request) {
+    public ModifyDailyPaymentsResponseDto modifyDailyPayments(
+            ModifyDailyPaymentsRequestDto request
+    ) {
 
         Member member = validateMember(request.getMemberEmail());
 
         DailyPayments dailyPayments = validateDailyPayments(request.getDailyPaymentsId());
 
         // 지출내역의 주인과 수정하려는 사용자가 다를 경우
-        forbiddenMember(member, dailyPayments);
+        requestMemberAndDailyPaymentsOwnerMismatch(member, dailyPayments);
 
         // 해시태그 부분 추후에 수정 예정
         dailyPayments.setPaidAmount(request.getPaidAmount());
@@ -66,7 +71,9 @@ public class DailyPaymentsService {
         dailyPayments.setCategoryName(request.getCategoryName());
         dailyPayments.setUpdatedAt(request.getCreatedAt());
 
-        return ModifyDailyPaymentsResponseDto.of(dailyPaymentsRepository.save(dailyPayments));
+        return ModifyDailyPaymentsResponseDto.of(
+                dailyPaymentsRepository.save(dailyPayments)
+        );
     }
 
     @CacheEvict(value = "dailyPayments", allEntries = true)
@@ -76,7 +83,7 @@ public class DailyPaymentsService {
 
         DailyPayments dailyPayments = validateDailyPayments(request.getDailyPaymentsId());
 
-        forbiddenMember(member, dailyPayments);
+        requestMemberAndDailyPaymentsOwnerMismatch(member, dailyPayments);
 
         dailyPaymentsRepository.delete(dailyPayments);
     }
@@ -95,14 +102,18 @@ public class DailyPaymentsService {
         List<DailyPayments> all = dailyPaymentsRepository.findAll();
 
         return all.stream()
-                .map(DailyPayments -> GetDailyPaymentsResponseDto.of(DailyPayments))
+                .map(GetDailyPaymentsResponseDto:: of)
                 .collect(Collectors.toList());
-
     }
 
-    private static void forbiddenMember(Member member, DailyPayments dailyPayments) {
+    private static void requestMemberAndDailyPaymentsOwnerMismatch(
+            Member member, DailyPayments dailyPayments
+    ) {
         if (!dailyPayments.getMember().getId().equals(member.getId())) {
-            throw new AccountBookException("해당 지출내역에 접근할 수 없습니다.", FORBIDDEN_EXCEPTION);
+            throw new AccountBookException(
+                    "해당 지출내역에 접근할 수 없습니다.",
+                    FORBIDDEN_EXCEPTION
+            );
         }
     }
 
@@ -118,19 +129,20 @@ public class DailyPaymentsService {
     }
 
     private DailyPayments validateDailyPayments(Long dailyPaymentsId) {
-        Optional<DailyPayments> optionalDailyPayments = dailyPaymentsRepository.findById(dailyPaymentsId);
-        if (!optionalDailyPayments.isPresent()) {
-            throw new AccountBookException("존재하지 않는 지출내역 입니다.", NOT_FOUND_DAILY_PAYMENTS_EXCEPTION);
-        }
-        return optionalDailyPayments.get();
+        return dailyPaymentsRepository.findById(dailyPaymentsId).orElseThrow(
+                () -> new AccountBookException(
+                        "존재하지 않는 지출내역 입니다.",
+                        NOT_FOUND_DAILY_PAYMENTS_EXCEPTION
+                )
+        );
     }
 
     private Member validateMember(String memberEmail) {
-        Optional<Member> optionalMember = memberRepository.findByEmail(memberEmail);
-        if (!optionalMember.isPresent()) {
-            throw new AccountBookException("존재하지 않는 회원입니다.", NOT_FOUND_USER_EXCEPTION);
-        }
-        Member member = optionalMember.get();
-        return member;
+        return memberRepository.findByEmail(memberEmail).orElseThrow(
+                () -> new AccountBookException(
+                        "존재하지 않는 화면입니다.",
+                        NOT_FOUND_USER_EXCEPTION
+                )
+        );
     }
 }
