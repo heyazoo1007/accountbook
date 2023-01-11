@@ -21,7 +21,7 @@ public class DailyPaymentsController {
 
     private final DailyPaymentsService dailyPaymentsService;
 
-    @PostMapping("/create")
+    @PostMapping()
     public ApiResponse<CreateDailyPaymentsResponseDto> createDailyPayments(
             @Valid @RequestBody CreateDailyPaymentsRequestDto request
     ) {
@@ -30,7 +30,7 @@ public class DailyPaymentsController {
         return ApiResponse.success(response);
     }
 
-    @PutMapping("/modify")
+    @PutMapping()
     public ApiResponse<ModifyDailyPaymentsResponseDto> modifyDailyPayments(
             @Valid @RequestBody ModifyDailyPaymentsRequestDto request
     ) {
@@ -39,7 +39,7 @@ public class DailyPaymentsController {
         return ApiResponse.success(response);
     }
 
-    @DeleteMapping("/")
+    @DeleteMapping()
     public void deleteDailyPayments(
             @Valid @RequestBody DeleteDailyPaymentsRequestDto request
     ) {
