@@ -8,12 +8,14 @@ import com.zerobase.accountbook.controller.auth.dto.response.ModifyMemberInfoRes
 import com.zerobase.accountbook.controller.auth.dto.response.ModifyMemberPasswordResponseDto;
 import com.zerobase.accountbook.service.member.MemberService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
 @RestController
-@RequestMapping("/member")
+@RequestMapping("/v1/member")
 @RequiredArgsConstructor
 public class MemberController {
 
@@ -21,25 +23,31 @@ public class MemberController {
 
     @GetMapping("/{memberId}")
     public ApiResponse<GetMemberInfoResponseDto> getMemberInfo(
+            @AuthenticationPrincipal UserDetails user,
             @PathVariable long memberId
     ) {
-        GetMemberInfoResponseDto response = memberService.getMemberInfo(memberId);
+        GetMemberInfoResponseDto response =
+                memberService.getMemberInfo(user.getUsername(), memberId);
         return ApiResponse.success(response);
     }
 
-    @PutMapping("/modify")
+    @PutMapping()
     public ApiResponse<ModifyMemberInfoResponseDto> modifyMemberInfo(
+            @AuthenticationPrincipal UserDetails user,
             @Valid @RequestBody ModifyMemberInfoRequestDto request
     ) {
-        ModifyMemberInfoResponseDto response = memberService.modifyMemberInfo(request);
+        ModifyMemberInfoResponseDto response =
+                memberService.modifyMemberInfo(user.getUsername(), request);
         return ApiResponse.success(response);
     }
 
-    @PutMapping("/modify/password")
+    @PatchMapping()
     public ApiResponse<ModifyMemberPasswordResponseDto> modifyMemberPassword(
+            @AuthenticationPrincipal UserDetails user,
             @RequestBody ModifyMemberPasswordRequestDto request
     ) {
-        ModifyMemberPasswordResponseDto response = memberService.modifyMemberPassword(request);
+        ModifyMemberPasswordResponseDto response =
+                memberService.modifyMemberPassword(user.getUsername(), request);
         return ApiResponse.success(response);
     }
 }
