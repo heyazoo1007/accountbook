@@ -6,6 +6,7 @@ import com.zerobase.accountbook.common.exception.model.AccountBookException;
 import com.zerobase.accountbook.common.repository.RedisRepository;
 import com.zerobase.accountbook.controller.auth.dto.request.*;
 import com.zerobase.accountbook.controller.auth.dto.response.*;
+import com.zerobase.accountbook.domain.Email;
 import com.zerobase.accountbook.domain.member.Member;
 import com.zerobase.accountbook.domain.member.MemberRepository;
 import com.zerobase.accountbook.domain.member.MemberRole;
@@ -26,13 +27,14 @@ import java.util.Optional;
 import java.util.Random;
 
 import static com.zerobase.accountbook.common.exception.ErrorCode.*;
+import static com.zerobase.accountbook.domain.Email.*;
 
 @Service
 @RequiredArgsConstructor
 public class AuthService {
 
-    public static final long AuthEmailRequestWillExpireIn = 60 * 60 * 24L;
-    public static final long AuthKeyExpiration = 60 * 3L;
+    public static final long AUTH_EMAIL_REQUEST_WILL_BE_EXPIRED_IN = 60 * 60 * 24L;
+    public static final long AUTH_KEY_EXPIRATION = 60 * 3L;
     private final MemberRepository memberRepository;
     private final JavaMailSender javaMailSender;
     private final RedisRepository redisRepository;
@@ -62,7 +64,7 @@ public class AuthService {
         validateEmail(email);
 
         // 인증 이메일 전송 버튼을 누르고 또 누르는 경우에 대한 예외처리
-        String data = redisRepository.getData("EMAIL-AUTH:${" + email + "}");
+        String data = redisRepository.getData("EMAIL-AUTH:" + email);
         if (data != null) {
             throw new AccountBookException(
                     String.format("(%s) 해당 이메일로 인증 메일이 전송되었습니다.", email),
@@ -72,72 +74,53 @@ public class AuthService {
 
         String authKey = getAuthKey();
 
-        String subject = "짠짠이 가입을 위한 인증 이메일입니다.";
-        String text = "회원가입을 위한 인증번호는 " + authKey + " 입니다.<br/>";
+        sendAuthKeyToEmail(email, authKey);
 
-        try {
-            MimeMessage mimeMessage = javaMailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(
-                    mimeMessage,
-                    true,
-                    "utf-8"
-            );
-            helper.setTo(email);
-            helper.setSubject(subject);
-            helper.setText(text, true);
-            javaMailSender.send(mimeMessage);
-
-        } catch (MessagingException e) {
-            throw new AccountBookException(
-                    String.format(
-                            "(%s) 이메일에 대한 인증 메일을 전송하는 중 에러가 발생했습니다.",
-                            email),
-                    INTERNAL_SERVER_EXCEPTION
-            );
-        }
-        redisRepository.setDataExpire(authKey, email, AuthKeyExpiration);
-        redisRepository.setDataExpire(
-                "EMAIL-AUTH:${" + email + "}",
-                "이메일 인증 신청",
-                AuthEmailRequestWillExpireIn
+        setEmailAuthCache(authKey, email, AUTH_KEY_EXPIRATION);
+        setEmailAuthCache(
+                "EMAIL-AUTH:" + email,
+                String.valueOf(AUTH_REQUEST),
+                AUTH_EMAIL_REQUEST_WILL_BE_EXPIRED_IN
         );
     }
 
     public void completeAuthEmail(CompleteAuthEmailRequestDto request) {
 
-        String email = redisRepository.getData(request.getAuthKey());
+        String email = getData(request.getAuthKey());
 
         validateEmail(email);
 
-        try {
-            if (!email.equals(request.getEmail())) { // 인증키로 가져온 이메일과 입력한 이메일이 다른 경우
-                throw new AccountBookException(
-                        "잘못된 이메일 입니다.",
-                        VALIDATION_WRONG_EMAIL_PASSWORD_EXCEPTION
-                );
-            }
-        } catch (NullPointerException e) { // 이메일에 해당하는 인증키가 없음
+        if (email == null) {
             throw new AccountBookException(
                     "잘못된 이메일 인증번호입니다.",
-                    VALIDATION_EMAIL_AUTH_KEY_EXCEPTION
+                    VALIDATION_EMAIL_AUTH_KEY_EXCEPTION);
+        }
+
+        if (!email.equals(request.getEmail())) {
+            throw new AccountBookException(
+                    "잘못된 이메일 입니다.",
+                    VALIDATION_WRONG_EMAIL_PASSWORD_EXCEPTION
             );
         }
         // 인증 완료 후 하루안에 회원가입해야함
-        redisRepository.setDataExpire(
-                "EMAIL-AUTH:${" + email + "}",
-                "이메일 인증 완료",
-                AuthEmailRequestWillExpireIn);
+        setEmailAuthCache(
+                "EMAIL-AUTH:" + email,
+                String.valueOf(AUTH_COMPLETED),
+                AUTH_EMAIL_REQUEST_WILL_BE_EXPIRED_IN
+        );
     }
 
     public CreateMemberResponseDto createMember(CreateMemberRequestDto request) {
 
         String email = request.getEmail();
-        String emailAuth = "EMAIL-AUTH:${" + email + "}";
+        String emailAuth = "EMAIL-AUTH:" + email;
 
         validateEmail(email);
 
+        String valueOfEmailAuth = getData(emailAuth);
+
         // 인증 신청하지 않은 이메일인 경우
-        if(redisRepository.getData(emailAuth) == null) {
+        if(valueOfEmailAuth == null) {
             throw new AccountBookException(
                     "이메일 인증 완료 후 회원가입 할 수 있습니다.",
                     UNAUTHORIZED_EMAIL_EXCEPTION
@@ -145,7 +128,7 @@ public class AuthService {
         }
 
         // 이메일 인증 신청했지만, 인증키를 입력하지 않은 경우
-        if (redisRepository.getData(emailAuth).equals("이메일 인증 신청")) {
+        if (valueOfEmailAuth.equals(String.valueOf(AUTH_REQUEST))) {
             throw new AccountBookException(
                     "인증키를 입력 해주세요.",
                     UNAUTHORIZED_AUTH_KEY_EXCEPTION
@@ -197,8 +180,6 @@ public class AuthService {
         return tokenResponseDto.getAccessToken();
     }
 
-
-
     private String getAuthKey() {
         String authKey;
 
@@ -208,5 +189,39 @@ public class AuthService {
         } while (redisRepository.existKey(authKey));
 
         return authKey;
+    }
+
+    private void sendAuthKeyToEmail(String email, String authKey) {
+        String subject = "짠짠이 가입을 위한 인증 이메일입니다.";
+        String text = "회원가입을 위한 인증번호는 " + authKey + " 입니다.<br/>";
+
+        try {
+            MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(
+                    mimeMessage,
+                    true,
+                    "utf-8"
+            );
+            helper.setTo(email);
+            helper.setSubject(subject);
+            helper.setText(text, true);
+            javaMailSender.send(mimeMessage);
+
+        } catch (MessagingException e) {
+            throw new AccountBookException(
+                    String.format(
+                            "(%s) 이메일에 대한 인증 메일을 전송하는 중 에러가 발생했습니다.",
+                            email),
+                    INTERNAL_SERVER_EXCEPTION
+            );
+        }
+    }
+
+    private String getData(String authKey) {
+        return redisRepository.getData(authKey);
+    }
+
+    private void setEmailAuthCache(String authKey, String email, long authKeyExpiration) {
+        redisRepository.setDataExpire(authKey, email, authKeyExpiration);
     }
 }

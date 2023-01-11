@@ -17,6 +17,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
@@ -24,8 +25,9 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Component
-public class JwtTokenProvider { // JWT 토큰 생성, 토큰 복호화 및 정보 추출, 토큰 유효성 검증의 기능이 구현된 클래스
+public class JwtTokenProvider {
 
+    public static final int MILLISECONDS_PER_DAY = 86400000;
     private final Key key;
 
     public JwtTokenProvider(@Value("${jwt.secret}") String secretKey) {
@@ -40,10 +42,10 @@ public class JwtTokenProvider { // JWT 토큰 생성, 토큰 복호화 및 정�
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(","));
 
-        long now = (new Date()).getTime();
+        long now = Instant.now().toEpochMilli();
 
         //Access Token 생성
-        Date accessTokenExpiresIn = new Date(now + 86400000);
+        Date accessTokenExpiresIn = new Date(now + MILLISECONDS_PER_DAY);
         String accessToken = Jwts.builder()
                 .setSubject(authentication.getName())
                 .claim("auth", authorities)
@@ -51,9 +53,9 @@ public class JwtTokenProvider { // JWT 토큰 생성, 토큰 복호화 및 정�
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
 
-        // Refresh Token 생성, accessToken에서 subject, claim이 없다.
+        // Refresh Token 생성, accessToken 에서 subject, claim 이 없다.
         String refreshToken = Jwts.builder()
-                .setExpiration(new Date(now + 86400000))
+                .setExpiration(new Date(now + MILLISECONDS_PER_DAY))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
 
@@ -86,7 +88,7 @@ public class JwtTokenProvider { // JWT 토큰 생성, 토큰 복호화 및 정�
     }
 
     // 토큰 정보를 검증하는 메서드
-    public boolean validateToken(String token) {
+    public boolean isValidateToken(String token) {
         try {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
             return true;

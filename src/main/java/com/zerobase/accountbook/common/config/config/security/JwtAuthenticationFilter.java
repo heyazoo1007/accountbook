@@ -28,11 +28,11 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
                          FilterChain chain
     ) throws IOException, ServletException {
 
-        // 1. Request Header에서 JWT 토큰 추출
+        // 1. Request Header 에서 JWT 토큰 추출
         String token = resolveToken((HttpServletRequest) request);
 
-        // 2. validateToken으로 토큰 유효성 검사
-        if (token != null && jwtTokenProvider.validateToken(token)) {
+        // 2. validateToken 으로 토큰 유효성 검사
+        if (token != null && jwtTokenProvider.isValidateToken(token)) {
             Authentication authentication = jwtTokenProvider.getAuthentication(token);
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }
