@@ -1,5 +1,6 @@
 package com.zerobase.accountbook.service.auth;
 
+import antlr.Token;
 import com.zerobase.accountbook.common.config.config.security.JwtTokenProvider;
 import com.zerobase.accountbook.common.config.config.security.dto.TokenResponseDto;
 import com.zerobase.accountbook.common.exception.model.AccountBookException;
@@ -11,6 +12,7 @@ import com.zerobase.accountbook.domain.member.Member;
 import com.zerobase.accountbook.domain.member.MemberRepository;
 import com.zerobase.accountbook.domain.member.MemberRole;
 import lombok.RequiredArgsConstructor;
+import org.apache.tomcat.util.digester.ArrayStack;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -23,6 +25,7 @@ import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 
@@ -144,7 +147,7 @@ public class AuthService {
                 .build()));
     }
 
-    public String signIn(String email, String password) {
+    public TokenResponseDto signIn(String email, String password) {
 
         // 해당 사용자가 존재하지 않는 경우
         Optional<Member> optionalMember = memberRepository.findByEmail(email);
@@ -154,30 +157,21 @@ public class AuthService {
                     NOT_FOUND_EMAIL_EXCEPTION
             );
         }
+        Member member = optionalMember.get();
 
         // 이메일에 비밀번호가 매치되지 않는 경우
         // 비밀번호가 틀렸는데 아이디 혹은 비밀번호로 출력하는 이뉴는 혹시 모를 개인 정보 유출 때문
-        if (!passwordEncoder.matches(password, optionalMember.get().getPassword())) {
+        if (!passwordEncoder.matches(password, member.getPassword())) {
             throw new AccountBookException(
                     "이메일 혹은 비밀번호가 틀렸습니다.",
                     VALIDATION_WRONG_EMAIL_PASSWORD_EXCEPTION
             );
-        };
+        }
 
-        // 1. Login id/pw를 기반으로 Authentication 객체 생성
-        // 이때 authentication 는 인증 여부를 확인하는 authenticated 값이 false
-        UsernamePasswordAuthenticationToken authenticationToken =
-                new UsernamePasswordAuthenticationToken(email, password);
+        List<String> roles = new ArrayStack<>();
+        roles.add(member.getRole().toString());
 
-        // 2. 실제 검증 (사용자 비밀번호 체크)이 이뤄지는 부분
-        // authenticate 메서드가 실행될 때 CustomUserDetailsService 에서 만든
-        // loadUserByUsername 메서드가 실행
-        Authentication authentication =
-                authenticationManagerBuilder.getObject().authenticate(authenticationToken);
-
-        TokenResponseDto tokenResponseDto = jwtTokenProvider.generateToken(authentication);
-
-        return tokenResponseDto.getAccessToken();
+        return jwtTokenProvider.createToken(email, roles);
     }
 
     private String getAuthKey() {

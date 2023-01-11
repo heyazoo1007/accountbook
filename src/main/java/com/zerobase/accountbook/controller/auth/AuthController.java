@@ -1,5 +1,6 @@
 package com.zerobase.accountbook.controller.auth;
 
+import com.zerobase.accountbook.common.config.config.security.dto.TokenResponseDto;
 import com.zerobase.accountbook.common.dto.ApiResponse;
 import com.zerobase.accountbook.controller.auth.dto.request.*;
 import com.zerobase.accountbook.service.auth.AuthService;
@@ -48,10 +49,10 @@ public class AuthController {
     }
 
     @PostMapping("/sign-in")
-    public ApiResponse<String> signIn(
+    public ApiResponse<TokenResponseDto> signIn(
             @Valid @RequestBody LoginRequestDto request
     ) {
-        String token = authService.signIn(request.getEmail(), request.getPassword());
+        TokenResponseDto token = authService.signIn(request.getEmail(), request.getPassword());
         return ApiResponse.success(token);
     }
 }
