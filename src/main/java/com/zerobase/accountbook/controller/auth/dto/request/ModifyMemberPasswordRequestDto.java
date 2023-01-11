@@ -2,19 +2,16 @@ package com.zerobase.accountbook.controller.auth.dto.request;
 
 import lombok.*;
 
-import javax.validation.constraints.Min;
-
 @Getter
 @Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class UpdateMemberInfoRequestDto {
+public class ModifyMemberPasswordRequestDto {
 
     private long memberId;
 
-    private String memberName;
+    private String beforePassword;
 
-    @Min(0)
-    private Integer monthlyBudget;
+    private String afterPassword;
 }

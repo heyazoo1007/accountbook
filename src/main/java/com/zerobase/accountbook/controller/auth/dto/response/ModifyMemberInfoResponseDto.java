@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class UpdateMemberInfoResponseDto {
+public class ModifyMemberInfoResponseDto {
 
     private String memberName;
 
@@ -20,8 +20,8 @@ public class UpdateMemberInfoResponseDto {
 
     private Integer monthlyBudget;
 
-    public static UpdateMemberInfoResponseDto of(Member member) {
-        return UpdateMemberInfoResponseDto.builder()
+    public static ModifyMemberInfoResponseDto of(Member member) {
+        return ModifyMemberInfoResponseDto.builder()
                 .memberName(member.getMemberName())
                 .email(member.getEmail())
                 .month(LocalDateTime.now().getMonth().toString()) // 조회할 때의 날짜 정보

@@ -8,12 +8,12 @@ import lombok.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class UpdateMemberPasswordResponseDto {
+public class ModifyMemberPasswordResponseDto {
 
     private long memberId;
 
-    public static UpdateMemberPasswordResponseDto of(Member member) {
-        return UpdateMemberPasswordResponseDto.builder()
+    public static ModifyMemberPasswordResponseDto of(Member member) {
+        return ModifyMemberPasswordResponseDto.builder()
                 .memberId(member.getId())
                 .build();
     }
