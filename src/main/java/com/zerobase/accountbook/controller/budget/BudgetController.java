@@ -2,13 +2,12 @@ package com.zerobase.accountbook.controller.budget;
 
 import com.zerobase.accountbook.common.dto.ApiResponse;
 import com.zerobase.accountbook.controller.budget.dto.request.CreateBudgetRequestDto;
+import com.zerobase.accountbook.controller.budget.dto.request.ModifyBudgetRequestDto;
 import com.zerobase.accountbook.controller.budget.dto.response.CreateBudgetResponseDto;
+import com.zerobase.accountbook.controller.budget.dto.response.ModifyBudgetResponseDto;
 import com.zerobase.accountbook.service.budget.BudgetService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
@@ -25,6 +24,15 @@ public class BudgetController {
     ) {
         CreateBudgetResponseDto response =
                 budgetService.createBudget(request);
+        return ApiResponse.success(response);
+    }
+
+    @PutMapping()
+    public ApiResponse<ModifyBudgetResponseDto> modifyBudget(
+            @Valid @RequestBody ModifyBudgetRequestDto request
+    ) {
+        ModifyBudgetResponseDto response =
+                budgetService.modifyBudget(request);
         return ApiResponse.success(response);
     }
 }
