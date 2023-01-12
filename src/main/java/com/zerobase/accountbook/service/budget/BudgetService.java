@@ -4,6 +4,7 @@ import com.zerobase.accountbook.common.exception.model.AccountBookException;
 import com.zerobase.accountbook.controller.budget.dto.request.CreateBudgetRequestDto;
 import com.zerobase.accountbook.controller.budget.dto.request.ModifyBudgetRequestDto;
 import com.zerobase.accountbook.controller.budget.dto.response.CreateBudgetResponseDto;
+import com.zerobase.accountbook.controller.budget.dto.response.GetBudgetResponseDto;
 import com.zerobase.accountbook.controller.budget.dto.response.ModifyBudgetResponseDto;
 import com.zerobase.accountbook.domain.budget.Budget;
 import com.zerobase.accountbook.domain.budget.BudgetRepository;
@@ -67,6 +68,14 @@ public class BudgetService {
         budget.setMonthlyBudget(request.getModifyMonthlyBudget());
 
         return ModifyBudgetResponseDto.of(budgetRepository.save(budget));
+    }
+
+    // 추후에 로그인 사용자 정보 가져오는 로직 추가할 예정입니다.
+    public GetBudgetResponseDto getBudget(String budgetYearMonth) {
+
+        Budget budget = validateBudget(budgetYearMonth);
+
+        return GetBudgetResponseDto.of(budget);
     }
 
     private static void requestMemberMismatchBudgetOwner(
