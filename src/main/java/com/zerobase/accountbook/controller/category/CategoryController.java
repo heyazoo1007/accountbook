@@ -21,7 +21,7 @@ public class CategoryController {
 
     private final CategoryService categoryService;
 
-    @PostMapping("/create")
+    @PostMapping()
     public ApiResponse<CreateCategoryResponseDto> createCategory(
             @Valid @RequestBody CreateCategoryRequestDto request
     ) {
@@ -29,7 +29,7 @@ public class CategoryController {
         return ApiResponse.success(response);
     }
 
-    @PutMapping("/modify")
+    @PutMapping()
     public ApiResponse<ModifyCategoryResponseDto> modifyCategory(
             @Valid @RequestBody ModifyCategoryRequestDto request
     ) {
@@ -37,7 +37,7 @@ public class CategoryController {
         return ApiResponse.success(response);
     }
 
-    @DeleteMapping("/delete")
+    @DeleteMapping()
     public ApiResponse<String> deleteCategory(
             @Valid @RequestBody DeleteCategoryRequestDto request
     ) {
