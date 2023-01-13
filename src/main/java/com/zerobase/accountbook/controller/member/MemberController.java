@@ -41,7 +41,7 @@ public class MemberController {
         return ApiResponse.success(response);
     }
 
-    @PatchMapping()
+    @PatchMapping("/password")
     public ApiResponse<ModifyMemberPasswordResponseDto> modifyMemberPassword(
             @AuthenticationPrincipal UserDetails user,
             @RequestBody ModifyMemberPasswordRequestDto request
