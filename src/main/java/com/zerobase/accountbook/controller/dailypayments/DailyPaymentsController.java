@@ -30,39 +30,53 @@ public class DailyPaymentsController {
             @Valid @RequestBody CreateDailyPaymentsRequestDto request
     ) {
         CreateDailyPaymentsResponseDto response =
-                dailyPaymentsService.createDailyPayments(user.getUsername(), request);
+                dailyPaymentsService.createDailyPayments(
+                        user.getUsername(),
+                        request
+                );
         return ApiResponse.success(response);
     }
 
     @PutMapping()
     public ApiResponse<ModifyDailyPaymentsResponseDto> modifyDailyPayments(
+            @AuthenticationPrincipal UserDetails user,
             @Valid @RequestBody ModifyDailyPaymentsRequestDto request
     ) {
         ModifyDailyPaymentsResponseDto response =
-                dailyPaymentsService.modifyDailyPayments(request);
+                dailyPaymentsService.modifyDailyPayments(
+                        user.getUsername(),
+                        request
+                );
         return ApiResponse.success(response);
     }
 
     @DeleteMapping()
     public void deleteDailyPayments(
+            @AuthenticationPrincipal UserDetails user,
             @Valid @RequestBody DeleteDailyPaymentsRequestDto request
     ) {
-        dailyPaymentsService.deleteDailyPayments(request);
+        dailyPaymentsService.deleteDailyPayments(user.getUsername(), request);
     }
 
     @GetMapping("/{dailyPaymentsId}")
     public ApiResponse<GetDailyPaymentsResponseDto> getDailyPayments(
+            @AuthenticationPrincipal UserDetails user,
             @PathVariable Long dailyPaymentsId
     ) {
         GetDailyPaymentsResponseDto response =
-                dailyPaymentsService.getDailyPayments(dailyPaymentsId);
+                dailyPaymentsService.getDailyPayments(
+                        user.getUsername(),
+                        dailyPaymentsId
+                );
         return ApiResponse.success(response);
     }
 
     @GetMapping("/list")
-    public ApiResponse<List<GetDailyPaymentsResponseDto>> getDailyPaymentsList() {
+    public ApiResponse<List<GetDailyPaymentsResponseDto>> getDailyPaymentsList(
+            @AuthenticationPrincipal UserDetails user
+    ) {
         List<GetDailyPaymentsResponseDto> response =
-                dailyPaymentsService.getDailyPaymentsList();
+                dailyPaymentsService.getDailyPaymentsList(user.getUsername());
         return ApiResponse.success(response);
     }
 

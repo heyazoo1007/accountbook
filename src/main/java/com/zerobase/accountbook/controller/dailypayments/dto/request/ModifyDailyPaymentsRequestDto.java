@@ -18,9 +18,6 @@ public class ModifyDailyPaymentsRequestDto {
 
     private long dailyPaymentsId;
 
-    @Email
-    private String memberEmail;
-
     @Min(0)
     private Integer paidAmount;
 
