@@ -1,5 +1,6 @@
 package com.zerobase.accountbook.service.budget;
 
+import com.zerobase.accountbook.common.exception.ErrorCode;
 import com.zerobase.accountbook.common.exception.model.AccountBookException;
 import com.zerobase.accountbook.controller.budget.dto.request.CreateBudgetRequestDto;
 import com.zerobase.accountbook.controller.budget.dto.request.ModifyBudgetRequestDto;
@@ -29,8 +30,9 @@ public class BudgetService {
 
     private final MemberRepository memberRepository;
 
-    // 매달 첫번째 날에 사용자가 로그인 하면 생성하라고 알람 보내기
-    public CreateBudgetResponseDto createBudget(CreateBudgetRequestDto request) {
+    // TODO 매달 첫번째 날에 사용자가 로그인 하면 생성하라고 알람 보내기
+    public CreateBudgetResponseDto createBudget(CreateBudgetRequestDto request
+    ) {
 
         Member member = validateMember(request.getMemberEmail());
 
@@ -58,30 +60,32 @@ public class BudgetService {
                 ));
     }
 
-    public ModifyBudgetResponseDto modifyBudget(ModifyBudgetRequestDto request) {
+    public ModifyBudgetResponseDto modifyBudget(ModifyBudgetRequestDto request
+    ) {
 
         Member member = validateMember(request.getMemberEmail());
 
-        Budget budget = validateBudget(request.getYearMonth());
+        Budget budget = validateBudget(member.getId(), request.getYearMonth());
 
-        requestMemberMismatchBudgetOwner(member, budget);
+        checkBudgetOwner(member, budget);
 
         budget.setMonthlyBudget(request.getModifyMonthlyBudget());
 
         return ModifyBudgetResponseDto.of(budgetRepository.save(budget));
     }
 
-    // 추후에 로그인 사용자 정보 가져오는 로직 추가할 예정입니다.
-    public GetBudgetResponseDto getBudget(String budgetYearMonth) {
-
-        Budget budget = validateBudget(budgetYearMonth);
+    public GetBudgetResponseDto getBudget(
+            String memberEmail, String budgetYearMonth
+    ) {
+        Budget budget = validateBudget(
+                validateMember(memberEmail).getId(),
+                budgetYearMonth
+        );
 
         return GetBudgetResponseDto.of(budget);
     }
 
-    private static void requestMemberMismatchBudgetOwner(
-            Member member, Budget budget
-    ) {
+    private static void checkBudgetOwner(Member member, Budget budget) {
         Member budgetOwner = budget.getMember();
         if (!budgetOwner.equals(member)) {
             throw new AccountBookException(
@@ -91,13 +95,20 @@ public class BudgetService {
         }
     }
 
-    private Budget validateBudget(String budgetYearMonth) {
-        return budgetRepository.findByBudgetYearMonth(budgetYearMonth)
+    private Budget validateBudget(Long memberId, String budgetYearMonth) {
+
+        Budget budget = budgetRepository.findByBudgetYearMonth(budgetYearMonth)
                 .orElseThrow(() -> new AccountBookException(
                         "존재하지 않는 예산입니다.",
-                        NOT_FOUND_BUDGET_EXCEPTION
-                )
-        );
+                        NOT_FOUND_BUDGET_EXCEPTION));
+
+        if (!budget.getMember().getId().equals(memberId)) {
+            throw new AccountBookException(
+                    "예산의 소유자가 아닙니다.",
+                    FORBIDDEN_EXCEPTION
+            );
+        }
+        return budget;
     }
 
     private Member validateMember(String memberEmail) {

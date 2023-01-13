@@ -9,6 +9,8 @@ import com.zerobase.accountbook.controller.budget.dto.response.ModifyBudgetRespo
 import com.zerobase.accountbook.service.budget.BudgetService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -40,11 +42,12 @@ public class BudgetController {
 
     @GetMapping("/{budgetYearMonth}")
     public ApiResponse<GetBudgetResponseDto> getBudget(
+            @AuthenticationPrincipal UserDetails user,
             @DateTimeFormat(pattern = "yyyy-MM")
             @PathVariable String budgetYearMonth
     ) {
         GetBudgetResponseDto response =
-                budgetService.getBudget(budgetYearMonth);
+                budgetService.getBudget(user.getUsername(), budgetYearMonth);
         return ApiResponse.success(response);
     }
 }
