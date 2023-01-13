@@ -1,4 +1,4 @@
-package com.zerobase.accountbook.common.config.config.security;
+package com.zerobase.accountbook.common.config.security;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;

@@ -1,4 +1,4 @@
-package com.zerobase.accountbook.common.config.config.security.dto;
+package com.zerobase.accountbook.common.config.security.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

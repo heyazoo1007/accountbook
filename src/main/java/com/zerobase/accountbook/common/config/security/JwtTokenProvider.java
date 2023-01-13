@@ -1,6 +1,6 @@
-package com.zerobase.accountbook.common.config.config.security;
+package com.zerobase.accountbook.common.config.security;
 
-import com.zerobase.accountbook.common.config.config.security.dto.TokenResponseDto;
+import com.zerobase.accountbook.common.config.security.dto.TokenResponseDto;
 import io.jsonwebtoken.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;

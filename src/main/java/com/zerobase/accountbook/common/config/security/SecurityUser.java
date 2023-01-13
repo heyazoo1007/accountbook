@@ -1,4 +1,4 @@
-package com.zerobase.accountbook.common.config.config.security;
+package com.zerobase.accountbook.common.config.security;
 
 import com.zerobase.accountbook.domain.member.Member;
 import lombok.Getter;

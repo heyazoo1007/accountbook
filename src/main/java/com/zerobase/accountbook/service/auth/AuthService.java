@@ -1,13 +1,11 @@
 package com.zerobase.accountbook.service.auth;
 
-import antlr.Token;
-import com.zerobase.accountbook.common.config.config.security.JwtTokenProvider;
-import com.zerobase.accountbook.common.config.config.security.dto.TokenResponseDto;
+import com.zerobase.accountbook.common.config.security.JwtTokenProvider;
+import com.zerobase.accountbook.common.config.security.dto.TokenResponseDto;
 import com.zerobase.accountbook.common.exception.model.AccountBookException;
 import com.zerobase.accountbook.common.repository.RedisRepository;
 import com.zerobase.accountbook.controller.auth.dto.request.*;
 import com.zerobase.accountbook.controller.auth.dto.response.*;
-import com.zerobase.accountbook.domain.Email;
 import com.zerobase.accountbook.domain.member.Member;
 import com.zerobase.accountbook.domain.member.MemberRepository;
 import com.zerobase.accountbook.domain.member.MemberRole;
@@ -15,9 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.apache.tomcat.util.digester.ArrayStack;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 

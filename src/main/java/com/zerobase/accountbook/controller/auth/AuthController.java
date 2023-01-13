@@ -1,6 +1,6 @@
 package com.zerobase.accountbook.controller.auth;
 
-import com.zerobase.accountbook.common.config.config.security.dto.TokenResponseDto;
+import com.zerobase.accountbook.common.config.security.dto.TokenResponseDto;
 import com.zerobase.accountbook.common.dto.ApiResponse;
 import com.zerobase.accountbook.controller.auth.dto.request.*;
 import com.zerobase.accountbook.service.auth.AuthService;
