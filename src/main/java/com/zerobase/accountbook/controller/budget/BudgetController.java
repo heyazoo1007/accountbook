@@ -40,7 +40,8 @@ public class BudgetController {
 
     @GetMapping("/{budgetYearMonth}")
     public ApiResponse<GetBudgetResponseDto> getBudget(
-            @DateTimeFormat(pattern = "yyyy-MM") @PathVariable String budgetYearMonth
+            @DateTimeFormat(pattern = "yyyy-MM")
+            @PathVariable String budgetYearMonth
     ) {
         GetBudgetResponseDto response =
                 budgetService.getBudget(budgetYearMonth);

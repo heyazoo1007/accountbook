@@ -45,6 +45,7 @@ public class BudgetService {
         }
 
         member.setMonthlyBudget(request.getMonthlyBudget());
+        memberRepository.save(member);
 
         return CreateBudgetResponseDto.of(
                 budgetRepository.save(
@@ -90,26 +91,21 @@ public class BudgetService {
         }
     }
 
-    private Budget validateBudget(String yearMonth) {
-        Optional<Budget> optionalBudget =
-                budgetRepository.findByBudgetYearMonth(yearMonth);
-        if (!optionalBudget.isPresent()) {
-            throw new AccountBookException(
-                    "존재하지 않는 예산입니다.",
-                    NOT_FOUND_BUDGET_EXCEPTION
-            );
-        }
-        return optionalBudget.get();
+    private Budget validateBudget(String budgetYearMonth) {
+        return budgetRepository.findByBudgetYearMonth(budgetYearMonth)
+                .orElseThrow(() -> new AccountBookException(
+                        "존재하지 않는 예산입니다.",
+                        NOT_FOUND_BUDGET_EXCEPTION
+                )
+        );
     }
 
     private Member validateMember(String memberEmail) {
-        Optional<Member> optionalMember = memberRepository.findByEmail(memberEmail);
-        if (!optionalMember.isPresent()) {
-            throw new AccountBookException(
-                    "존재하지 않는 회원입니다.",
-                    NOT_FOUND_USER_EXCEPTION
-            );
-        }
-        return optionalMember.get();
+        return memberRepository.findByEmail(memberEmail).orElseThrow(
+                () -> new AccountBookException(
+                        "존재하지 않는 회원입니다.",
+                        NOT_FOUND_USER_EXCEPTION
+                )
+        );
     }
 }
