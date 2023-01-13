@@ -1,4 +1,4 @@
-package com.zerobase.accountbook.common.config.config.security;
+package com.zerobase.accountbook.common.config.security;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -27,7 +27,9 @@ public class SecurityConfig {
 
     // authenticationManager 를 Bean 등록
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+    public AuthenticationManager authenticationManager(
+            AuthenticationConfiguration authenticationConfiguration
+    ) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
 

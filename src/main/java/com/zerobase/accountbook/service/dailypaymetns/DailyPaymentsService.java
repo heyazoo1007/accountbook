@@ -58,8 +58,8 @@ public class DailyPaymentsService {
     ) {
 
         Member member = validateMember(request.getMemberEmail());
-
-        DailyPayments dailyPayments = validateDailyPayments(request.getDailyPaymentsId());
+        DailyPayments dailyPayments =
+                validateDailyPayments(request.getDailyPaymentsId());
 
         // 지출내역의 주인과 수정하려는 사용자가 다를 경우
         requestMemberAndDailyPaymentsOwnerMismatch(member, dailyPayments);

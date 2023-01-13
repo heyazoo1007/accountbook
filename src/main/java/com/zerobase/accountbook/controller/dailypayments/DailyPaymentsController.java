@@ -9,6 +9,8 @@ import com.zerobase.accountbook.controller.dailypayments.dto.response.ModifyDail
 import com.zerobase.accountbook.controller.dailypayments.dto.request.DeleteDailyPaymentsRequestDto;
 import com.zerobase.accountbook.service.dailypaymetns.DailyPaymentsService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;

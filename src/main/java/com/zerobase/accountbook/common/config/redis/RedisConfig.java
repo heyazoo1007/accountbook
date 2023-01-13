@@ -1,4 +1,4 @@
-package com.zerobase.accountbook.common.config.config.redis;
+package com.zerobase.accountbook.common.config.redis;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;

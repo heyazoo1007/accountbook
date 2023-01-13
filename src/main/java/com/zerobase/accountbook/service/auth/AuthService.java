@@ -1,25 +1,22 @@
 package com.zerobase.accountbook.service.auth;
 
-import com.zerobase.accountbook.common.config.config.security.JwtTokenProvider;
-import com.zerobase.accountbook.common.config.config.security.dto.TokenResponseDto;
-import com.zerobase.accountbook.common.exception.ErrorCode;
+import com.zerobase.accountbook.common.config.security.JwtTokenProvider;
+import com.zerobase.accountbook.common.config.security.dto.TokenResponseDto;
 import com.zerobase.accountbook.common.exception.model.AccountBookException;
 import com.zerobase.accountbook.common.repository.RedisRepository;
 import com.zerobase.accountbook.controller.auth.dto.request.CompleteAuthEmailRequestDto;
 import com.zerobase.accountbook.controller.auth.dto.request.CreateMemberRequestDto;
 import com.zerobase.accountbook.controller.auth.dto.request.SendAuthEmailRequestDto;
 import com.zerobase.accountbook.controller.auth.dto.response.ValidateEmailResponseDto;
-import com.zerobase.accountbook.domain.Email;
 import com.zerobase.accountbook.domain.member.Member;
 import com.zerobase.accountbook.domain.member.MemberRepository;
 import com.zerobase.accountbook.domain.member.MemberRole;
 import com.zerobase.accountbook.controller.auth.dto.response.CreateMemberResponseDto;
 import lombok.RequiredArgsConstructor;
+import org.apache.tomcat.util.digester.ArrayStack;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -27,6 +24,7 @@ import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 
@@ -82,7 +80,7 @@ public class AuthService {
 
         setEmailAuthCache(authKey, email, AUTH_KEY_EXPIRATION);
         setEmailAuthCache(
-                "EMAIL-AUTH:" + email + "",
+                "EMAIL-AUTH:" + email,
                 String.valueOf(AUTH_REQUEST),
                 AUTH_EMAIL_REQUEST_WILL_BE_EXPIRED_IN
         );
@@ -109,7 +107,7 @@ public class AuthService {
 
             // 인증 완료 후 하루안에 회원가입해야함
             setEmailAuthCache(
-                    "EMAIL-AUTH:" + email + "",
+                    "EMAIL-AUTH:" + email,
                     String.valueOf(AUTH_COMPLETED),
                     AUTH_EMAIL_REQUEST_WILL_BE_EXPIRED_IN
             );
@@ -118,7 +116,7 @@ public class AuthService {
     public CreateMemberResponseDto createMember(CreateMemberRequestDto request) {
 
         String email = request.getEmail();
-        String emailAuth = "EMAIL-AUTH:" + email + "";
+        String emailAuth = "EMAIL-AUTH:" + email;
 
         validateEmail(email);
 
@@ -149,7 +147,7 @@ public class AuthService {
                 .build()));
     }
 
-    public String signIn(String email, String password) {
+    public TokenResponseDto signIn(String email, String password) {
 
         // 해당 사용자가 존재하지 않는 경우
         Optional<Member> optionalMember = memberRepository.findByEmail(email);
@@ -160,6 +158,8 @@ public class AuthService {
             );
         }
 
+        Member member = optionalMember.get();
+
         // 이메일에 비밀번호가 매치되지 않는 경우
         // 비밀번호가 틀렸는데 아이디 혹은 비밀번호로 출력하는 이뉴는 혹시 모를 개인 정보 유출 때문
         if (!passwordEncoder.matches(password, optionalMember.get().getPassword())) {
@@ -169,20 +169,10 @@ public class AuthService {
             );
         };
 
-        // 1. Login id/pw를 기반으로 Authentication 객체 생성
-        // 이때 authentication 는 인증 여부를 확인하는 authenticated 값이 false
-        UsernamePasswordAuthenticationToken authenticationToken =
-                new UsernamePasswordAuthenticationToken(email, password);
+        List<String> roles = new ArrayStack<>();
+        roles.add(member.getRole().toString());
 
-        // 2. 실제 검증 (사용자 비밀번호 체크)이 이뤄지는 부분
-        // authenticate 메서드가 실행될 때 CustomUserDetailsService 에서 만든
-        // loadUserByUsername 메서드가 실행
-        Authentication authentication =
-                authenticationManagerBuilder.getObject().authenticate(authenticationToken);
-
-        TokenResponseDto tokenResponseDto = jwtTokenProvider.generateToken(authentication);
-
-        return tokenResponseDto.getAccessToken();
+        return jwtTokenProvider.createToken(email, roles);
     }
 
     private String getAuthKey() {
@@ -222,11 +212,13 @@ public class AuthService {
         }
     }
 
-    private String getData(String email) {
-        return redisRepository.getData(email);
+    private String getData(String authKey) {
+        return redisRepository.getData(authKey);
     }
 
-    private void setEmailAuthCache(String authKey, String email, long authKeyExpiration) {
+    private void setEmailAuthCache(
+            String authKey, String email, long authKeyExpiration
+    ) {
         redisRepository.setDataExpire(authKey, email, authKeyExpiration);
     }
 }

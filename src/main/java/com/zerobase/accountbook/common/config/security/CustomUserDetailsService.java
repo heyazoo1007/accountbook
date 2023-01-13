@@ -1,4 +1,4 @@
-package com.zerobase.accountbook.common.config.config.security;
+package com.zerobase.accountbook.common.config.security;
 
 import com.zerobase.accountbook.domain.member.Member;
 import com.zerobase.accountbook.domain.member.MemberRepository;
@@ -17,10 +17,14 @@ public class CustomUserDetailsService implements UserDetailsService {
     private final PasswordEncoder passwordEncoder;
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String username)
+            throws UsernameNotFoundException
+    {
         return memberRepository.findByEmail(username)
                 .map(member -> createUserDetails(member))
-                .orElseThrow(() -> new UsernameNotFoundException("해당하는 회원을 찾을 수 없습니다."));
+                .orElseThrow(() -> new UsernameNotFoundException(
+                        "해당하는 회원을 찾을 수 없습니다."
+                ));
     }
 
     // 해당하는 Member 의 데이터가 존재한다면 User 객체로 만들어서 리턴
