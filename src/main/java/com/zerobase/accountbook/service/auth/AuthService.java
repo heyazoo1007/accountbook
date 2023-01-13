@@ -1,20 +1,19 @@
 package com.zerobase.accountbook.service.auth;
 
-import com.zerobase.accountbook.common.config.config.security.JwtTokenProvider;
-import com.zerobase.accountbook.common.config.config.security.dto.TokenResponseDto;
-import com.zerobase.accountbook.common.exception.ErrorCode;
+import com.zerobase.accountbook.common.config.security.JwtTokenProvider;
+import com.zerobase.accountbook.common.config.security.dto.TokenResponseDto;
 import com.zerobase.accountbook.common.exception.model.AccountBookException;
 import com.zerobase.accountbook.common.repository.RedisRepository;
 import com.zerobase.accountbook.controller.auth.dto.request.CompleteAuthEmailRequestDto;
 import com.zerobase.accountbook.controller.auth.dto.request.CreateMemberRequestDto;
 import com.zerobase.accountbook.controller.auth.dto.request.SendAuthEmailRequestDto;
 import com.zerobase.accountbook.controller.auth.dto.response.ValidateEmailResponseDto;
-import com.zerobase.accountbook.domain.Email;
 import com.zerobase.accountbook.domain.member.Member;
 import com.zerobase.accountbook.domain.member.MemberRepository;
 import com.zerobase.accountbook.domain.member.MemberRole;
 import com.zerobase.accountbook.controller.auth.dto.response.CreateMemberResponseDto;
 import lombok.RequiredArgsConstructor;
+import org.apache.tomcat.util.digester.ArrayStack;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -27,6 +26,7 @@ import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 
@@ -68,7 +68,7 @@ public class AuthService {
         validateEmail(email);
 
         // 인증 이메일 전송 버튼을 누르고 또 누르는 경우에 대한 예외처리
-        String data = getData("EMAIL-AUTH:" + email + "");
+        String data = getData("EMAIL-AUTH:" + email);
         if (data != null) {
             throw new AccountBookException(
                     String.format("(%s) 해당 이메일로 인증 메일이 전송되었습니다.", email),
@@ -82,7 +82,7 @@ public class AuthService {
 
         setEmailAuthCache(authKey, email, AUTH_KEY_EXPIRATION);
         setEmailAuthCache(
-                "EMAIL-AUTH:" + email + "",
+                "EMAIL-AUTH:" + email,
                 String.valueOf(AUTH_REQUEST),
                 AUTH_EMAIL_REQUEST_WILL_BE_EXPIRED_IN
         );
@@ -109,7 +109,7 @@ public class AuthService {
 
             // 인증 완료 후 하루안에 회원가입해야함
             setEmailAuthCache(
-                    "EMAIL-AUTH:" + email + "",
+                    "EMAIL-AUTH:" + email,
                     String.valueOf(AUTH_COMPLETED),
                     AUTH_EMAIL_REQUEST_WILL_BE_EXPIRED_IN
             );
@@ -118,7 +118,7 @@ public class AuthService {
     public CreateMemberResponseDto createMember(CreateMemberRequestDto request) {
 
         String email = request.getEmail();
-        String emailAuth = "EMAIL-AUTH:" + email + "";
+        String emailAuth = "EMAIL-AUTH:" + email;
 
         validateEmail(email);
 
@@ -149,7 +149,7 @@ public class AuthService {
                 .build()));
     }
 
-    public String signIn(String email, String password) {
+    public TokenResponseDto signIn(String email, String password) {
 
         // 해당 사용자가 존재하지 않는 경우
         Optional<Member> optionalMember = memberRepository.findByEmail(email);
@@ -167,22 +167,14 @@ public class AuthService {
                     "이메일 혹은 비밀번호가 틀렸습니다.",
                     VALIDATION_WRONG_EMAIL_PASSWORD_EXCEPTION
             );
-        };
+        }
 
-        // 1. Login id/pw를 기반으로 Authentication 객체 생성
-        // 이때 authentication 는 인증 여부를 확인하는 authenticated 값이 false
-        UsernamePasswordAuthenticationToken authenticationToken =
-                new UsernamePasswordAuthenticationToken(email, password);
+        Member member = optionalMember.get();
 
-        // 2. 실제 검증 (사용자 비밀번호 체크)이 이뤄지는 부분
-        // authenticate 메서드가 실행될 때 CustomUserDetailsService 에서 만든
-        // loadUserByUsername 메서드가 실행
-        Authentication authentication =
-                authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+        List<String> roles = new ArrayStack<>();
+        roles.add(member.getRole().toString());
 
-        TokenResponseDto tokenResponseDto = jwtTokenProvider.generateToken(authentication);
-
-        return tokenResponseDto.getAccessToken();
+        return jwtTokenProvider.createToken(email, roles);
     }
 
     private String getAuthKey() {
