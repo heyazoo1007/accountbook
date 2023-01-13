@@ -8,11 +8,9 @@ import lombok.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreateDailyPaymentsResponseDto {
+public class SearchDailyPaymentsResponseDto {
 
-    private Long dailyPaymentsId;
-
-    private Integer paidAmount;
+    private long dailyPaymentsId;
 
     private String paidWhere;
 
@@ -20,19 +18,33 @@ public class CreateDailyPaymentsResponseDto {
 
     private String methodOfPayment;
 
+    private Integer paidAmount;
+
     private String memo;
 
     private String createdAt;
 
-    public static CreateDailyPaymentsResponseDto of(DailyPayments dailyPayments) {
-        return CreateDailyPaymentsResponseDto.builder()
+    private String updatedAt;
+
+    public static SearchDailyPaymentsResponseDto of(
+            DailyPayments dailyPayments
+    ) {
+        return SearchDailyPaymentsResponseDto.builder()
                 .dailyPaymentsId(dailyPayments.getId())
-                .paidAmount(dailyPayments.getPaidAmount())
                 .paidWhere(dailyPayments.getPaidWhere())
                 .categoryName(dailyPayments.getCategoryName())
                 .methodOfPayment(dailyPayments.getMethodOfPayment())
+                .paidAmount(dailyPayments.getPaidAmount())
                 .memo(dailyPayments.getMemo())
-                .createdAt(dailyPayments.getCreatedAt())
+                .createdAt(convertDateToYearAndMonth(dailyPayments.getCreatedAt()))
+                .updatedAt(convertDateToYearAndMonth(dailyPayments.getUpdatedAt()))
                 .build();
+    }
+
+    private static String convertDateToYearAndMonth(String date) {
+        if (date == null) {
+            return "";
+        }
+        return date.substring(0, 10);
     }
 }

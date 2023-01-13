@@ -4,6 +4,7 @@ import com.zerobase.accountbook.common.dto.ApiResponse;
 import com.zerobase.accountbook.controller.dailypayments.dto.request.CreateDailyPaymentsRequestDto;
 import com.zerobase.accountbook.controller.dailypayments.dto.request.ModifyDailyPaymentsRequestDto;
 import com.zerobase.accountbook.controller.dailypayments.dto.response.CreateDailyPaymentsResponseDto;
+import com.zerobase.accountbook.controller.dailypayments.dto.response.SearchDailyPaymentsResponseDto;
 import com.zerobase.accountbook.controller.dailypayments.dto.response.GetDailyPaymentsResponseDto;
 import com.zerobase.accountbook.controller.dailypayments.dto.response.ModifyDailyPaymentsResponseDto;
 import com.zerobase.accountbook.controller.dailypayments.dto.request.DeleteDailyPaymentsRequestDto;
@@ -25,10 +26,11 @@ public class DailyPaymentsController {
 
     @PostMapping()
     public ApiResponse<CreateDailyPaymentsResponseDto> createDailyPayments(
+            @AuthenticationPrincipal UserDetails user,
             @Valid @RequestBody CreateDailyPaymentsRequestDto request
     ) {
         CreateDailyPaymentsResponseDto response =
-                dailyPaymentsService.createDailyPayments(request);
+                dailyPaymentsService.createDailyPayments(user.getUsername(), request);
         return ApiResponse.success(response);
     }
 
@@ -61,6 +63,19 @@ public class DailyPaymentsController {
     public ApiResponse<List<GetDailyPaymentsResponseDto>> getDailyPaymentsList() {
         List<GetDailyPaymentsResponseDto> response =
                 dailyPaymentsService.getDailyPaymentsList();
+        return ApiResponse.success(response);
+    }
+
+    @GetMapping("/search")
+    public ApiResponse<List<SearchDailyPaymentsResponseDto>> searchDailyPayments(
+            @AuthenticationPrincipal UserDetails user,
+            @RequestParam String keyword
+    ) {
+        List<SearchDailyPaymentsResponseDto> response =
+                dailyPaymentsService.searchDailyPayments(
+                        user.getUsername(),
+                        keyword
+                );
         return ApiResponse.success(response);
     }
 }

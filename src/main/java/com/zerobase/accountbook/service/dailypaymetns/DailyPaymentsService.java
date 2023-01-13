@@ -5,6 +5,7 @@ import com.zerobase.accountbook.controller.dailypayments.dto.request.CreateDaily
 import com.zerobase.accountbook.controller.dailypayments.dto.request.DeleteDailyPaymentsRequestDto;
 import com.zerobase.accountbook.controller.dailypayments.dto.request.ModifyDailyPaymentsRequestDto;
 import com.zerobase.accountbook.controller.dailypayments.dto.response.CreateDailyPaymentsResponseDto;
+import com.zerobase.accountbook.controller.dailypayments.dto.response.SearchDailyPaymentsResponseDto;
 import com.zerobase.accountbook.controller.dailypayments.dto.response.GetDailyPaymentsResponseDto;
 import com.zerobase.accountbook.controller.dailypayments.dto.response.ModifyDailyPaymentsResponseDto;
 import com.zerobase.accountbook.domain.dailypayments.DailyPayments;
@@ -19,9 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.time.YearMonth;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.zerobase.accountbook.common.exception.ErrorCode.*;
@@ -29,16 +28,16 @@ import static com.zerobase.accountbook.common.exception.ErrorCode.*;
 @Service
 @RequiredArgsConstructor
 public class DailyPaymentsService {
-
     private final DailyPaymentsRepository dailyPaymentsRepository;
 
     private final MemberRepository memberRepository;
 
     public CreateDailyPaymentsResponseDto createDailyPayments(
+            String memberEmail,
             CreateDailyPaymentsRequestDto request
     ) {
 
-        Member member = validateMember(request.getMemberEmail());
+        Member member = validateMember(memberEmail);
 
         // 해시태그 부분 추후에 추가 예정
         return CreateDailyPaymentsResponseDto.of(
@@ -48,6 +47,7 @@ public class DailyPaymentsService {
                 .paidWhere(request.getPaidWhere())
                 .methodOfPayment(request.getMethodOfPayment())
                 .categoryName(request.getCategoryName())
+                .memo(request.getMemo())
                 .createdAt(getCurrentTimeUntilMinutes())
                 .build()));
     }
@@ -64,11 +64,11 @@ public class DailyPaymentsService {
         // 지출내역의 주인과 수정하려는 사용자가 다를 경우
         requestMemberAndDailyPaymentsOwnerMismatch(member, dailyPayments);
 
-        // 해시태그 부분 추후에 수정 예정
         dailyPayments.setPaidAmount(request.getPaidAmount());
         dailyPayments.setPaidWhere(request.getPaidWhere());
         dailyPayments.setMethodOfPayment(request.getMethodOfPayment());
         dailyPayments.setCategoryName(request.getCategoryName());
+        dailyPayments.setMemo(request.getMemo());
         dailyPayments.setUpdatedAt(request.getCreatedAt());
 
         return ModifyDailyPaymentsResponseDto.of(
@@ -103,6 +103,19 @@ public class DailyPaymentsService {
 
         return all.stream()
                 .map(GetDailyPaymentsResponseDto:: of)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<SearchDailyPaymentsResponseDto> searchDailyPayments(
+            String memberEmail, String keyword
+    ) {
+        Member member = validateMember(memberEmail);
+
+        return dailyPaymentsRepository
+                .searchKeyword(member.getId(), keyword)
+                .stream()
+                .map(SearchDailyPaymentsResponseDto::of)
                 .collect(Collectors.toList());
     }
 
