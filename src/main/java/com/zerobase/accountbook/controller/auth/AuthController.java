@@ -8,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import javax.validation.constraints.Email;
 
 @RestController
 @RequestMapping("/v1/auth")
@@ -53,7 +52,9 @@ public class AuthController {
     public ApiResponse<String> signIn(
             @Valid @RequestBody LoginRequestDto request
     ) {
-        TokenResponseDto token = authService.signIn(request.getEmail(), request.getPassword());
+        TokenResponseDto token =
+                authService.signIn(request.getEmail(), request.getPassword());
+                
         return ApiResponse.success(token.getAccessToken());
     }
 }

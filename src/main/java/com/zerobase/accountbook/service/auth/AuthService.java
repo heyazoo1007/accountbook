@@ -16,9 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.apache.tomcat.util.digester.ArrayStack;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -160,6 +158,8 @@ public class AuthService {
             );
         }
 
+        Member member = optionalMember.get();
+
         // 이메일에 비밀번호가 매치되지 않는 경우
         // 비밀번호가 틀렸는데 아이디 혹은 비밀번호로 출력하는 이뉴는 혹시 모를 개인 정보 유출 때문
         if (!passwordEncoder.matches(password, optionalMember.get().getPassword())) {
@@ -167,9 +167,8 @@ public class AuthService {
                     "이메일 혹은 비밀번호가 틀렸습니다.",
                     VALIDATION_WRONG_EMAIL_PASSWORD_EXCEPTION
             );
-        }
 
-        Member member = optionalMember.get();
+        }
 
         List<String> roles = new ArrayStack<>();
         roles.add(member.getRole().toString());
@@ -214,11 +213,13 @@ public class AuthService {
         }
     }
 
-    private String getData(String email) {
-        return redisRepository.getData(email);
+    private String getData(String authKey) {
+        return redisRepository.getData(authKey);
     }
 
-    private void setEmailAuthCache(String authKey, String email, long authKeyExpiration) {
+    private void setEmailAuthCache(
+            String authKey, String email, long authKeyExpiration
+    ) {
         redisRepository.setDataExpire(authKey, email, authKeyExpiration);
     }
 }
