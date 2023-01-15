@@ -54,6 +54,7 @@ public class AuthController {
     ) {
         TokenResponseDto token =
                 authService.signIn(request.getEmail(), request.getPassword());
+                
         return ApiResponse.success(token.getAccessToken());
     }
 }

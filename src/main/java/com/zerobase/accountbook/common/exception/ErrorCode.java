@@ -47,6 +47,7 @@ public enum ErrorCode {
     NOT_FOUND_ROOM_EXCEPTION(NOT_FOUND, "삭제되었거나 존재하지 않는 방입니다"),
     NOT_FOUND_FEED_EXCEPTION(NOT_FOUND, "삭제되었거나 존재하지 않는 피드입니다"),
     NOT_FOUND_EMAIL_EXCEPTION(NOT_FOUND, "가입되지 않은 이메일입니다."),
+    NOT_FOUND_BUDGET_EXCEPTION(NOT_FOUND, "존재하지 않은 예산입니다."),
 
     NOT_FOUND_DAILY_PAYMENTS_EXCEPTION(NOT_FOUND, "가입되지 않은 이메일입니다."),
 
@@ -63,6 +64,7 @@ public enum ErrorCode {
     CONFLICT_EXCEPTION(CONFLICT, "이미 존재합니다"),
     CONFLICT_EMAIL_EXCEPTION(CONFLICT, "이미 사용중인 이메일입니다.\n다른 이메일을 이용해주세요"),
     CONFLICT_USER_EXCEPTION(CONFLICT, "이미 해당 계정으로 회원가입하셨습니다.\n로그인 해주세요"),
+    CONFLICT_MONTHLY_BUDGET_EXCEPTION(CONFLICT, "예산이 이미 설정되어있습니다."),
     CONFLIC_CATEGORY_NAME_EXCEPTION(CONFLICT, "이미 존재하는 카테고리 이름입니다."),
 
     // 415 Unsupported Media Type

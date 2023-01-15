@@ -1,5 +1,6 @@
-package com.zerobase.accountbook.domain.member;
+package com.zerobase.accountbook.domain.budget;
 
+import com.zerobase.accountbook.domain.member.Member;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -7,26 +8,23 @@ import org.springframework.data.annotation.LastModifiedDate;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
-@Setter
 @Getter
+@Setter
 @Entity
-public class Member {
+public class Budget {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private long id;
 
-    private String email;
+    private String budgetYearMonth;
 
-    private String memberName;
-
-    private String password;
-
-    @Enumerated(EnumType.STRING)
-    private MemberRole role;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "MEMBER_ID")
+    private Member member;
 
     private Integer monthlyBudget;
 
