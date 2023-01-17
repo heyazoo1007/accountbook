@@ -20,4 +20,6 @@ public interface DailyPaymentsRepository extends JpaRepository<DailyPayments, Lo
     List<DailyPayments> findByCreatedAtBetween(String before, String now);
 
     List<DailyPayments> findByMemberIdAndCreatedAtBetween(Long memberId, String before, String now);
+
+    List<DailyPayments> findByMemberIdAndCreatedAtContaining(Long memberId, String createdAt);
 }

@@ -1,17 +1,18 @@
 package com.zerobase.accountbook.service.dailypaymetns;
 
 import com.zerobase.accountbook.common.exception.model.AccountBookException;
+import com.zerobase.accountbook.controller.dailypayments.dto.response.MonthlyResultDto;
 import com.zerobase.accountbook.controller.dailypayments.dto.request.CreateDailyPaymentsRequestDto;
 import com.zerobase.accountbook.controller.dailypayments.dto.request.DeleteDailyPaymentsRequestDto;
 import com.zerobase.accountbook.controller.dailypayments.dto.request.ModifyDailyPaymentsRequestDto;
-import com.zerobase.accountbook.controller.dailypayments.dto.response.CreateDailyPaymentsResponseDto;
-import com.zerobase.accountbook.controller.dailypayments.dto.response.SearchDailyPaymentsResponseDto;
-import com.zerobase.accountbook.controller.dailypayments.dto.response.GetDailyPaymentsResponseDto;
-import com.zerobase.accountbook.controller.dailypayments.dto.response.ModifyDailyPaymentsResponseDto;
+import com.zerobase.accountbook.controller.dailypayments.dto.response.*;
 import com.zerobase.accountbook.domain.dailypayments.DailyPayments;
 import com.zerobase.accountbook.domain.dailypayments.DailyPaymentsRepository;
 import com.zerobase.accountbook.domain.member.Member;
 import com.zerobase.accountbook.domain.member.MemberRepository;
+import com.zerobase.accountbook.domain.monthlytotalamount.MonthlyTotalAmountRepository;
+import com.zerobase.accountbook.domain.totalamountpercategory.TotalAmountPerCategory;
+import com.zerobase.accountbook.domain.totalamountpercategory.TotalAmountPerCategoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
@@ -20,6 +21,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,9 +31,11 @@ import static com.zerobase.accountbook.common.exception.ErrorCode.*;
 @Service
 @RequiredArgsConstructor
 public class DailyPaymentsService {
-    private final DailyPaymentsRepository dailyPaymentsRepository;
 
     private final MemberRepository memberRepository;
+    private final DailyPaymentsRepository dailyPaymentsRepository;
+    private final TotalAmountPerCategoryRepository totalAmountPerCategoryRepository;
+    private final MonthlyTotalAmountRepository monthlyTotalAmountRepository;
 
     public CreateDailyPaymentsResponseDto createDailyPayments(
             String memberEmail,
@@ -143,6 +148,68 @@ public class DailyPaymentsService {
         }
     }
 
+    @Transactional(readOnly = true)
+    public GetMonthlyResultResponseDto
+    getMonthlyDailyPaymentsResult(String memberEmail, String requestDate) {
+        Long memberId = validateMember(memberEmail).getId();
+
+        Integer totalAmount = 0;
+        String currentDate = getCurrentTimeUntilMinutes().substring(0, 7);
+
+        // 이전 달의 내역을 조회할 때
+        if (!currentDate.equals(requestDate)) {
+            return getPastMonthlyResult(requestDate, memberId, totalAmount);
+        }
+
+        // 이번 달의 지출 내역 가져오기
+        return getCurrentMonthlyResult(memberId, totalAmount);
+    }
+
+    private GetMonthlyResultResponseDto getPastMonthlyResult(
+            String requestDate, Long memberId, Integer totalAmount
+    ) {
+        // 총 사용 금액 가져오기
+        totalAmount += monthlyTotalAmountRepository
+                .findByDateInfoAndMemberId(requestDate, memberId).orElseThrow(
+                        () -> new AccountBookException(
+                                "해당 월에 총 지출이 존재하지 않습니다.",
+                                NOT_FOUND_MONTHLY_TOTAL_AMOUNT_EXCEPTION
+                        )
+                ).getTotalAmount();
+
+        // 날짜, 사용자를 기준으로 저장된 데이터 가져온 다음 카테고리랑 금액 넘겨서 진행
+        List<TotalAmountPerCategory> all =
+                totalAmountPerCategoryRepository
+                        .findByDateInfoAndMemberId(requestDate, memberId);
+
+        return GetMonthlyResultResponseDto.of(totalAmount, all);
+    }
+
+    private GetMonthlyResultResponseDto getCurrentMonthlyResult(
+            Long memberId, Integer totalAmount
+    ) {
+        List<DailyPayments> all =
+                dailyPaymentsRepository.findByMemberIdAndCreatedAtContaining(
+                        memberId,
+                        getCurrentTimeUntilMinutes().substring(0, 7)
+                );
+
+        HashMap<String, Integer> totalAmountPerCategory = new HashMap<>();
+        for (DailyPayments dailyPayments : all) {
+            String categoryName = dailyPayments.getCategoryName();
+            Integer paidAmount = dailyPayments.getPaidAmount();
+            totalAmount += paidAmount;
+
+            totalAmountPerCategory.put(
+                    categoryName,
+                    totalAmountPerCategory
+                            .getOrDefault(categoryName, 0)
+                            + paidAmount
+            );
+        }
+        return GetMonthlyResultResponseDto.of(totalAmount, totalAmountPerCategory);
+    }
+
     private static String getCurrentTimeUntilMinutes() {
 
         int year = LocalDateTime.now().getYear();
@@ -151,7 +218,10 @@ public class DailyPaymentsService {
         int hour = LocalDateTime.now().getHour();
         int minute = LocalDateTime.now().getMinute();
 
-        return year + "-" + month + "-" + day + " " + hour + ":" + minute;
+        return year + "-" + String.format("%02d",month) +
+                "-" + String.format("%02d",day) +
+                " " + String.format("%02d", hour) +
+                ":" + String.format("%02d", minute);
     }
 
     private DailyPayments validateDailyPayments(Long dailyPaymentsId) {

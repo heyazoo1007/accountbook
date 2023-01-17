@@ -52,6 +52,7 @@ public enum ErrorCode {
     NOT_FOUND_DAILY_PAYMENTS_EXCEPTION(NOT_FOUND, "가입되지 않은 이메일입니다."),
 
     NOT_FOUND_CATEGORY_EXCEPTION(NOT_FOUND, "존재하지 않는 카테고리입니다."),
+    NOT_FOUND_MONTHLY_TOTAL_AMOUNT_EXCEPTION(NOT_FOUND, "총 지출이 존재하지 않습니다."),
 
 
     // 405 Method Not Allowed

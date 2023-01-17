@@ -3,10 +3,7 @@ package com.zerobase.accountbook.controller.dailypayments;
 import com.zerobase.accountbook.common.dto.ApiResponse;
 import com.zerobase.accountbook.controller.dailypayments.dto.request.CreateDailyPaymentsRequestDto;
 import com.zerobase.accountbook.controller.dailypayments.dto.request.ModifyDailyPaymentsRequestDto;
-import com.zerobase.accountbook.controller.dailypayments.dto.response.CreateDailyPaymentsResponseDto;
-import com.zerobase.accountbook.controller.dailypayments.dto.response.SearchDailyPaymentsResponseDto;
-import com.zerobase.accountbook.controller.dailypayments.dto.response.GetDailyPaymentsResponseDto;
-import com.zerobase.accountbook.controller.dailypayments.dto.response.ModifyDailyPaymentsResponseDto;
+import com.zerobase.accountbook.controller.dailypayments.dto.response.*;
 import com.zerobase.accountbook.controller.dailypayments.dto.request.DeleteDailyPaymentsRequestDto;
 import com.zerobase.accountbook.service.dailypaymetns.DailyPaymentsService;
 import lombok.RequiredArgsConstructor;
@@ -89,6 +86,20 @@ public class DailyPaymentsController {
                 dailyPaymentsService.searchDailyPayments(
                         user.getUsername(),
                         keyword
+                );
+        return ApiResponse.success(response);
+    }
+
+    @GetMapping("/monthly/{date}")
+    public ApiResponse<GetMonthlyResultResponseDto>
+    getMonthlyResultResponseDto(
+            @AuthenticationPrincipal UserDetails user,
+            @PathVariable String date
+    ) {
+        GetMonthlyResultResponseDto response =
+                dailyPaymentsService.getMonthlyDailyPaymentsResult(
+                        user.getUsername(),
+                        date
                 );
         return ApiResponse.success(response);
     }

@@ -26,7 +26,7 @@ public class MonthlyTotalAmountService {
 
 
     @Scheduled(cron = "0 0 0 1 * * *") // 매달 1일 정각에 모든 사용자에 대해 실행
-    private MonthlyTotalAmount saveMonthlyTotalAmount() {
+    private void saveMonthlyTotalAmount() {
 
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime oneMonthBefore = now.minusMonths(1);
@@ -50,14 +50,13 @@ public class MonthlyTotalAmountService {
 
             Member member = validateMember(memberEmail);
 
-            return monthlyTotalAmountRepository.save(MonthlyTotalAmount.builder()
+            monthlyTotalAmountRepository.save(MonthlyTotalAmount.builder()
                     .dateInfo(oneMonthBefore.toString().substring(0, 7)) // 2023-01 형태로 저장
                     .member(member)
                     .totalAmount(memberSum)
                     .createdAt(now)
                     .build());
         }
-        return null;
     }
 
     private Member validateMember(String memberEmail) {
