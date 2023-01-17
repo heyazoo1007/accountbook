@@ -16,4 +16,6 @@ public interface DailyPaymentsRepository extends JpaRepository<DailyPayments, Lo
                     "or dp.memo like %:keyword%)"
     )
     List<DailyPayments> searchKeyword(long memberId, String keyword);
+
+    List<DailyPayments> findByCreatedAtBetween(String before, String now);
 }
