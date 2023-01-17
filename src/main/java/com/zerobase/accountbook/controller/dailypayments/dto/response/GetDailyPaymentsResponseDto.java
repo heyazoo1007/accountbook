@@ -18,7 +18,7 @@ public class GetDailyPaymentsResponseDto {
 
     private String categoryName;
 
-    private String hashTag;
+    private String memo;
 
     public static GetDailyPaymentsResponseDto of(DailyPayments dailyPayments) {
         return GetDailyPaymentsResponseDto
@@ -27,7 +27,7 @@ public class GetDailyPaymentsResponseDto {
                 .paidWhere(dailyPayments.getPaidWhere())
                 .methodOfPayment(dailyPayments.getMethodOfPayment())
                 .categoryName(dailyPayments.getCategoryName())
-                .hashTag(dailyPayments.getHashTag())  // 추후에 변경 예정
+                .memo(dailyPayments.getMemo())
                 .build();
     }
 }

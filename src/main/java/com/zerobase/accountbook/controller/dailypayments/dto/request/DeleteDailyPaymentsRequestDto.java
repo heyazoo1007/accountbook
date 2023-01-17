@@ -11,8 +11,5 @@ import javax.validation.constraints.Email;
 @AllArgsConstructor
 public class DeleteDailyPaymentsRequestDto {
 
-    @Email
-    private String memberEmail;
-
     private Long dailyPaymentsId;
 }

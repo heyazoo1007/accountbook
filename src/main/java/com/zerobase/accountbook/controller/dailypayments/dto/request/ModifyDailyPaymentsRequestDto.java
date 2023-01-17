@@ -18,9 +18,6 @@ public class ModifyDailyPaymentsRequestDto {
 
     private long dailyPaymentsId;
 
-    @Email
-    private String memberEmail;
-
     @Min(0)
     private Integer paidAmount;
 
@@ -31,8 +28,8 @@ public class ModifyDailyPaymentsRequestDto {
 
     private String categoryName;
 
-    @Size(max = 30, message = "해시태그의 총 길이는 30자가 넘어서는 안됩니다.")
-    private String hashTags; // "#abc, #dbe, #acds" 형태로 전달 받음
+    @Size(max = 30, message = "메모의 길이는 최대 30자입니다.")
+    private String memo;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
     private String createdAt;

@@ -20,7 +20,7 @@ public class ModifyDailyPaymentsResponseDto {
 
     private String categoryName;
 
-    private String hashTags;
+    private String memo;
 
     private String updatedAt;
 
@@ -32,6 +32,7 @@ public class ModifyDailyPaymentsResponseDto {
                 .paidWhere(dailyPayments.getPaidWhere())
                 .methodOfPayment(dailyPayments.getMethodOfPayment())
                 .categoryName(dailyPayments.getCategoryName())
+                .memo(dailyPayments.getMemo())
                 .updatedAt(dailyPayments.getUpdatedAt())
                 .build();
     }

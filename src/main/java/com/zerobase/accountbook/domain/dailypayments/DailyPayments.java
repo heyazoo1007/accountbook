@@ -33,7 +33,7 @@ public class DailyPayments {
 
     private String categoryName;
 
-    private String hashTag;
+    private String memo;
 
     @CreatedDate
     private String createdAt;

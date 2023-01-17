@@ -5,6 +5,7 @@ import com.zerobase.accountbook.controller.dailypayments.dto.request.CreateDaily
 import com.zerobase.accountbook.controller.dailypayments.dto.request.DeleteDailyPaymentsRequestDto;
 import com.zerobase.accountbook.controller.dailypayments.dto.request.ModifyDailyPaymentsRequestDto;
 import com.zerobase.accountbook.controller.dailypayments.dto.response.CreateDailyPaymentsResponseDto;
+import com.zerobase.accountbook.controller.dailypayments.dto.response.SearchDailyPaymentsResponseDto;
 import com.zerobase.accountbook.controller.dailypayments.dto.response.GetDailyPaymentsResponseDto;
 import com.zerobase.accountbook.controller.dailypayments.dto.response.ModifyDailyPaymentsResponseDto;
 import com.zerobase.accountbook.domain.dailypayments.DailyPayments;
@@ -19,9 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.time.YearMonth;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.zerobase.accountbook.common.exception.ErrorCode.*;
@@ -29,16 +28,16 @@ import static com.zerobase.accountbook.common.exception.ErrorCode.*;
 @Service
 @RequiredArgsConstructor
 public class DailyPaymentsService {
-
     private final DailyPaymentsRepository dailyPaymentsRepository;
 
     private final MemberRepository memberRepository;
 
     public CreateDailyPaymentsResponseDto createDailyPayments(
+            String memberEmail,
             CreateDailyPaymentsRequestDto request
     ) {
 
-        Member member = validateMember(request.getMemberEmail());
+        Member member = validateMember(memberEmail);
 
         // 해시태그 부분 추후에 추가 예정
         return CreateDailyPaymentsResponseDto.of(
@@ -48,27 +47,29 @@ public class DailyPaymentsService {
                 .paidWhere(request.getPaidWhere())
                 .methodOfPayment(request.getMethodOfPayment())
                 .categoryName(request.getCategoryName())
+                .memo(request.getMemo())
                 .createdAt(getCurrentTimeUntilMinutes())
                 .build()));
     }
 
     @CachePut(value = "dailyPayments", key = "#request.dailyPaymentsId")
     public ModifyDailyPaymentsResponseDto modifyDailyPayments(
+            String memberEmail,
             ModifyDailyPaymentsRequestDto request
     ) {
 
-        Member member = validateMember(request.getMemberEmail());
+        Member member = validateMember(memberEmail);
         DailyPayments dailyPayments =
                 validateDailyPayments(request.getDailyPaymentsId());
 
         // 지출내역의 주인과 수정하려는 사용자가 다를 경우
-        requestMemberAndDailyPaymentsOwnerMismatch(member, dailyPayments);
+        checkDailyPaymentsOwner(member, dailyPayments);
 
-        // 해시태그 부분 추후에 수정 예정
         dailyPayments.setPaidAmount(request.getPaidAmount());
         dailyPayments.setPaidWhere(request.getPaidWhere());
         dailyPayments.setMethodOfPayment(request.getMethodOfPayment());
         dailyPayments.setCategoryName(request.getCategoryName());
+        dailyPayments.setMemo(request.getMemo());
         dailyPayments.setUpdatedAt(request.getCreatedAt());
 
         return ModifyDailyPaymentsResponseDto.of(
@@ -77,28 +78,40 @@ public class DailyPaymentsService {
     }
 
     @CacheEvict(value = "dailyPayments", allEntries = true)
-    public void deleteDailyPayments(DeleteDailyPaymentsRequestDto request) {
+    public void deleteDailyPayments(
+            String memberEmail, DeleteDailyPaymentsRequestDto request
+    ) {
+        Member member = validateMember(memberEmail);
 
-        Member member = validateMember(request.getMemberEmail());
+        DailyPayments dailyPayments =
+                validateDailyPayments(request.getDailyPaymentsId());
 
-        DailyPayments dailyPayments = validateDailyPayments(request.getDailyPaymentsId());
-
-        requestMemberAndDailyPaymentsOwnerMismatch(member, dailyPayments);
+        checkDailyPaymentsOwner(member, dailyPayments);
 
         dailyPaymentsRepository.delete(dailyPayments);
     }
 
     @Transactional(readOnly = true)
-    public GetDailyPaymentsResponseDto getDailyPayments(Long dailyPaymentsId) {
+    public GetDailyPaymentsResponseDto getDailyPayments(
+            String memberEmail, Long dailyPaymentsId
+    ) {
+
+        Member member = validateMember(memberEmail);
 
         DailyPayments dailyPayments = validateDailyPayments(dailyPaymentsId);
+
+        checkDailyPaymentsOwner(member, dailyPayments);
 
         return GetDailyPaymentsResponseDto.of(dailyPayments);
     }
 
     @Transactional(readOnly = true)
     @Cacheable("dailyPayments")
-    public List<GetDailyPaymentsResponseDto> getDailyPaymentsList() {
+    public List<GetDailyPaymentsResponseDto> getDailyPaymentsList(
+            String memberEmail
+    ) {
+        validateMember(memberEmail);
+
         List<DailyPayments> all = dailyPaymentsRepository.findAll();
 
         return all.stream()
@@ -106,7 +119,20 @@ public class DailyPaymentsService {
                 .collect(Collectors.toList());
     }
 
-    private static void requestMemberAndDailyPaymentsOwnerMismatch(
+    @Transactional(readOnly = true)
+    public List<SearchDailyPaymentsResponseDto> searchDailyPayments(
+            String memberEmail, String keyword
+    ) {
+        Member member = validateMember(memberEmail);
+
+        return dailyPaymentsRepository
+                .searchKeyword(member.getId(), keyword)
+                .stream()
+                .map(SearchDailyPaymentsResponseDto::of)
+                .collect(Collectors.toList());
+    }
+
+    private static void checkDailyPaymentsOwner(
             Member member, DailyPayments dailyPayments
     ) {
         if (!dailyPayments.getMember().getId().equals(member.getId())) {
@@ -140,7 +166,7 @@ public class DailyPaymentsService {
     private Member validateMember(String memberEmail) {
         return memberRepository.findByEmail(memberEmail).orElseThrow(
                 () -> new AccountBookException(
-                        "존재하지 않는 화면입니다.",
+                        "존재하지 않는 회원입니다.",
                         NOT_FOUND_USER_EXCEPTION
                 )
         );
