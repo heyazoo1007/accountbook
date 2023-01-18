@@ -31,6 +31,7 @@ public class JwtTokenProvider {
         this.userDetailsService = userDetailsService;
     }
 
+
     // 객체 초기화, secretKey 를 Base64로 인코딩
     @PostConstruct
     protected void init() {

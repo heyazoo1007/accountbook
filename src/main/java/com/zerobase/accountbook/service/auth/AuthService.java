@@ -4,14 +4,12 @@ import com.zerobase.accountbook.common.config.security.JwtTokenProvider;
 import com.zerobase.accountbook.common.config.security.dto.TokenResponseDto;
 import com.zerobase.accountbook.common.exception.model.AccountBookException;
 import com.zerobase.accountbook.common.repository.RedisRepository;
-import com.zerobase.accountbook.controller.auth.dto.request.CompleteAuthEmailRequestDto;
-import com.zerobase.accountbook.controller.auth.dto.request.CreateMemberRequestDto;
-import com.zerobase.accountbook.controller.auth.dto.request.SendAuthEmailRequestDto;
-import com.zerobase.accountbook.controller.auth.dto.response.ValidateEmailResponseDto;
+import com.zerobase.accountbook.controller.auth.dto.request.*;
+import com.zerobase.accountbook.controller.auth.dto.response.*;
+import com.zerobase.accountbook.domain.Email;
 import com.zerobase.accountbook.domain.member.Member;
 import com.zerobase.accountbook.domain.member.MemberRepository;
 import com.zerobase.accountbook.domain.member.MemberRole;
-import com.zerobase.accountbook.controller.auth.dto.response.CreateMemberResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.apache.tomcat.util.digester.ArrayStack;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -66,7 +64,8 @@ public class AuthService {
         validateEmail(email);
 
         // 인증 이메일 전송 버튼을 누르고 또 누르는 경우에 대한 예외처리
-        String data = getData("EMAIL-AUTH:" + email);
+
+        String data = getData("EMAIL-AUTH:" + email)
         if (data != null) {
             throw new AccountBookException(
                     String.format("(%s) 해당 이메일로 인증 메일이 전송되었습니다.", email),
@@ -78,8 +77,8 @@ public class AuthService {
 
         sendAuthKeyToEmail(email, authKey);
 
-        setEmailAuthCache(authKey, email, AUTH_KEY_EXPIRATION);
-        setEmailAuthCache(
+        setAuthKeyAuthCache(authKey, email, AUTH_KEY_EXPIRATION);
+        setAuthKeyAuthCache(
                 "EMAIL-AUTH:" + email,
                 String.valueOf(AUTH_REQUEST),
                 AUTH_EMAIL_REQUEST_WILL_BE_EXPIRED_IN
@@ -105,12 +104,12 @@ public class AuthService {
             );
         }
 
-            // 인증 완료 후 하루안에 회원가입해야함
-            setEmailAuthCache(
-                    "EMAIL-AUTH:" + email,
-                    String.valueOf(AUTH_COMPLETED),
-                    AUTH_EMAIL_REQUEST_WILL_BE_EXPIRED_IN
-            );
+        // 인증 완료 후 하루안에 회원가입해야함
+        setAuthKeyAuthCache(
+                "EMAIL-AUTH:" + email,
+                String.valueOf(AUTH_COMPLETED),
+                AUTH_EMAIL_REQUEST_WILL_BE_EXPIRED_IN
+        );
     }
 
     public CreateMemberResponseDto createMember(CreateMemberRequestDto request) {
@@ -157,17 +156,17 @@ public class AuthService {
                     NOT_FOUND_EMAIL_EXCEPTION
             );
         }
+        Member member = optionalMember.get();
 
         Member member = optionalMember.get();
 
         // 이메일에 비밀번호가 매치되지 않는 경우
         // 비밀번호가 틀렸는데 아이디 혹은 비밀번호로 출력하는 이뉴는 혹시 모를 개인 정보 유출 때문
-        if (!passwordEncoder.matches(password, optionalMember.get().getPassword())) {
+        if (!passwordEncoder.matches(password, member.getPassword())) {
             throw new AccountBookException(
                     "이메일 혹은 비밀번호가 틀렸습니다.",
                     VALIDATION_WRONG_EMAIL_PASSWORD_EXCEPTION
             );
-
         }
 
         List<String> roles = new ArrayStack<>();
@@ -217,7 +216,7 @@ public class AuthService {
         return redisRepository.getData(authKey);
     }
 
-    private void setEmailAuthCache(
+    private void setAuthKeyAuthCache(
             String authKey, String email, long authKeyExpiration
     ) {
         redisRepository.setDataExpire(authKey, email, authKeyExpiration);
