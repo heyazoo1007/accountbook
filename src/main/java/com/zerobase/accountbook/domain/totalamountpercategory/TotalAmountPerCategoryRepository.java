@@ -1,5 +1,3 @@
-
-
 package com.zerobase.accountbook.domain.totalamountpercategory;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -10,3 +8,4 @@ public interface TotalAmountPerCategoryRepository extends JpaRepository<TotalAmo
 
     List<TotalAmountPerCategory> findByDateInfoAndMemberId(String dateInfo, Long memberId);
 }
+

@@ -1,17 +1,22 @@
 package com.zerobase.accountbook.service.dailypaymetns;
 
+import com.querydsl.core.types.Projections;
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.zerobase.accountbook.common.exception.model.AccountBookException;
 import com.zerobase.accountbook.controller.dailypayments.dto.request.CreateDailyPaymentsRequestDto;
 import com.zerobase.accountbook.controller.dailypayments.dto.request.DeleteDailyPaymentsRequestDto;
 import com.zerobase.accountbook.controller.dailypayments.dto.request.ModifyDailyPaymentsRequestDto;
-import com.zerobase.accountbook.controller.dailypayments.dto.response.CreateDailyPaymentsResponseDto;
-import com.zerobase.accountbook.controller.dailypayments.dto.response.SearchDailyPaymentsResponseDto;
-import com.zerobase.accountbook.controller.dailypayments.dto.response.GetDailyPaymentsResponseDto;
-import com.zerobase.accountbook.controller.dailypayments.dto.response.ModifyDailyPaymentsResponseDto;
+import com.zerobase.accountbook.controller.dailypayments.dto.response.*;
 import com.zerobase.accountbook.domain.dailypayments.DailyPayments;
 import com.zerobase.accountbook.domain.dailypayments.DailyPaymentsRepository;
+import com.zerobase.accountbook.domain.dailypayments.QDailyPayments;
 import com.zerobase.accountbook.domain.member.Member;
 import com.zerobase.accountbook.domain.member.MemberRepository;
+import com.zerobase.accountbook.domain.monthlytotalamount.MonthlyTotalAmountRepository;
+import com.zerobase.accountbook.domain.totalamountpercategory.TotalAmountPerCategory;
+import com.zerobase.accountbook.domain.totalamountpercategory.TotalAmountPerCategoryRepository;
+import com.zerobase.accountbook.service.dailypaymetns.dto.DailyPaymentsCategoryDto;
+import com.zerobase.accountbook.service.dailypaymetns.querydsl.DailyPaymentsQueryDsl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
@@ -19,7 +24,10 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,9 +36,15 @@ import static com.zerobase.accountbook.common.exception.ErrorCode.*;
 @Service
 @RequiredArgsConstructor
 public class DailyPaymentsService {
-    private final DailyPaymentsRepository dailyPaymentsRepository;
 
+    @PersistenceContext
+    private EntityManager entityManager;
+
+    private final DailyPaymentsQueryDsl dailyPaymentsQueryDsl;
     private final MemberRepository memberRepository;
+    private final DailyPaymentsRepository dailyPaymentsRepository;
+    private final TotalAmountPerCategoryRepository totalAmountPerCategoryRepository;
+    private final MonthlyTotalAmountRepository monthlyTotalAmountRepository;
 
     public CreateDailyPaymentsResponseDto createDailyPayments(
             String memberEmail,
@@ -132,6 +146,76 @@ public class DailyPaymentsService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
+    public GetMonthlyResultResponseDto
+    getMonthlyDailyPaymentsResult(String memberEmail, String requestDate) {
+        Long memberId = validateMember(memberEmail).getId();
+
+        String currentDate = getCurrentTimeUntilMinutes().substring(0, 7);
+
+        // 이전 달의 내역을 조회할 때
+        if (!currentDate.equals(requestDate)) {
+            return getPastMonthlyResult(requestDate, memberId);
+        }
+
+        // 이번 달의 지출 내역 가져오기
+        return getCurrentMonthlyResult(memberId);
+    }
+
+    private GetMonthlyResultResponseDto getPastMonthlyResult(
+            String requestDate, Long memberId
+    ) {
+        Integer totalAmount = 0;
+        // 총 사용 금액 가져오기
+        totalAmount += monthlyTotalAmountRepository
+                .findByDateInfoAndMemberId(requestDate, memberId).orElseThrow(
+                        () -> new AccountBookException(
+                                "해당 월에 총 지출이 존재하지 않습니다.",
+                                NOT_FOUND_MONTHLY_TOTAL_AMOUNT_EXCEPTION
+                        )
+                ).getTotalAmount();
+
+        // 날짜, 사용자를 기준으로 저장된 데이터 가져온 다음 카테고리랑 금액 넘겨서 진행
+        List<TotalAmountPerCategory> all =
+                totalAmountPerCategoryRepository
+                        .findByDateInfoAndMemberId(requestDate, memberId);
+
+        List<MonthlyResultDto> list = new ArrayList<>();
+        for (TotalAmountPerCategory each : all) {
+            list.add(MonthlyResultDto.of(
+                    each.getCategoryName(),
+                    each.getTotalAmount()
+            ));
+        }
+
+        return GetMonthlyResultResponseDto.of(totalAmount, list);
+    }
+
+    private GetMonthlyResultResponseDto getCurrentMonthlyResult(
+            Long memberId
+    ) {
+        Integer totalAmount = 0;
+
+        // 요청한 사용자의 해당 월 지출내역을 카테고리로 가져옴
+        // (카페 : 15000, 식당 : 50000, )
+        List<DailyPaymentsCategoryDto> all =
+                dailyPaymentsQueryDsl.getTotalAmountPerCategoryByMemberId(
+                        getCurrentTimeUntilMinutes().substring(0, 7),
+                        memberId
+                );
+
+        List<MonthlyResultDto> list = new ArrayList<>();
+        for (DailyPaymentsCategoryDto each : all) {
+            totalAmount += each.getTotalAmount();
+            list.add(MonthlyResultDto.of(
+                    each.getCategoryName(),
+                    each.getTotalAmount()
+            ));
+        }
+
+        return GetMonthlyResultResponseDto.of(totalAmount, list);
+    }
+
     private static void checkDailyPaymentsOwner(
             Member member, DailyPayments dailyPayments
     ) {
@@ -151,7 +235,10 @@ public class DailyPaymentsService {
         int hour = LocalDateTime.now().getHour();
         int minute = LocalDateTime.now().getMinute();
 
-        return year + "-" + month + "-" + day + " " + hour + ":" + minute;
+        return year + "-" + String.format("%02d",month) +
+                "-" + String.format("%02d",day) +
+                " " + String.format("%02d", hour) +
+                ":" + String.format("%02d", minute);
     }
 
     private DailyPayments validateDailyPayments(Long dailyPaymentsId) {
