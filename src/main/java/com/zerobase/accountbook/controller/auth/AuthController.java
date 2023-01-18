@@ -49,10 +49,12 @@ public class AuthController {
     }
 
     @PostMapping("/sign-in")
-    public ApiResponse<TokenResponseDto> signIn(
+    public ApiResponse<String> signIn(
             @Valid @RequestBody LoginRequestDto request
     ) {
-        TokenResponseDto token = authService.signIn(request.getEmail(), request.getPassword());
-        return ApiResponse.success(token);
+        TokenResponseDto token =
+                authService.signIn(request.getEmail(), request.getPassword());
+                
+        return ApiResponse.success(token.getAccessToken());
     }
 }

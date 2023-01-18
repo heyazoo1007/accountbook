@@ -1,4 +1,4 @@
-package com.zerobase.accountbook.domain.dailypayments;
+package com.zerobase.accountbook.domain.budget;
 
 import com.zerobase.accountbook.domain.member.Member;
 import lombok.*;
@@ -6,38 +6,31 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
-@Setter
 @Getter
+@Setter
 @Entity
-public class DailyPayments {
+public class Budget {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private long id;
 
-    @ManyToOne
+    private String budgetYearMonth;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "MEMBER_ID")
     private Member member;
 
-    private Integer paidAmount;
-
-    private String paidWhere;
-
-    private String methodOfPayment;
-
-    private String categoryName;
-
-    private String memo;
+    private Integer monthlyBudget;
 
     @CreatedDate
-    private String createdAt;
+    private LocalDateTime createdAt;
 
     @LastModifiedDate
-    private String updatedAt;
-
+    private LocalDateTime updatedAt;
 }
-

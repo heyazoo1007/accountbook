@@ -64,7 +64,8 @@ public class AuthService {
         validateEmail(email);
 
         // 인증 이메일 전송 버튼을 누르고 또 누르는 경우에 대한 예외처리
-        String data = redisRepository.getData("EMAIL-AUTH:" + email);
+
+        String data = getData("EMAIL-AUTH:" + email)
         if (data != null) {
             throw new AccountBookException(
                     String.format("(%s) 해당 이메일로 인증 메일이 전송되었습니다.", email),
@@ -90,18 +91,19 @@ public class AuthService {
 
         validateEmail(email);
 
-        if (email == null) {
+        if (email == null) { // 이메일에 해당하는 인증키가 없음
             throw new AccountBookException(
                     "잘못된 이메일 인증번호입니다.",
                     VALIDATION_EMAIL_AUTH_KEY_EXCEPTION);
         }
 
-        if (!email.equals(request.getEmail())) {
+        if (!email.equals(request.getEmail())) { // 인증키로 가져온 이메일과 입력한 이메일이 다른 경우
             throw new AccountBookException(
                     "잘못된 이메일 입니다.",
                     VALIDATION_WRONG_EMAIL_PASSWORD_EXCEPTION
             );
         }
+
         // 인증 완료 후 하루안에 회원가입해야함
         setAuthKeyAuthCache(
                 "EMAIL-AUTH:" + email,
@@ -154,6 +156,8 @@ public class AuthService {
                     NOT_FOUND_EMAIL_EXCEPTION
             );
         }
+        Member member = optionalMember.get();
+
         Member member = optionalMember.get();
 
         // 이메일에 비밀번호가 매치되지 않는 경우
