@@ -1,5 +1,6 @@
 package com.zerobase.accountbook.service.totalamountpercategory;
 
+
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.zerobase.accountbook.common.exception.model.AccountBookException;
@@ -30,6 +31,7 @@ import static com.zerobase.accountbook.common.exception.ErrorCode.NOT_FOUND_USER
 public class TotalAmountPerCategoryService {
 
     private final MemberRepository memberRepository;
+
     private final TotalAmountPerCategoryRepository totalAmountPerCategoryRepository;
 
     private final DailyPaymentsQueryDsl dailyPaymentsQueryDsl;

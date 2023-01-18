@@ -8,3 +8,4 @@ public interface TotalAmountPerCategoryRepository extends JpaRepository<TotalAmo
 
     List<TotalAmountPerCategory> findByDateInfoAndMemberId(String dateInfo, Long memberId);
 }
+
