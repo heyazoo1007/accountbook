@@ -1,16 +1,24 @@
 package com.zerobase.accountbook.service.totalamountpercategory;
 
+import com.querydsl.core.types.Projections;
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.zerobase.accountbook.common.exception.model.AccountBookException;
 import com.zerobase.accountbook.domain.dailypayments.DailyPayments;
 import com.zerobase.accountbook.domain.dailypayments.DailyPaymentsRepository;
+import com.zerobase.accountbook.domain.dailypayments.QDailyPayments;
 import com.zerobase.accountbook.domain.member.Member;
 import com.zerobase.accountbook.domain.member.MemberRepository;
 import com.zerobase.accountbook.domain.totalamountpercategory.TotalAmountPerCategory;
 import com.zerobase.accountbook.domain.totalamountpercategory.TotalAmountPerCategoryRepository;
+import com.zerobase.accountbook.service.dailypaymetns.dto.DailyPaymentsCategoryDto;
+import com.zerobase.accountbook.service.dailypaymetns.querydsl.DailyPaymentsQueryDsl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -22,10 +30,9 @@ import static com.zerobase.accountbook.common.exception.ErrorCode.NOT_FOUND_USER
 public class TotalAmountPerCategoryService {
 
     private final MemberRepository memberRepository;
-
-    private final DailyPaymentsRepository dailyPaymentsRepository;
-
     private final TotalAmountPerCategoryRepository totalAmountPerCategoryRepository;
+
+    private final DailyPaymentsQueryDsl dailyPaymentsQueryDsl;
 
     @Scheduled(cron = "0 0 0 1 * * *") // 매달 1일 정각에 모든 사용자에 대해 실행
     private void saveMoneyPerCategory() {
@@ -34,35 +41,24 @@ public class TotalAmountPerCategoryService {
         LocalDateTime oneMonthBefore = now.minusMonths(1);
 
         List<Member> members = memberRepository.findAll();
-        HashMap<String, Integer> totalAmountPerCategory = new HashMap<>();
         for (Member each : members) {
             Long memberId = each.getId();
 
-            List<DailyPayments> all =
-                    dailyPaymentsRepository.findByMemberIdAndCreatedAtBetween(
-                            memberId,
-                            oneMonthBefore.toString(),
-                            now.toString()
-                    );
-
-            for (DailyPayments dailyPayments : all) {
-                String categoryName = dailyPayments.getCategoryName();
-                Integer paidAmount = dailyPayments.getPaidAmount();
-
-                totalAmountPerCategory.put(
-                        categoryName,
-                        totalAmountPerCategory.getOrDefault(categoryName, 0)
-                                + paidAmount);
-            }
+            List<DailyPaymentsCategoryDto> all =
+                    dailyPaymentsQueryDsl.getTotalAmountPerCategoryByMemberId(
+                    oneMonthBefore.toString().substring(0, 9),
+                    memberId
+            );
 
             Member member = validateMemberById(memberId);
 
-            for (String key : totalAmountPerCategory.keySet()) {
-                totalAmountPerCategoryRepository.save(TotalAmountPerCategory.builder()
+            for (DailyPaymentsCategoryDto dto : all) {
+                totalAmountPerCategoryRepository.save(
+                        TotalAmountPerCategory.builder()
                         .member(member)
                         .dateInfo(String.valueOf(oneMonthBefore).substring(0, 7)) // 2023-01 형태로 저장
-                        .categoryName(key)
-                        .totalAmount(totalAmountPerCategory.get(key))
+                        .categoryName(dto.getCategoryName())
+                        .totalAmount(dto.getTotalAmount())
                         .createdAt(LocalDateTime.now())
                         .build());
             }
