@@ -6,6 +6,7 @@ import com.zerobase.accountbook.common.exception.model.AccountBookException;
 import com.zerobase.accountbook.common.repository.RedisRepository;
 import com.zerobase.accountbook.controller.auth.dto.request.*;
 import com.zerobase.accountbook.controller.auth.dto.response.*;
+import com.zerobase.accountbook.domain.Email;
 import com.zerobase.accountbook.domain.member.Member;
 import com.zerobase.accountbook.domain.member.MemberRepository;
 import com.zerobase.accountbook.domain.member.MemberRole;
@@ -75,8 +76,8 @@ public class AuthService {
 
         sendAuthKeyToEmail(email, authKey);
 
-        setEmailAuthCache(authKey, email, AUTH_KEY_EXPIRATION);
-        setEmailAuthCache(
+        setAuthKeyAuthCache(authKey, email, AUTH_KEY_EXPIRATION);
+        setAuthKeyAuthCache(
                 "EMAIL-AUTH:" + email,
                 String.valueOf(AUTH_REQUEST),
                 AUTH_EMAIL_REQUEST_WILL_BE_EXPIRED_IN
@@ -102,7 +103,7 @@ public class AuthService {
             );
         }
         // 인증 완료 후 하루안에 회원가입해야함
-        setEmailAuthCache(
+        setAuthKeyAuthCache(
                 "EMAIL-AUTH:" + email,
                 String.valueOf(AUTH_COMPLETED),
                 AUTH_EMAIL_REQUEST_WILL_BE_EXPIRED_IN
@@ -211,7 +212,9 @@ public class AuthService {
         return redisRepository.getData(authKey);
     }
 
-    private void setEmailAuthCache(String authKey, String email, long authKeyExpiration) {
+    private void setAuthKeyAuthCache(
+            String authKey, String email, long authKeyExpiration
+    ) {
         redisRepository.setDataExpire(authKey, email, authKeyExpiration);
     }
 }
