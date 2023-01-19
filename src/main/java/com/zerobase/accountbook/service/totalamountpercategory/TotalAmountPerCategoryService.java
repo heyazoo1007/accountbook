@@ -13,6 +13,8 @@ import com.zerobase.accountbook.domain.totalamountpercategory.TotalAmountPerCate
 import com.zerobase.accountbook.service.dailypaymetns.dto.DailyPaymentsCategoryDto;
 import com.zerobase.accountbook.service.dailypaymetns.querydsl.DailyPaymentsQueryDsl;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,27 +42,32 @@ public class TotalAmountPerCategoryService {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime oneMonthBefore = now.minusMonths(1);
 
-        List<Member> members = memberRepository.findAll();
-        for (Member each : members) {
-            Long memberId = each.getId();
 
-            List<DailyPaymentsCategoryDto> all =
-                    dailyPaymentsQueryDsl.getTotalAmountPerCategoryByMemberId(
-                    oneMonthBefore.toString().substring(0, 9),
-                    memberId
-            );
+        // 100명 단위로 페이징한 멤버에 대해서 진행
+        Integer totalMember = memberRepository.countAllMember();
+        for (int i = 0; i < totalMember / 100 + 1; i++) {
+            Page<Member> members = memberRepository.findAll(PageRequest.of(i, 100));
+            for (Member each : members) {
+                Long memberId = each.getId();
 
-            Member member = validateMemberById(memberId);
+                List<DailyPaymentsCategoryDto> all =
+                        dailyPaymentsQueryDsl.getTotalAmountPerCategoryByMemberId(
+                                oneMonthBefore.toString().substring(0, 9),
+                                memberId
+                        );
 
-            for (DailyPaymentsCategoryDto dto : all) {
-                totalAmountPerCategoryRepository.save(
-                        TotalAmountPerCategory.builder()
-                        .member(member)
-                        .dateInfo(String.valueOf(oneMonthBefore).substring(0, 7)) // 2023-01 형태로 저장
-                        .categoryName(dto.getCategoryName())
-                        .totalAmount(dto.getTotalAmount())
-                        .createdAt(LocalDateTime.now())
-                        .build());
+                Member member = validateMemberById(memberId);
+
+                for (DailyPaymentsCategoryDto dto : all) {
+                    totalAmountPerCategoryRepository.save(
+                            TotalAmountPerCategory.builder()
+                                    .member(member)
+                                    .dateInfo(String.valueOf(oneMonthBefore).substring(0, 7)) // 2023-01 형태로 저장
+                                    .categoryName(dto.getCategoryName())
+                                    .totalAmount(dto.getTotalAmount())
+                                    .createdAt(LocalDateTime.now())
+                                    .build());
+                }
             }
         }
     }

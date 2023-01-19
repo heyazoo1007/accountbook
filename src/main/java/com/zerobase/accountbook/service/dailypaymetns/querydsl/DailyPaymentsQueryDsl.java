@@ -3,6 +3,7 @@ package com.zerobase.accountbook.service.dailypaymetns.querydsl;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.zerobase.accountbook.domain.dailypayments.QDailyPayments;
+import com.zerobase.accountbook.domain.totalamountpercategory.QTotalAmountPerCategory;
 import com.zerobase.accountbook.service.dailypaymetns.dto.DailyPaymentsCategoryDto;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,7 +29,6 @@ public class DailyPaymentsQueryDsl {
 
         return qf.select(Projections.bean(
                         DailyPaymentsCategoryDto.class,
-                        dailyPayments.createdAt,
                         dailyPayments.categoryName.as("categoryName"),
                         dailyPayments.paidAmount.sum().as("totalAmount")
                 ))
@@ -36,6 +36,27 @@ public class DailyPaymentsQueryDsl {
                 .where(dailyPayments.createdAt.contains(date),
                         dailyPayments.member.id.eq(memberId))
                 .groupBy(dailyPayments.member.id, dailyPayments.categoryName)
+                .fetch();
+    }
+
+    @Transactional
+    public List<DailyPaymentsCategoryDto>
+    getYearlyTotalAmountPerCategoryByMemberId(Long memberId, String year) {
+
+        QTotalAmountPerCategory perCategory =
+                QTotalAmountPerCategory.totalAmountPerCategory;
+
+        JPAQueryFactory qf = new JPAQueryFactory(entityManager);
+
+        return qf.select(Projections.bean(
+                DailyPaymentsCategoryDto.class,
+                perCategory.categoryName.as("categoryName"),
+                perCategory.totalAmount.sum().as("totalAmount")
+        ))
+                .from(perCategory)
+                .where(perCategory.dateInfo.contains(year),
+                        perCategory.member.id.eq(memberId))
+                .groupBy(perCategory.categoryName)
                 .fetch();
     }
 }

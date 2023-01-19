@@ -37,9 +37,6 @@ import static com.zerobase.accountbook.common.exception.ErrorCode.*;
 @RequiredArgsConstructor
 public class DailyPaymentsService {
 
-    @PersistenceContext
-    private EntityManager entityManager;
-
     private final DailyPaymentsQueryDsl dailyPaymentsQueryDsl;
     private final MemberRepository memberRepository;
     private final DailyPaymentsRepository dailyPaymentsRepository;
@@ -165,9 +162,8 @@ public class DailyPaymentsService {
     private GetMonthlyResultResponseDto getPastMonthlyResult(
             String requestDate, Long memberId
     ) {
-        Integer totalAmount = 0;
         // 총 사용 금액 가져오기
-        totalAmount += monthlyTotalAmountRepository
+        Integer totalAmount = monthlyTotalAmountRepository
                 .findByDateInfoAndMemberId(requestDate, memberId).orElseThrow(
                         () -> new AccountBookException(
                                 "해당 월에 총 지출이 존재하지 않습니다.",
@@ -214,6 +210,27 @@ public class DailyPaymentsService {
         }
 
         return GetMonthlyResultResponseDto.of(totalAmount, list);
+    }
+
+    // 지난 년도들만 확인할 수 있음
+    public GetYearlyResultResponseDto getYearlyResult(
+            String memberEmail, String year
+    ) {
+        Long memberId = validateMember(memberEmail).getId();
+
+        // 한달별 총 금액을 다 더하면 연 총 지출금액
+        Integer totalAmountOfTheYear = monthlyTotalAmountRepository
+                .sumByMemberIdAndDateInfoContainingYear(memberId, year);
+
+        // 카테고리별 다달이 금액을 모두 더하면 카테고리 연 총 지출금액
+        List<DailyPaymentsCategoryDto> totalAmountOfTheYearPerCategory =
+                dailyPaymentsQueryDsl
+                        .getYearlyTotalAmountPerCategoryByMemberId(
+                                memberId, year
+                        );
+
+        return GetYearlyResultResponseDto.of(
+                totalAmountOfTheYear, totalAmountOfTheYearPerCategory);
     }
 
     private static void checkDailyPaymentsOwner(

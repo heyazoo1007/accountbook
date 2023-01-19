@@ -6,12 +6,15 @@ import com.zerobase.accountbook.controller.dailypayments.dto.request.ModifyDaily
 import com.zerobase.accountbook.controller.dailypayments.dto.response.*;
 import com.zerobase.accountbook.controller.dailypayments.dto.request.DeleteDailyPaymentsRequestDto;
 import com.zerobase.accountbook.service.dailypaymetns.DailyPaymentsService;
+import jdk.vm.ci.meta.Local;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -101,6 +104,16 @@ public class DailyPaymentsController {
                         user.getUsername(),
                         date
                 );
+        return ApiResponse.success(response);
+    }
+
+    @GetMapping("/yearly")
+    public ApiResponse<GetYearlyResultResponseDto> getYearlyResult(
+            @AuthenticationPrincipal UserDetails user,
+            @RequestParam @DateTimeFormat(pattern = "yyyy")String year
+            ) {
+        GetYearlyResultResponseDto response =
+                dailyPaymentsService.getYearlyResult(user.getUsername(), year);
         return ApiResponse.success(response);
     }
 }
