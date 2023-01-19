@@ -5,7 +5,6 @@ import org.springframework.data.jpa.repository.Query;
 
 import java.util.Optional;
 
-
 public interface MonthlyTotalAmountRepository extends JpaRepository<MonthlyTotalAmount, Long> {
 
     Optional<MonthlyTotalAmount> findByDateInfoAndMemberId(String dateInfo, Long memberId);

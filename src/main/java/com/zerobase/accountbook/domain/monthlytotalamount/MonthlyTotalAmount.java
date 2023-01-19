@@ -33,4 +33,6 @@ public class MonthlyTotalAmount {
 
     @LastModifiedDate
     private LocalDateTime updatedAt;
+
 }
+
