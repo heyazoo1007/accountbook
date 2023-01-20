@@ -24,13 +24,14 @@ public class FirebaseCloudMessageService {
             "https://fcm.googleapis.com/v1/projects/[projectId]/messages:send";
     private final ObjectMapper objectMapper;
 
+    private final OkHttpClient okHttpClient;
+
     // targetToken 의 경우 FCM 을 이용해 front 를 구현할 때 얻어낼 수 있다고 합니다.
     public void sendMessageTo(
             String targetToken, String title, String body
     ) throws IOException {
         String message = makeMessage(targetToken, title, body);
 
-        OkHttpClient client = new OkHttpClient();
         RequestBody requestBody =
                 RequestBody.create(
                         message,
@@ -44,7 +45,7 @@ public class FirebaseCloudMessageService {
                 .addHeader(CONTENT_TYPE, "application/json; UTF-8")
                 .build();
 
-        Response response = client.newCall(request).execute();
+        Response response = okHttpClient.newCall(request).execute();
 
         log.info(response.body().string());
     }
