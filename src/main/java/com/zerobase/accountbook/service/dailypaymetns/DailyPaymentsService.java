@@ -242,6 +242,14 @@ public class DailyPaymentsService {
                 totalAmountOfTheYear, totalAmountOfTheYearPerCategory);
     }
 
+    public int getPaidAmountOfTheMonth(String memberEmail, String date) {
+
+        Long memberId = validateMember(memberEmail).getId();
+
+        // 회원과 년월에 해당하는 매일 지출내역의 전체 지출금액의 총 합
+        return dailyPaymentsRepository.totalPaidAmountSoFarByMemberId(memberId, date);
+    }
+
     private static void checkDailyPaymentsOwner(
             Member member, DailyPayments dailyPayments
     ) {
