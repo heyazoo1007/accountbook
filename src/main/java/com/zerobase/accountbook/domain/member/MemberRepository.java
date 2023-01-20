@@ -12,12 +12,7 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     Optional<Member> findByEmail(String email);
 
-    @Query(
-            nativeQuery = true,
-            value = "select count(m.id) " +
-                    "from member m"
-    )
-    Integer countAllMember();
+    Long countBy();
 
     Page<Member> findAll(Pageable pageable);
 }

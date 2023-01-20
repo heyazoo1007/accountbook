@@ -2,6 +2,7 @@ package com.zerobase.accountbook.service.dailypaymetns;
 
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.zerobase.accountbook.common.exception.ErrorCode;
 import com.zerobase.accountbook.common.exception.model.AccountBookException;
 import com.zerobase.accountbook.controller.dailypayments.dto.request.CreateDailyPaymentsRequestDto;
 import com.zerobase.accountbook.controller.dailypayments.dto.request.DeleteDailyPaymentsRequestDto;
@@ -9,7 +10,6 @@ import com.zerobase.accountbook.controller.dailypayments.dto.request.ModifyDaily
 import com.zerobase.accountbook.controller.dailypayments.dto.response.*;
 import com.zerobase.accountbook.domain.dailypayments.DailyPayments;
 import com.zerobase.accountbook.domain.dailypayments.DailyPaymentsRepository;
-import com.zerobase.accountbook.domain.dailypayments.QDailyPayments;
 import com.zerobase.accountbook.domain.member.Member;
 import com.zerobase.accountbook.domain.member.MemberRepository;
 import com.zerobase.accountbook.domain.monthlytotalamount.MonthlyTotalAmountRepository;
@@ -163,7 +163,7 @@ public class DailyPaymentsService {
             String requestDate, Long memberId
     ) {
         // 총 사용 금액 가져오기
-        Integer totalAmount = monthlyTotalAmountRepository
+        int totalAmount = monthlyTotalAmountRepository
                 .findByDateInfoAndMemberId(requestDate, memberId).orElseThrow(
                         () -> new AccountBookException(
                                 "해당 월에 총 지출이 존재하지 않습니다.",
@@ -190,7 +190,7 @@ public class DailyPaymentsService {
     private GetMonthlyResultResponseDto getCurrentMonthlyResult(
             Long memberId
     ) {
-        Integer totalAmount = 0;
+        int totalAmount = 0;
 
         // 요청한 사용자의 해당 월 지출내역을 카테고리로 가져옴
         // (카페 : 15000, 식당 : 50000, )
@@ -217,6 +217,15 @@ public class DailyPaymentsService {
             String memberEmail, String year
     ) {
         Long memberId = validateMember(memberEmail).getId();
+
+        int currentYear = LocalDateTime.now().getYear();
+        if (Integer.parseInt(year) - currentYear >= 0) {
+            throw new AccountBookException(
+                    "해당 년도는 조회할 수 없습니다.",
+                    Not_FOUND_YEARLY_RESULT_EXCEPTION
+            );
+        }
+
 
         // 한달별 총 금액을 다 더하면 연 총 지출금액
         Integer totalAmountOfTheYear = monthlyTotalAmountRepository

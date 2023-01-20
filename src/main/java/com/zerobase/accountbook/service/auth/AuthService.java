@@ -65,7 +65,7 @@ public class AuthService {
 
         // 인증 이메일 전송 버튼을 누르고 또 누르는 경우에 대한 예외처리
 
-        String data = getData("EMAIL-AUTH:" + email)
+        String data = getData("EMAIL-AUTH:" + email);
         if (data != null) {
             throw new AccountBookException(
                     String.format("(%s) 해당 이메일로 인증 메일이 전송되었습니다.", email),
@@ -156,8 +156,6 @@ public class AuthService {
                     NOT_FOUND_EMAIL_EXCEPTION
             );
         }
-        Member member = optionalMember.get();
-
         Member member = optionalMember.get();
 
         // 이메일에 비밀번호가 매치되지 않는 경우

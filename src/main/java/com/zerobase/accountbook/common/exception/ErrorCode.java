@@ -54,6 +54,7 @@ public enum ErrorCode {
 
     NOT_FOUND_CATEGORY_EXCEPTION(NOT_FOUND, "존재하지 않는 카테고리입니다."),
     NOT_FOUND_MONTHLY_TOTAL_AMOUNT_EXCEPTION(NOT_FOUND, "총 지출이 존재하지 않습니다."),
+    Not_FOUND_YEARLY_RESULT_EXCEPTION(NOT_FOUND, "해당 년도 결과가 존재하지 않습니다."),
 
 
     // 405 Method Not Allowed

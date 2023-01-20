@@ -6,7 +6,6 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.zerobase.accountbook.common.exception.model.AccountBookException;
 import com.zerobase.accountbook.domain.dailypayments.DailyPayments;
 import com.zerobase.accountbook.domain.dailypayments.DailyPaymentsRepository;
-import com.zerobase.accountbook.domain.dailypayments.QDailyPayments;
 import com.zerobase.accountbook.domain.member.Member;
 import com.zerobase.accountbook.domain.member.MemberRepository;
 import com.zerobase.accountbook.domain.totalamountpercategory.TotalAmountPerCategory;
@@ -39,24 +38,27 @@ public class TotalAmountPerCategoryService {
     private final DailyPaymentsQueryDsl dailyPaymentsQueryDsl;
 
     @Scheduled(cron = "0 0 0 1 * * *") // 매달 1일 정각에 모든 사용자에 대해 실행
-    private void saveMoneyPerCategory() {
+    public void saveMoneyPerCategory() {
 
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime oneMonthBefore = now.minusMonths(1);
 
 
         // 100명 단위로 페이징한 멤버에 대해서 진행
-        Integer totalMember = memberRepository.countAllMember();
+        int totalMember = Math.toIntExact(memberRepository.countBy());
         for (int i = 0; i < totalMember / 100 + 1; i++) {
-            Page<Member> members = memberRepository.findAll(PageRequest.of(i, 100));
+            Page<Member> members = memberRepository.findAll(
+                    PageRequest.of(i, 100)
+            );
             for (Member each : members) {
                 Long memberId = each.getId();
 
                 List<DailyPaymentsCategoryDto> all =
-                        dailyPaymentsQueryDsl.getTotalAmountPerCategoryByMemberId(
-                                oneMonthBefore.toString().substring(0, 9),
-                                memberId
-                        );
+                        dailyPaymentsQueryDsl
+                                .getTotalAmountPerCategoryByMemberId(
+                                        oneMonthBefore.toString().substring(0, 7),
+                                        memberId
+                                );
 
                 Member member = validateMemberById(memberId);
 
@@ -64,7 +66,9 @@ public class TotalAmountPerCategoryService {
                     totalAmountPerCategoryRepository.save(
                             TotalAmountPerCategory.builder()
                                     .member(member)
-                                    .dateInfo(String.valueOf(oneMonthBefore).substring(0, 7)) // 2023-01 형태로 저장
+                                    .dateInfo(String.valueOf(oneMonthBefore) // 2023-01 형태로 저장
+                                            .substring(0, 7)
+                                    )
                                     .categoryName(dto.getCategoryName())
                                     .totalAmount(dto.getTotalAmount())
                                     .createdAt(LocalDateTime.now())
