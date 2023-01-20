@@ -9,6 +9,8 @@ import com.zerobase.accountbook.controller.category.dto.response.GetCategoryList
 import com.zerobase.accountbook.controller.category.dto.response.ModifyCategoryResponseDto;
 import com.zerobase.accountbook.service.category.CategoryService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -23,25 +25,30 @@ public class CategoryController {
 
     @PostMapping()
     public ApiResponse<CreateCategoryResponseDto> createCategory(
+            @AuthenticationPrincipal UserDetails user,
             @Valid @RequestBody CreateCategoryRequestDto request
     ) {
-        CreateCategoryResponseDto response = categoryService.createCategory(request);
+        CreateCategoryResponseDto response =
+                categoryService.createCategory(user.getUsername(), request);
         return ApiResponse.success(response);
     }
 
     @PutMapping()
     public ApiResponse<ModifyCategoryResponseDto> modifyCategory(
+            @AuthenticationPrincipal UserDetails user,
             @Valid @RequestBody ModifyCategoryRequestDto request
     ) {
-        ModifyCategoryResponseDto response = categoryService.modifyCategory(request);
+        ModifyCategoryResponseDto response =
+                categoryService.modifyCategory(user.getUsername(), request);
         return ApiResponse.success(response);
     }
 
     @DeleteMapping()
     public ApiResponse<String> deleteCategory(
+            @AuthenticationPrincipal UserDetails user,
             @Valid @RequestBody DeleteCategoryRequestDto request
     ) {
-        categoryService.deleteCategory(request);
+        categoryService.deleteCategory(user.getUsername(), request);
         return ApiResponse.SUCCESS;
     }
 

@@ -11,9 +11,6 @@ import javax.validation.constraints.Email;
 @AllArgsConstructor
 public class ModifyCategoryRequestDto {
 
-    @Email
-    private String memberEmail;
-
     private long categoryId;
 
     private String categoryName;

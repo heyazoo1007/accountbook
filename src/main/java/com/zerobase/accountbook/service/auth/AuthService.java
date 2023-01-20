@@ -6,7 +6,6 @@ import com.zerobase.accountbook.common.exception.model.AccountBookException;
 import com.zerobase.accountbook.common.repository.RedisRepository;
 import com.zerobase.accountbook.controller.auth.dto.request.*;
 import com.zerobase.accountbook.controller.auth.dto.response.*;
-import com.zerobase.accountbook.domain.Email;
 import com.zerobase.accountbook.domain.member.Member;
 import com.zerobase.accountbook.domain.member.MemberRepository;
 import com.zerobase.accountbook.domain.member.MemberRole;

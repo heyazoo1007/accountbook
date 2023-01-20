@@ -45,8 +45,6 @@ public enum ErrorCode {
     // 404 Not Found
     NOT_FOUND_EXCEPTION(NOT_FOUND, "존재하지 않습니다"),
     NOT_FOUND_USER_EXCEPTION(NOT_FOUND, "탈퇴하거나 존재하지 않는 유저입니다"),
-    NOT_FOUND_ROOM_EXCEPTION(NOT_FOUND, "삭제되었거나 존재하지 않는 방입니다"),
-    NOT_FOUND_FEED_EXCEPTION(NOT_FOUND, "삭제되었거나 존재하지 않는 피드입니다"),
     NOT_FOUND_EMAIL_EXCEPTION(NOT_FOUND, "가입되지 않은 이메일입니다."),
     NOT_FOUND_BUDGET_EXCEPTION(NOT_FOUND, "존재하지 않은 예산입니다."),
 

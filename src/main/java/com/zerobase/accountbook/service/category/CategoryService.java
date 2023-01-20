@@ -29,10 +29,11 @@ public class CategoryService {
     private final MemberRepository memberRepository;
 
     public CreateCategoryResponseDto createCategory(
+            String memberEmail,
             CreateCategoryRequestDto request
     ) {
 
-        Member member = validateMember(request.getMemberEmail());
+        Member member = validateMember(memberEmail);
 
         validateUniqueCategoryName(request.getCategoryName());
 
@@ -44,10 +45,11 @@ public class CategoryService {
     }
 
     public ModifyCategoryResponseDto modifyCategory(
+            String memberEmail,
             ModifyCategoryRequestDto request
     ) {
 
-        Member member = validateMember(request.getMemberEmail());
+        Member member = validateMember(memberEmail);
 
         Category category = validateCategory(request.getCategoryId());
 
@@ -62,9 +64,11 @@ public class CategoryService {
         return ModifyCategoryResponseDto.of(category);
     }
 
-    public void deleteCategory(DeleteCategoryRequestDto request) {
+    public void deleteCategory(
+            String memberEmail, DeleteCategoryRequestDto request
+    ) {
 
-        Member member = validateMember(request.getMemberEmail());
+        Member member = validateMember(memberEmail);
 
         Category category = validateCategory(request.getCategoryId());
 

@@ -1,8 +1,5 @@
 package com.zerobase.accountbook.service.dailypaymetns;
 
-import com.querydsl.core.types.Projections;
-import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.zerobase.accountbook.common.exception.ErrorCode;
 import com.zerobase.accountbook.common.exception.model.AccountBookException;
 import com.zerobase.accountbook.controller.dailypayments.dto.request.CreateDailyPaymentsRequestDto;
 import com.zerobase.accountbook.controller.dailypayments.dto.request.DeleteDailyPaymentsRequestDto;
@@ -24,8 +21,6 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;

@@ -13,8 +13,5 @@ import javax.validation.constraints.Email;
 @AllArgsConstructor
 public class DeleteCategoryRequestDto {
 
-    @Email
-    private String memberEmail;
-
     private long categoryId;
 }
