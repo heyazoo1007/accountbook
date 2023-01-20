@@ -10,6 +10,8 @@ import com.zerobase.accountbook.controller.auth.dto.response.ModifyMemberPasswor
 import com.zerobase.accountbook.domain.member.Member;
 import com.zerobase.accountbook.domain.member.MemberRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -68,6 +70,14 @@ public class MemberService {
         member.setPassword(passwordEncoder.encode(request.getAfterPassword()));
 
         return ModifyMemberPasswordResponseDto.of(memberRepository.save(member));
+    }
+
+    public int getNumberOfTotalMember() {
+        return Math.toIntExact(memberRepository.countBy());
+    }
+
+    public Page<Member> findAllMemberByPaging(int pageNum, int size) {
+        return memberRepository.findAll(PageRequest.of(pageNum, size));
     }
 
     private static void notAuthorizedMember(String memberEmail, Member member) {
