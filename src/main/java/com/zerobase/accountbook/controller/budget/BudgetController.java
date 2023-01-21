@@ -24,19 +24,21 @@ public class BudgetController {
 
     @PostMapping()
     public ApiResponse<CreateBudgetResponseDto> createBudget(
+            @AuthenticationPrincipal UserDetails user,
             @Valid @RequestBody CreateBudgetRequestDto request
     ) {
         CreateBudgetResponseDto response =
-                budgetService.createBudget(request);
+                budgetService.createBudget(user.getUsername(), request);
         return ApiResponse.success(response);
     }
 
     @PutMapping()
     public ApiResponse<ModifyBudgetResponseDto> modifyBudget(
+            @AuthenticationPrincipal UserDetails user,
             @Valid @RequestBody ModifyBudgetRequestDto request
     ) {
         ModifyBudgetResponseDto response =
-                budgetService.modifyBudget(request);
+                budgetService.modifyBudget(user.getUsername(), request);
         return ApiResponse.success(response);
     }
 

@@ -12,8 +12,6 @@ import javax.validation.constraints.Min;
 @Setter
 public class ModifyBudgetRequestDto {
 
-    private String memberEmail;
-
     @DateTimeFormat(pattern = "yyyy - MM")
     private String yearMonth;
 
