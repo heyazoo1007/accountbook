@@ -127,7 +127,7 @@ class MemberServiceTest {
     }
 
     @Test
-    void fail_modifyMemberInfo_존재하지않는_회원_조회() {
+    void fail_modifyMemberInfo_존재하지_않는_회원_조회() {
         //given
         given(memberRepository.findById(anyLong()))
                 .willReturn(Optional.empty());
@@ -148,7 +148,7 @@ class MemberServiceTest {
     }
 
     @Test
-    void fail_modifyMemberInfo_다른_회원정보_조회() {
+    void fail_modifyMemberInfo_다른_회원정보를_조회() {
         //given
         Long memberId = 1L;
         Member member = Member.builder()
@@ -218,7 +218,7 @@ class MemberServiceTest {
     }
 
     @Test
-    void fail_modifyMemberPassword_존재하지않는_회원() {
+    void fail_modifyMemberPassword_존재하지_않는_회원정보_수정() {
         //given
         given(memberRepository.findById(anyLong()))
                 .willReturn(Optional.empty());
@@ -242,7 +242,7 @@ class MemberServiceTest {
     }
 
     @Test
-    void fail_modifyMemberPassword_다른_회원의_정보_조회() {
+    void fail_modifyMemberPassword_다른_회원정보를_수정() {
         //given
         Long memberId = 1L;
         String beforePassword = "beforePassword";
