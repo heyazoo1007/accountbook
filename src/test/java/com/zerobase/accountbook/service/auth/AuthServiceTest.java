@@ -91,7 +91,7 @@ class AuthServiceTest {
     }
 
     @Test
-    void fail_sendAuthEmail_중복_가입_요청() {
+    void fail_sendAuthEmail_이미_가입한_회원() {
         //given
         String email = "hello@abc.com";
         Member member = Member.builder()
@@ -111,7 +111,7 @@ class AuthServiceTest {
     }
 
     @Test
-    void fail_sendAuthEmail_중복_인증요청() {
+    void fail_sendAuthEmail_인증키_발급_요청_2번_이상_실행() {
         //given
         String email = "hello@abc.com";
         SendAuthEmailRequestDto requestDto = SendAuthEmailRequestDto.builder()
@@ -349,7 +349,7 @@ class AuthServiceTest {
     }
 
     @Test
-    void fail_signIn_회원_미존재() {
+    void fail_signIn_가입하지_않은_회원() {
         //given
         String email = "hello@abc.com";
         String password = "password";
