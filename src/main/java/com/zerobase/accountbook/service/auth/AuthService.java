@@ -10,10 +10,9 @@ import com.zerobase.accountbook.domain.member.Member;
 import com.zerobase.accountbook.domain.member.MemberRepository;
 import com.zerobase.accountbook.domain.member.MemberRole;
 import lombok.RequiredArgsConstructor;
-import org.apache.tomcat.util.digester.ArrayStack;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +20,7 @@ import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
@@ -37,7 +37,6 @@ public class AuthService {
     private final MemberRepository memberRepository;
     private final JavaMailSender javaMailSender;
     private final RedisRepository redisRepository;
-    private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final JwtTokenProvider jwtTokenProvider;
 
     private final PasswordEncoder passwordEncoder;
@@ -63,7 +62,6 @@ public class AuthService {
         validateEmail(email);
 
         // 인증 이메일 전송 버튼을 누르고 또 누르는 경우에 대한 예외처리
-
         String data = getData("EMAIL-AUTH:" + email);
         if (data != null) {
             throw new AccountBookException(
@@ -148,6 +146,29 @@ public class AuthService {
     public TokenResponseDto signIn(String email, String password) {
 
         // 해당 사용자가 존재하지 않는 경우
+        Member member = notExistedMember(email);
+
+        // 이메일에 비밀번호가 매치되지 않는 경우
+        // 비밀번호가 틀렸는데 아이디 혹은 비밀번호로 출력하는 이유는 혹시 모를 개인 정보 유출 때문
+        emailOrPasswordMismatch(password, member.getPassword());
+
+        List<String> roles = new ArrayList<>();
+        roles.add(member.getRole().toString());
+
+        return jwtTokenProvider.createToken(email, roles);
+    }
+
+    private void emailOrPasswordMismatch(String password, String memberPassword) {
+        if (!passwordEncoder.matches(password, memberPassword)) {
+            throw new AccountBookException(
+                    "이메일 혹은 비밀번호가 틀렸습니다.",
+                    VALIDATION_WRONG_EMAIL_PASSWORD_EXCEPTION
+            );
+        }
+    }
+
+    @NotNull
+    private Member notExistedMember(String email) {
         Optional<Member> optionalMember = memberRepository.findByEmail(email);
         if (!optionalMember.isPresent()) {
             throw new AccountBookException(
@@ -155,21 +176,7 @@ public class AuthService {
                     NOT_FOUND_EMAIL_EXCEPTION
             );
         }
-        Member member = optionalMember.get();
-
-        // 이메일에 비밀번호가 매치되지 않는 경우
-        // 비밀번호가 틀렸는데 아이디 혹은 비밀번호로 출력하는 이뉴는 혹시 모를 개인 정보 유출 때문
-        if (!passwordEncoder.matches(password, member.getPassword())) {
-            throw new AccountBookException(
-                    "이메일 혹은 비밀번호가 틀렸습니다.",
-                    VALIDATION_WRONG_EMAIL_PASSWORD_EXCEPTION
-            );
-        }
-
-        List<String> roles = new ArrayStack<>();
-        roles.add(member.getRole().toString());
-
-        return jwtTokenProvider.createToken(email, roles);
+        return optionalMember.get();
     }
 
     private String getAuthKey() {
