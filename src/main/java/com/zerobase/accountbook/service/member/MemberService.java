@@ -61,23 +61,18 @@ public class MemberService {
         notAuthorizedMember(memberEmail, member);
 
         // 사용자 비밀번호를 잘못 입력했을 때
-        if (!passwordEncoder.matches(request.getBeforePassword(), member.getPassword())) {
+        if (!passwordEncoder.matches(
+                request.getBeforePassword(), member.getPassword())
+        ) {
             throw new AccountBookException(
-                    "비밀번호를 잘못 입력하셨습니다.", VALIDATION_WRONG_PASSWORD_EXCEPTION
+                    "비밀번호를 잘못 입력하셨습니다.",
+                    VALIDATION_WRONG_PASSWORD_EXCEPTION
             );
         }
 
         member.setPassword(passwordEncoder.encode(request.getAfterPassword()));
 
         return ModifyMemberPasswordResponseDto.of(memberRepository.save(member));
-    }
-
-    public int getNumberOfTotalMember() {
-        return Math.toIntExact(memberRepository.countBy());
-    }
-
-    public Page<Member> findAllMemberByPaging(int pageNum, int size) {
-        return memberRepository.findAll(PageRequest.of(pageNum, size));
     }
 
     private static void notAuthorizedMember(String memberEmail, Member member) {
