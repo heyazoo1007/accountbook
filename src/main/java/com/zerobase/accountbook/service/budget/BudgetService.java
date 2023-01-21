@@ -40,20 +40,14 @@ public class BudgetService {
     private final FirebaseCloudMessageService firebaseCloudMessageService;
 
     // TODO 매달 첫번째 날에 사용자가 로그인 하면 생성하라고 알람 보내기
-    public CreateBudgetResponseDto createBudget(CreateBudgetRequestDto request
+    public CreateBudgetResponseDto createBudget(
+            String memberEmail, CreateBudgetRequestDto request
     ) {
 
-        Member member = validateMember(request.getMemberEmail());
+        Member member = validateMember(memberEmail);
 
         // 이미 생성된 예산에 대해서는 생성할 수 없고, 따로 수정 버튼을 눌러야 합니다.
-        Optional<Budget> optionalBudget =
-                budgetRepository.findByBudgetYearMonth(YearMonth.now().toString());
-        if (optionalBudget.isPresent()) {
-            throw new AccountBookException(
-                    "이미 해당 달에 예산이 설정 되어 있습니다.",
-                    CONFLICT_MONTHLY_BUDGET_EXCEPTION
-            );
-        }
+        checkBudgetAlreadyCreated();
 
         member.setMonthlyBudget(request.getMonthlyBudget());
         memberRepository.save(member);
@@ -66,19 +60,26 @@ public class BudgetService {
                                 .monthlyBudget(request.getMonthlyBudget())
                                 .createdAt(LocalDateTime.now())
                                 .build()
-                ));
+                )
+        );
     }
 
-    public ModifyBudgetResponseDto modifyBudget(ModifyBudgetRequestDto request
+    public ModifyBudgetResponseDto modifyBudget(
+            String memberEmail, ModifyBudgetRequestDto request
     ) {
 
-        Member member = validateMember(request.getMemberEmail());
+        Integer modifiedBudget = request.getModifyMonthlyBudget();
 
-        Budget budget = validateBudget(member.getId(), request.getYearMonth());
+        Member member = validateMember(memberEmail);
+
+        Budget budget = validateBudget(request.getYearMonth());
 
         checkBudgetOwner(member, budget);
 
-        budget.setMonthlyBudget(request.getModifyMonthlyBudget());
+        budget.setMonthlyBudget(modifiedBudget);
+
+        member.setMonthlyBudget(modifiedBudget);
+        memberRepository.save(member);
 
         return ModifyBudgetResponseDto.of(budgetRepository.save(budget));
     }
@@ -86,10 +87,9 @@ public class BudgetService {
     public GetBudgetResponseDto getBudget(
             String memberEmail, String budgetYearMonth
     ) {
-        Budget budget = validateBudget(
-                validateMember(memberEmail).getId(),
-                budgetYearMonth
-        );
+        Budget budget = validateBudget(budgetYearMonth);
+
+        checkBudgetOwner(validateMember(memberEmail), budget);
 
         return GetBudgetResponseDto.of(budget);
     }
@@ -107,9 +107,11 @@ public class BudgetService {
             for (Member each : members) {
 
                 // budgetService 에서 한 달 예산 가져오기
-                int monthlyBudget = getMonthlyBudget(budgetYearMonth, each.getEmail());
+                int monthlyBudget =
+                        getMonthlyBudget(budgetYearMonth, each.getEmail());
                 // dailyPaymentsService 에서 그 때까지 쓴 돈 가져오기
-                int totalAmountSoFar = getTotalAmountSoFar(budgetYearMonth, each.getId());
+                int totalAmountSoFar =
+                        getTotalAmountSoFar(budgetYearMonth, each.getId());
 
                 // 예산 - 총 지출 금액 남았다는 메시지 전달하면 됨
                 int diffBetweenBudgetAndPaid = monthlyBudget - totalAmountSoFar;
@@ -166,20 +168,24 @@ public class BudgetService {
         }
     }
 
-    private Budget validateBudget(Long memberId, String budgetYearMonth) {
+    private Budget validateBudget(String budgetYearMonth) {
 
-        Budget budget = budgetRepository.findByBudgetYearMonth(budgetYearMonth)
+        return budgetRepository.findByBudgetYearMonth(budgetYearMonth)
                 .orElseThrow(() -> new AccountBookException(
                         "존재하지 않는 예산입니다.",
                         NOT_FOUND_BUDGET_EXCEPTION));
+    }
 
-        if (!budget.getMember().getId().equals(memberId)) {
+    private void checkBudgetAlreadyCreated() {
+        Optional<Budget> optionalBudget =
+                budgetRepository
+                        .findByBudgetYearMonth(YearMonth.now().toString());
+        if (optionalBudget.isPresent()) {
             throw new AccountBookException(
-                    "예산의 소유자가 아닙니다.",
-                    FORBIDDEN_EXCEPTION
+                    "이미 해당 달에 예산이 설정 되어 있습니다.",
+                    CONFLICT_MONTHLY_BUDGET_EXCEPTION
             );
         }
-        return budget;
     }
 
     private Member validateMember(String memberEmail) {
