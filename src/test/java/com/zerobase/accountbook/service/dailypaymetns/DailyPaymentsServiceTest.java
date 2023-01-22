@@ -7,6 +7,7 @@ import com.zerobase.accountbook.controller.dailypayments.dto.request.ModifyDaily
 import com.zerobase.accountbook.controller.dailypayments.dto.response.CreateDailyPaymentsResponseDto;
 import com.zerobase.accountbook.controller.dailypayments.dto.response.GetDailyPaymentsResponseDto;
 import com.zerobase.accountbook.controller.dailypayments.dto.response.ModifyDailyPaymentsResponseDto;
+import com.zerobase.accountbook.controller.dailypayments.dto.response.SearchDailyPaymentsResponseDto;
 import com.zerobase.accountbook.domain.dailypayments.DailyPayments;
 import com.zerobase.accountbook.domain.dailypayments.DailyPaymentsRepository;
 import com.zerobase.accountbook.domain.member.Member;
@@ -17,6 +18,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
@@ -38,7 +40,7 @@ class DailyPaymentsServiceTest {
     @Mock
     private MemberRepository memberRepository;
 
-    @Mock
+    @Spy
     private DailyPaymentsRepository dailyPaymentsRepository;
 
     @InjectMocks
@@ -665,6 +667,103 @@ class DailyPaymentsServiceTest {
                 () -> dailyPaymentsService.getDailyPaymentsList(
                         requestEmail,
                         requestDate)
+        );
+    }
+
+    @Test
+    void success_searchDailyPayments() { // 지출 장소와 메모에서 검색
+        //given
+        String searchKeyword = "keyword";
+
+        String requestEmail = "hello@abc.com";
+        Member owner = Member.builder()
+                .id(1L)
+                .email(requestEmail)
+                .build();
+        given(memberRepository.findByEmail(anyString()))
+                .willReturn(Optional.of(owner));
+
+        Member notOwner = Member.builder()
+                .id(2L)
+                .email(requestEmail)
+                .build();
+
+        DailyPayments notSearchNoSearchKeyword = DailyPayments.builder()
+                .id(1L)
+                .member(owner)
+                .paidAmount(1000)
+                .paidWhere("place1")
+                .methodOfPayment("card1")
+                .categoryName("category1")
+                .memo("memo1")
+                .build();
+        DailyPayments notSearchNotOwner = DailyPayments.builder()
+                .id(2L)
+                .member(notOwner)
+                .paidAmount(2000)
+                .paidWhere("keyword2")
+                .methodOfPayment("card2")
+                .categoryName("category2")
+                .memo("keyword2")
+                .build();
+        DailyPayments searchDailyPaymentByPaidWhere = DailyPayments.builder()
+                .id(3L)
+                .member(owner)
+                .paidAmount(3000)
+                .paidWhere("keyword2")
+                .methodOfPayment("card2")
+                .categoryName("category2")
+                .memo("memo2")
+                .build();
+        DailyPayments searchDailyPaymentByMemo = DailyPayments.builder()
+                .id(4L)
+                .member(owner)
+                .paidAmount(4000)
+                .paidWhere("paidWhere2")
+                .methodOfPayment("card2")
+                .categoryName("category2")
+                .memo("keyword2")
+                .build();
+        DailyPayments searchDailyPaymentBoth = DailyPayments.builder()
+                .id(5L)
+                .member(owner)
+                .paidAmount(5000)
+                .paidWhere("keyword2")
+                .methodOfPayment("card2")
+                .categoryName("category2")
+                .memo("keyword2")
+                .build();
+        List<DailyPayments> list = new ArrayList<>();
+        list.add(searchDailyPaymentByPaidWhere);
+        list.add(searchDailyPaymentByMemo);
+        list.add(searchDailyPaymentBoth);
+        given(dailyPaymentsRepository.searchKeyword(anyLong(), anyString()))
+                .willReturn(list);
+
+        //when
+        dailyPaymentsService.searchDailyPayments(requestEmail, searchKeyword);
+
+        //then
+        verify(dailyPaymentsRepository, times(1))
+                .searchKeyword(owner.getId(), searchKeyword);
+    }
+
+    @Test
+    void fail_searchDailyPayments_존재하지_않는_회원() {
+        //given
+        String requestKeyword = "keyword";
+
+        String requestEmail = "hello@abc.com";
+        given(memberRepository.findByEmail(anyString()))
+                .willReturn(Optional.empty());
+
+        //when
+
+        //then
+        assertThrows(AccountBookException.class,
+                () -> dailyPaymentsService.searchDailyPayments(
+                        requestEmail,
+                        requestKeyword)
         );
     }
 }

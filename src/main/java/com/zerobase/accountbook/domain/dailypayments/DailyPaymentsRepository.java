@@ -19,8 +19,6 @@ public interface DailyPaymentsRepository extends JpaRepository<DailyPayments, Lo
     )
     List<DailyPayments> searchKeyword(long memberId, String keyword);
 
-    List<DailyPayments> findByMemberIdAndCreatedAtBetween(Long memberId, String before, String now);
-
     @Query(
             nativeQuery = true,
             value = "select sum(dp.paid_amount) " +
