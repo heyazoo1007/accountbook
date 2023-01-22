@@ -15,4 +15,6 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     Long countBy();
 
     Page<Member> findAll(Pageable pageable);
+
+    void deleteAllById(Long memberId);
 }

@@ -1,5 +1,6 @@
 package com.zerobase.accountbook.service.auth;
 
+import com.zerobase.accountbook.common.config.security.JwtTokenProvider;
 import com.zerobase.accountbook.common.config.security.dto.TokenResponseDto;
 import com.zerobase.accountbook.common.exception.model.AccountBookException;
 import com.zerobase.accountbook.common.repository.RedisRepository;
@@ -42,6 +43,9 @@ class AuthServiceTest {
 
     @Mock
     private PasswordEncoder passwordEncoder;
+
+    @Mock
+    private JwtTokenProvider jwtTokenProvider;
 
     @InjectMocks
     private AuthService authService;
@@ -310,17 +314,17 @@ class AuthServiceTest {
         given(passwordEncoder.matches(password, member.getPassword()))
                 .willReturn(true);
 
-        ArgumentCaptor<TokenResponseDto> captor =
-                ArgumentCaptor.forClass(TokenResponseDto.class);
+        TokenResponseDto token = TokenResponseDto.builder()
+                .accessToken("token")
+                .build();
+        given(jwtTokenProvider.createToken(anyString(), anyList()))
+                .willReturn(token);
 
         //when
-        List<String> roles = new ArrayList<>();
-        roles.add(member.getRole().toString());
-        authService.signIn(email, password);
-
+        TokenResponseDto responseDto = authService.signIn(email, password);
 
         //then
-        assertNotNull(captor);
+        assertEquals(token.getAccessToken(), responseDto.getAccessToken());
     }
 
     @Test

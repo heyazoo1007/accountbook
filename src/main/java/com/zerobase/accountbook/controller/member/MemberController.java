@@ -6,6 +6,7 @@ import com.zerobase.accountbook.controller.auth.dto.request.ModifyMemberPassword
 import com.zerobase.accountbook.controller.auth.dto.response.GetMemberInfoResponseDto;
 import com.zerobase.accountbook.controller.auth.dto.response.ModifyMemberInfoResponseDto;
 import com.zerobase.accountbook.controller.auth.dto.response.ModifyMemberPasswordResponseDto;
+import com.zerobase.accountbook.controller.member.dto.request.DeleteMemberRequestDto;
 import com.zerobase.accountbook.service.member.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -49,5 +50,14 @@ public class MemberController {
         ModifyMemberPasswordResponseDto response =
                 memberService.modifyMemberPassword(user.getUsername(), request);
         return ApiResponse.success(response);
+    }
+
+    @DeleteMapping
+    public ApiResponse<String> deleteMember(
+            @AuthenticationPrincipal UserDetails user,
+            @RequestBody DeleteMemberRequestDto request
+    ) {
+        memberService.deleteMember(user.getUsername(), request);
+        return ApiResponse.SUCCESS;
     }
 }

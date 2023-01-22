@@ -41,7 +41,12 @@ public class SecurityConfig {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeRequests()
-                .antMatchers("/v1/**").permitAll()
+                .antMatchers(
+                        "/v1/**",
+                        "/swagger-resources/**",
+                        "/swagger-ui.html",
+                        "/swagger-ui/**"
+                ).permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider),

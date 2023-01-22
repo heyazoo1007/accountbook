@@ -7,19 +7,23 @@ import com.zerobase.accountbook.controller.auth.dto.request.ModifyMemberPassword
 import com.zerobase.accountbook.controller.auth.dto.response.GetMemberInfoResponseDto;
 import com.zerobase.accountbook.controller.auth.dto.response.ModifyMemberInfoResponseDto;
 import com.zerobase.accountbook.controller.auth.dto.response.ModifyMemberPasswordResponseDto;
+import com.zerobase.accountbook.controller.member.dto.request.DeleteMemberRequestDto;
+import com.zerobase.accountbook.domain.budget.BudgetRepository;
+import com.zerobase.accountbook.domain.category.CategoryRepository;
+import com.zerobase.accountbook.domain.dailypayments.DailyPaymentsRepository;
 import com.zerobase.accountbook.domain.member.Member;
 import com.zerobase.accountbook.domain.member.MemberRepository;
+import com.zerobase.accountbook.domain.monthlytotalamount.MonthlyTotalAmountRepository;
+import com.zerobase.accountbook.domain.totalamountpercategory.TotalAmountPerCategoryRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
 
-import static com.zerobase.accountbook.common.exception.ErrorCode.NOT_FOUND_USER_EXCEPTION;
-import static com.zerobase.accountbook.common.exception.ErrorCode.VALIDATION_WRONG_PASSWORD_EXCEPTION;
+import static com.zerobase.accountbook.common.exception.ErrorCode.*;
 
 @Service
 @RequiredArgsConstructor
@@ -28,6 +32,16 @@ public class MemberService {
     private final MemberRepository memberRepository;
 
     private final PasswordEncoder passwordEncoder;
+
+    private final BudgetRepository budgetRepository;
+
+    private final CategoryRepository categoryRepository;
+
+    private final DailyPaymentsRepository dailyPaymentsRepository;
+
+    private final MonthlyTotalAmountRepository monthlyTotalAmountRepository;
+
+    private final TotalAmountPerCategoryRepository totalAmountPerCategoryRepository;
 
     public GetMemberInfoResponseDto getMemberInfo(
             String memberEmail, Long memberId
@@ -73,6 +87,33 @@ public class MemberService {
         member.setPassword(passwordEncoder.encode(request.getAfterPassword()));
 
         return ModifyMemberPasswordResponseDto.of(memberRepository.save(member));
+    }
+
+    @Transactional
+    public void deleteMember(String memberEmail, DeleteMemberRequestDto request) {
+
+        Member targetMember = validateMemberByMemberId(request.getMemberId());
+
+        if (!targetMember.getEmail().equals(memberEmail)) {
+            throw new AccountBookException(
+                    "본인 계정만 삭제할 수 있습니다.",
+                    FORBIDDEN_EXCEPTION
+            );
+        }
+
+        Long memberId = targetMember.getId();
+
+        budgetRepository.deleteAllByMemberId(memberId);
+
+        categoryRepository.deleteAllByMemberId(memberId);
+
+        dailyPaymentsRepository.deleteAllByMemberId(memberId);
+
+        monthlyTotalAmountRepository.deleteAllByMemberId(memberId);
+
+        totalAmountPerCategoryRepository.deleteAllByMemberId(memberId);
+
+        memberRepository.deleteAllById(memberId);
     }
 
     private static void notAuthorizedMember(String memberEmail, Member member) {
