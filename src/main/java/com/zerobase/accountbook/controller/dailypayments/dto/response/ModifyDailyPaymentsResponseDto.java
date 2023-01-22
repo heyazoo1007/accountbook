@@ -24,7 +24,6 @@ public class ModifyDailyPaymentsResponseDto {
 
     private String updatedAt;
 
-    // hashTags 는 추후에 수정할 예정
     public static ModifyDailyPaymentsResponseDto of(DailyPayments dailyPayments) {
         return ModifyDailyPaymentsResponseDto.builder()
                 .dailyPaymentsId(dailyPayments.getId())
