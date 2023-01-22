@@ -921,4 +921,92 @@ class DailyPaymentsServiceTest {
                 )
         );
     }
+
+    @Test
+    void success_getYearlyResult() {
+        //given
+        String requestEmail = "hello@abc.com";
+        String requestYear = "2022";
+        Member member = Member.builder()
+                .id(1L)
+                .email(requestEmail)
+                .build();
+        given(memberRepository.findByEmail(anyString()))
+                .willReturn(Optional.of(member));
+
+        int totalAmountOfTheYear = 150000;
+        given(monthlyTotalAmountRepository.sumByMemberIdAndDateInfoContainingYear(
+                anyLong(), anyString()
+            )
+        ).willReturn(totalAmountOfTheYear);
+
+        DailyPaymentsCategoryDto category1 = DailyPaymentsCategoryDto.builder()
+                .categoryName("category1")
+                .totalAmount(100000)
+                .build();
+        DailyPaymentsCategoryDto category2 = DailyPaymentsCategoryDto.builder()
+                .categoryName("category2")
+                .totalAmount(50000)
+                .build();
+        List<DailyPaymentsCategoryDto> list = new ArrayList<>();
+        list.add(category1);
+        list.add(category2);
+        given(dailyPaymentsQueryDsl
+                .getYearlyTotalAmountPerCategoryByMemberId(anyLong(), anyString())
+        ).willReturn(list);
+
+        //when
+        GetYearlyResultResponseDto responseDto =
+                dailyPaymentsService.getYearlyResult(requestYear, requestYear);
+
+        //then
+        assertEquals(
+                totalAmountOfTheYear,
+                responseDto.getYearlyTotalAmount()
+        );
+        assertEquals(list.size(), responseDto.getList().size());
+    }
+
+    @Test
+    void fail_getYearlyResult_존재하지_않는_회원() {
+        //given
+        String requestEmail = "hello@abc.com";
+        String requestYear = "2023";
+        given(memberRepository.findByEmail(anyString()))
+                .willReturn(Optional.empty());
+
+        //when
+
+        //then
+        assertThrows(AccountBookException.class,
+                () -> dailyPaymentsService.getYearlyResult(
+                        requestEmail,
+                        requestYear
+                )
+        );
+    }
+
+    @Test
+    void fail_getYearlyResult_조회할_수_없는_년도() {
+        //given
+        String requestEmail = "hello@abc.com";
+        String requestYear = "2023";
+        Member member = Member.builder()
+                .id(1L)
+                .email(requestEmail)
+                .build();
+        given(memberRepository.findByEmail(anyString()))
+                .willReturn(Optional.of(member));
+
+
+        //when
+
+        //then
+        assertThrows(AccountBookException.class,
+                () -> dailyPaymentsService.getYearlyResult(
+                        requestEmail,
+                        requestYear
+                )
+        );
+    }
 }
