@@ -65,6 +65,7 @@ public class DailyPaymentsService {
     ) {
 
         Member member = validateMember(memberEmail);
+
         DailyPayments dailyPayments =
                 validateDailyPayments(request.getDailyPaymentsId());
 
@@ -98,7 +99,7 @@ public class DailyPaymentsService {
     }
 
     @Transactional(readOnly = true)
-    public GetDailyPaymentsResponseDto getDailyPayments(
+    public GetDailyPaymentsResponseDto getDailyPayment(
             String memberEmail, Long dailyPaymentsId
     ) {
 
@@ -114,11 +115,14 @@ public class DailyPaymentsService {
     @Transactional(readOnly = true)
     @Cacheable("dailyPayments")
     public List<GetDailyPaymentsResponseDto> getDailyPaymentsList(
-            String memberEmail
+            String memberEmail,
+            String date
     ) {
-        validateMember(memberEmail);
+        Long memberId = validateMember(memberEmail).getId();
 
-        List<DailyPayments> all = dailyPaymentsRepository.findAll();
+        List<DailyPayments> all =
+                dailyPaymentsRepository
+                        .findAllByMemberIdAndCreatedAtContaining(memberId, date);
 
         return all.stream()
                 .map(GetDailyPaymentsResponseDto:: of)
@@ -152,6 +156,36 @@ public class DailyPaymentsService {
 
         // 이번 달의 지출 내역 가져오기
         return getCurrentMonthlyResult(memberId);
+    }
+
+    // 지난 년도들만 확인할 수 있음
+    public GetYearlyResultResponseDto getYearlyResult(
+            String memberEmail, String year
+    ) {
+        Long memberId = validateMember(memberEmail).getId();
+
+        int currentYear = LocalDateTime.now().getYear();
+        if (Integer.parseInt(year) - currentYear >= 0) {
+            throw new AccountBookException(
+                    "해당 년도는 조회할 수 없습니다.",
+                    Not_FOUND_YEARLY_RESULT_EXCEPTION
+            );
+        }
+
+
+        // 한달별 총 금액을 다 더하면 연 총 지출금액
+        Integer totalAmountOfTheYear = monthlyTotalAmountRepository
+                .sumByMemberIdAndDateInfoContainingYear(memberId, year);
+
+        // 카테고리별 다달이 금액을 모두 더하면 카테고리 연 총 지출금액
+        List<DailyPaymentsCategoryDto> totalAmountOfTheYearPerCategory =
+                dailyPaymentsQueryDsl
+                        .getYearlyTotalAmountPerCategoryByMemberId(
+                                memberId, year
+                        );
+
+        return GetYearlyResultResponseDto.of(
+                totalAmountOfTheYear, totalAmountOfTheYearPerCategory);
     }
 
     private GetMonthlyResultResponseDto getPastMonthlyResult(
@@ -205,44 +239,6 @@ public class DailyPaymentsService {
         }
 
         return GetMonthlyResultResponseDto.of(totalAmount, list);
-    }
-
-    // 지난 년도들만 확인할 수 있음
-    public GetYearlyResultResponseDto getYearlyResult(
-            String memberEmail, String year
-    ) {
-        Long memberId = validateMember(memberEmail).getId();
-
-        int currentYear = LocalDateTime.now().getYear();
-        if (Integer.parseInt(year) - currentYear >= 0) {
-            throw new AccountBookException(
-                    "해당 년도는 조회할 수 없습니다.",
-                    Not_FOUND_YEARLY_RESULT_EXCEPTION
-            );
-        }
-
-
-        // 한달별 총 금액을 다 더하면 연 총 지출금액
-        Integer totalAmountOfTheYear = monthlyTotalAmountRepository
-                .sumByMemberIdAndDateInfoContainingYear(memberId, year);
-
-        // 카테고리별 다달이 금액을 모두 더하면 카테고리 연 총 지출금액
-        List<DailyPaymentsCategoryDto> totalAmountOfTheYearPerCategory =
-                dailyPaymentsQueryDsl
-                        .getYearlyTotalAmountPerCategoryByMemberId(
-                                memberId, year
-                        );
-
-        return GetYearlyResultResponseDto.of(
-                totalAmountOfTheYear, totalAmountOfTheYearPerCategory);
-    }
-
-    public int getPaidAmountOfTheMonth(String memberEmail, String date) {
-
-        Long memberId = validateMember(memberEmail).getId();
-
-        // 회원과 년월에 해당하는 매일 지출내역의 전체 지출금액의 총 합
-        return dailyPaymentsRepository.totalPaidAmountSoFarByMemberId(memberId, date);
     }
 
     private static void checkDailyPaymentsOwner(

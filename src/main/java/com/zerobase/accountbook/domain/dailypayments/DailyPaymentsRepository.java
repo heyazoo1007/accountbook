@@ -7,6 +7,8 @@ import java.util.List;
 
 public interface DailyPaymentsRepository extends JpaRepository<DailyPayments, Long> {
 
+    List<DailyPayments> findAllByMemberIdAndCreatedAtContaining(Long memberId, String createdAt);
+
     @Query(
             nativeQuery = true,
             value = "select * " +

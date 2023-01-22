@@ -13,6 +13,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -62,7 +63,7 @@ public class DailyPaymentsController {
             @PathVariable Long dailyPaymentsId
     ) {
         GetDailyPaymentsResponseDto response =
-                dailyPaymentsService.getDailyPayments(
+                dailyPaymentsService.getDailyPayment(
                         user.getUsername(),
                         dailyPaymentsId
                 );
@@ -71,10 +72,14 @@ public class DailyPaymentsController {
 
     @GetMapping("/list")
     public ApiResponse<List<GetDailyPaymentsResponseDto>> getDailyPaymentsList(
-            @AuthenticationPrincipal UserDetails user
+            @AuthenticationPrincipal UserDetails user,
+            @RequestParam @DateTimeFormat(pattern = "yyyy-MM") String date
     ) {
         List<GetDailyPaymentsResponseDto> response =
-                dailyPaymentsService.getDailyPaymentsList(user.getUsername());
+                dailyPaymentsService.getDailyPaymentsList(
+                        user.getUsername(),
+                        date
+                );
         return ApiResponse.success(response);
     }
 
