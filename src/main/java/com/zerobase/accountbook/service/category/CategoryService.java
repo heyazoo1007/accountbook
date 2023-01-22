@@ -53,7 +53,7 @@ public class CategoryService {
 
         Category category = validateCategory(request.getCategoryId());
 
-        requestMemberMismatchCategoryOwner(member, category);
+        checkCategoryOwner(member, category);
 
         validateUniqueCategoryName(request.getCategoryName());
 
@@ -72,13 +72,19 @@ public class CategoryService {
 
         Category category = validateCategory(request.getCategoryId());
 
-        requestMemberMismatchCategoryOwner(member, category);
+        checkCategoryOwner(member, category);
 
         categoryRepository.deleteById(request.getCategoryId());
     }
 
-    public List<GetCategoryListResponseDto> getCategoryList() {
-        List<Category> all = categoryRepository.findAll();
+    public List<GetCategoryListResponseDto> getCategoryList(
+            String memberEmail
+    ) {
+
+        List<Category> all =
+                categoryRepository.findAllByMemberId(
+                        validateMember(memberEmail).getId()
+                );
         return all.stream()
                 .map(category -> GetCategoryListResponseDto.of(category))
                 .collect(Collectors.toList());
@@ -93,7 +99,7 @@ public class CategoryService {
         }
     }
 
-    private static void requestMemberMismatchCategoryOwner(
+    private static void checkCategoryOwner(
             Member member, Category category
     ) {
         if (!member.getId().equals(category.getMember().getId())) {
