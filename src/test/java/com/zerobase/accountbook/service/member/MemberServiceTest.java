@@ -6,8 +6,14 @@ import com.zerobase.accountbook.controller.auth.dto.request.ModifyMemberPassword
 import com.zerobase.accountbook.controller.auth.dto.response.GetMemberInfoResponseDto;
 import com.zerobase.accountbook.controller.auth.dto.response.ModifyMemberInfoResponseDto;
 import com.zerobase.accountbook.controller.auth.dto.response.ModifyMemberPasswordResponseDto;
+import com.zerobase.accountbook.controller.member.dto.request.DeleteMemberRequestDto;
+import com.zerobase.accountbook.domain.budget.BudgetRepository;
+import com.zerobase.accountbook.domain.category.CategoryRepository;
+import com.zerobase.accountbook.domain.dailypayments.DailyPaymentsRepository;
 import com.zerobase.accountbook.domain.member.Member;
 import com.zerobase.accountbook.domain.member.MemberRepository;
+import com.zerobase.accountbook.domain.monthlytotalamount.MonthlyTotalAmountRepository;
+import com.zerobase.accountbook.domain.totalamountpercategory.TotalAmountPerCategoryRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -16,6 +22,7 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import sun.security.util.KnownOIDs;
 
 import java.util.Optional;
 
@@ -33,6 +40,21 @@ class MemberServiceTest {
 
     @Spy
     private BCryptPasswordEncoder passwordEncoder;
+
+    @Mock
+    private BudgetRepository budgetRepository;
+
+    @Mock
+    private CategoryRepository categoryRepository;
+
+    @Mock
+    private DailyPaymentsRepository dailyPaymentsRepository;
+
+    @Mock
+    private MonthlyTotalAmountRepository monthlyTotalAmountRepository;
+
+    @Mock
+    private TotalAmountPerCategoryRepository totalAmountPerCategoryRepository;
 
     @InjectMocks
     private MemberService memberService;
@@ -302,5 +324,71 @@ class MemberServiceTest {
                         requestEmail, requestDto
                 )
         );
+    }
+
+    @Test
+    void success_deleteMember() {
+        //given
+        String requestEmail = "hello@abc.com";
+        Member member = Member.builder().id(1L).email(requestEmail).build();
+        given(memberRepository.findById(anyLong()))
+                .willReturn(Optional.of(member));
+
+        DeleteMemberRequestDto requestDto =
+                DeleteMemberRequestDto.builder().memberId(1L).build();
+
+        //when
+        memberService.deleteMember(requestEmail, requestDto);
+
+        //then
+        Long memberId = member.getId();
+        verify(budgetRepository, times(1))
+                .deleteAllByMemberId(memberId);
+        verify(categoryRepository, times(1))
+                .deleteAllByMemberId(memberId);
+        verify(dailyPaymentsRepository, times(1))
+                .deleteAllByMemberId(memberId);
+        verify(monthlyTotalAmountRepository, times(1))
+                .deleteAllByMemberId(memberId);
+        verify(totalAmountPerCategoryRepository, times(1))
+                .deleteAllByMemberId(memberId);
+        verify(memberRepository, times(1))
+                .deleteAllById(memberId);
+    }
+
+    @Test
+    void fail_deleteMember_존재하지_않는_회원_삭제() {
+        //given
+        String requestEmail = "hello@abc.com";
+        given(memberRepository.findById(anyLong()))
+                .willReturn(Optional.empty());
+
+        DeleteMemberRequestDto requestDto =
+                DeleteMemberRequestDto.builder().memberId(1L).build();
+
+        //when
+
+        //then
+        assertThrows(AccountBookException.class,
+                () -> memberService.deleteMember(requestEmail, requestDto));
+    }
+
+    @Test
+    void fail_deleteMember_다른_계정_삭제_시도() {
+        //given
+        Member owner = Member.builder().id(1L).email("owner@abc.com").build();
+        given(memberRepository.findById(anyLong()))
+                .willReturn(Optional.of(owner));
+
+        String notOwnerEmail = "notOwner@abc.com";
+
+        DeleteMemberRequestDto requestDto =
+                DeleteMemberRequestDto.builder().memberId(1L).build();
+
+        //when
+
+        //then
+        assertThrows(AccountBookException.class,
+                () -> memberService.deleteMember(notOwnerEmail, requestDto));
     }
 }
