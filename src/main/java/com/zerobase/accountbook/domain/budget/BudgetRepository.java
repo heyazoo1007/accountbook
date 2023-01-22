@@ -7,4 +7,6 @@ import java.util.Optional;
 public interface BudgetRepository extends JpaRepository<Budget, Long> {
 
     Optional<Budget> findByBudgetYearMonth(String budgetYearMonth);
+
+    void deleteAllByMemberId(Long memberId);
 }

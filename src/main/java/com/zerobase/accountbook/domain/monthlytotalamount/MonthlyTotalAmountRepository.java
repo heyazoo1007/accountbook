@@ -17,4 +17,6 @@ public interface MonthlyTotalAmountRepository extends JpaRepository<MonthlyTotal
                     "and mt.member_id = :memberId"
     )
     Integer sumByMemberIdAndDateInfoContainingYear(Long memberId, String year);
+
+    void deleteAllByMemberId(Long memberId);
 }
