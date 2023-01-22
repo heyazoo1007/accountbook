@@ -9,6 +9,7 @@ import com.zerobase.accountbook.domain.dailypayments.DailyPayments;
 import com.zerobase.accountbook.domain.dailypayments.DailyPaymentsRepository;
 import com.zerobase.accountbook.domain.member.Member;
 import com.zerobase.accountbook.domain.member.MemberRepository;
+import com.zerobase.accountbook.domain.monthlytotalamount.MonthlyTotalAmount;
 import com.zerobase.accountbook.domain.monthlytotalamount.MonthlyTotalAmountRepository;
 import com.zerobase.accountbook.domain.totalamountpercategory.TotalAmountPerCategory;
 import com.zerobase.accountbook.domain.totalamountpercategory.TotalAmountPerCategoryRepository;
@@ -145,6 +146,7 @@ public class DailyPaymentsService {
     @Transactional(readOnly = true)
     public GetMonthlyResultResponseDto
     getMonthlyDailyPaymentsResult(String memberEmail, String requestDate) {
+
         Long memberId = validateMember(memberEmail).getId();
 
         String currentDate = getCurrentTimeUntilMinutes().substring(0, 7);
@@ -172,7 +174,6 @@ public class DailyPaymentsService {
             );
         }
 
-
         // 한달별 총 금액을 다 더하면 연 총 지출금액
         Integer totalAmountOfTheYear = monthlyTotalAmountRepository
                 .sumByMemberIdAndDateInfoContainingYear(memberId, year);
@@ -192,13 +193,13 @@ public class DailyPaymentsService {
             String requestDate, Long memberId
     ) {
         // 총 사용 금액 가져오기
-        int totalAmount = monthlyTotalAmountRepository
+        MonthlyTotalAmount monthlyTotalAmount = monthlyTotalAmountRepository
                 .findByDateInfoAndMemberId(requestDate, memberId).orElseThrow(
                         () -> new AccountBookException(
                                 "해당 월에 총 지출이 존재하지 않습니다.",
                                 NOT_FOUND_MONTHLY_TOTAL_AMOUNT_EXCEPTION
                         )
-                ).getTotalAmount();
+                );
 
         // 날짜, 사용자를 기준으로 저장된 데이터 가져온 다음 카테고리랑 금액 넘겨서 진행
         List<TotalAmountPerCategory> all =
@@ -213,12 +214,13 @@ public class DailyPaymentsService {
             ));
         }
 
-        return GetMonthlyResultResponseDto.of(totalAmount, list);
+        return GetMonthlyResultResponseDto.of(
+                monthlyTotalAmount.getTotalAmount(), list
+        );
     }
 
-    private GetMonthlyResultResponseDto getCurrentMonthlyResult(
-            Long memberId
-    ) {
+    private GetMonthlyResultResponseDto getCurrentMonthlyResult(Long memberId) {
+
         int totalAmount = 0;
 
         // 요청한 사용자의 해당 월 지출내역을 카테고리로 가져옴
