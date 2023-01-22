@@ -53,8 +53,11 @@ public class CategoryController {
     }
 
     @GetMapping("/list")
-    public ApiResponse<List<GetCategoryListResponseDto>> getCategoryList() {
-        List<GetCategoryListResponseDto> response = categoryService.getCategoryList();
+    public ApiResponse<List<GetCategoryListResponseDto>> getCategoryList(
+            @AuthenticationPrincipal UserDetails user
+    ) {
+        List<GetCategoryListResponseDto> response =
+                categoryService.getCategoryList(user.getUsername());
         return ApiResponse.success(response);
     }
 }
