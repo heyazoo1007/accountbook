@@ -4,15 +4,18 @@ import com.zerobase.accountbook.common.exception.model.AccountBookException;
 import com.zerobase.accountbook.controller.dailypayments.dto.request.CreateDailyPaymentsRequestDto;
 import com.zerobase.accountbook.controller.dailypayments.dto.request.DeleteDailyPaymentsRequestDto;
 import com.zerobase.accountbook.controller.dailypayments.dto.request.ModifyDailyPaymentsRequestDto;
-import com.zerobase.accountbook.controller.dailypayments.dto.response.CreateDailyPaymentsResponseDto;
-import com.zerobase.accountbook.controller.dailypayments.dto.response.GetDailyPaymentsResponseDto;
-import com.zerobase.accountbook.controller.dailypayments.dto.response.ModifyDailyPaymentsResponseDto;
-import com.zerobase.accountbook.controller.dailypayments.dto.response.SearchDailyPaymentsResponseDto;
+import com.zerobase.accountbook.controller.dailypayments.dto.response.*;
 import com.zerobase.accountbook.domain.dailypayments.DailyPayments;
 import com.zerobase.accountbook.domain.dailypayments.DailyPaymentsRepository;
 import com.zerobase.accountbook.domain.member.Member;
 import com.zerobase.accountbook.domain.member.MemberRepository;
+import com.zerobase.accountbook.domain.monthlytotalamount.MonthlyTotalAmount;
+import com.zerobase.accountbook.domain.monthlytotalamount.MonthlyTotalAmountRepository;
+import com.zerobase.accountbook.domain.totalamountpercategory.TotalAmountPerCategory;
+import com.zerobase.accountbook.domain.totalamountpercategory.TotalAmountPerCategoryRepository;
+import com.zerobase.accountbook.service.dailypaymetns.dto.DailyPaymentsCategoryDto;
 import com.zerobase.accountbook.service.dailypaymetns.querydsl.DailyPaymentsQueryDsl;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -35,12 +38,18 @@ import static org.mockito.Mockito.verify;
 class DailyPaymentsServiceTest {
 
     @Mock
+    private MonthlyTotalAmountRepository monthlyTotalAmountRepository;
+
+    @Mock
+    private TotalAmountPerCategoryRepository totalAmountPerCategoryRepository;
+
+    @Mock
     private DailyPaymentsQueryDsl dailyPaymentsQueryDsl;
 
     @Mock
     private MemberRepository memberRepository;
 
-    @Spy
+    @Mock
     private DailyPaymentsRepository dailyPaymentsRepository;
 
     @InjectMocks
@@ -764,6 +773,240 @@ class DailyPaymentsServiceTest {
                 () -> dailyPaymentsService.searchDailyPayments(
                         requestEmail,
                         requestKeyword)
+        );
+    }
+
+    @Test
+    @DisplayName("성공_지출내역_통계_조회_지난달")
+    void success_getMonthlyDailyPaymentsResult_getPastMonthlyResult() {
+        //given
+        String requestEmail = "hello@abc.com";
+        String requestDate = "2022-12";
+        Member member = Member.builder()
+                .id(1L)
+                .email(requestEmail)
+                .build();
+        given(memberRepository.findByEmail(anyString()))
+                .willReturn(Optional.of(member));
+
+        MonthlyTotalAmount monthlyTotalAmount = MonthlyTotalAmount.builder()
+                .totalAmount(1000000)
+                .build();
+        given(monthlyTotalAmountRepository.findByDateInfoAndMemberId(
+                anyString(),
+                anyLong())
+        ).willReturn(Optional.of(monthlyTotalAmount));
+
+        TotalAmountPerCategory totalAmountPerCategory =
+                TotalAmountPerCategory.builder()
+                    .member(member)
+                    .categoryName("categoryName1")
+                    .totalAmount(10000)
+                    .build();
+        List<TotalAmountPerCategory> list = new ArrayList<>();
+        list.add(totalAmountPerCategory);
+        given(totalAmountPerCategoryRepository.findByDateInfoAndMemberId(
+                anyString(),
+                anyLong()
+                )
+        ).willReturn(list);
+
+        //when
+        GetMonthlyResultResponseDto responseDto =
+                dailyPaymentsService.getMonthlyDailyPaymentsResult(
+                        requestEmail,
+                        requestDate
+                );
+
+        //then
+        assertEquals(
+                monthlyTotalAmount.getTotalAmount(),
+                responseDto.getTotalAmount()
+        );
+        assertEquals(1, responseDto.getList().size());
+    }
+
+    @Test
+    @DisplayName("성공_지출내역_통계_조회_이번달")
+    void success_getMonthlyDailyPaymentsResult_getCurrentMonthlyResult() {
+        //given
+        String requestEmail = "hello@abc.com";
+        String requestDate = "2023-01";
+        Member member = Member.builder()
+                .id(1L)
+                .email(requestEmail)
+                .build();
+        given(memberRepository.findByEmail(anyString()))
+                .willReturn(Optional.of(member));
+
+        DailyPaymentsCategoryDto categoryDto1 = DailyPaymentsCategoryDto.builder()
+                .categoryName("category1")
+                .totalAmount(12345)
+                .build();
+        DailyPaymentsCategoryDto categoryDto2 = DailyPaymentsCategoryDto.builder()
+                .categoryName("category2")
+                .totalAmount(67890)
+                .build();
+        List<DailyPaymentsCategoryDto> list = new ArrayList<>();
+        list.add(categoryDto1);
+        list.add(categoryDto2);
+        given(dailyPaymentsQueryDsl
+                .getTotalAmountPerCategoryByMemberId(anyString(), anyLong())
+        ).willReturn(list);
+
+
+        //when
+        GetMonthlyResultResponseDto responseDto =
+                dailyPaymentsService.getMonthlyDailyPaymentsResult(
+                        requestEmail,
+                        requestDate
+                );
+
+        //then
+        assertEquals(
+                categoryDto1.getTotalAmount() + categoryDto2.getTotalAmount(),
+                responseDto.getTotalAmount()
+        );
+        assertEquals(list.size(), responseDto.getList().size());
+    }
+
+    @Test
+    @DisplayName("실패_지출내역_통계_조회_존재하지_않는_회원일_때")
+    void fail_getMonthlyDailyPaymentsResult_존재하지_않는_회원() {
+        //given
+        String requestEmail = "hello@abc.com";
+        String requestDate = "yyyy-MM";
+
+
+        given(memberRepository.findByEmail(anyString()))
+                .willReturn(Optional.empty());
+
+        //when
+
+        //then
+        assertThrows(AccountBookException.class,
+                () -> dailyPaymentsService.getMonthlyDailyPaymentsResult(
+                        requestEmail,
+                        requestDate
+                )
+        );
+    }
+
+    @Test
+    @DisplayName("실패_지난달_지출내역_통계_조회_총_지출이_존재하지_않을_때")
+    void fail_getPastMonthlyResult_총_지출이_존재하지_않을_때() {
+        //given
+        String requestEmail = "hello@abc.com";
+        String requestDate = "2022-12";
+
+        Member member = Member.builder()
+                .id(1L)
+                .email(requestEmail)
+                .build();
+        given(memberRepository.findByEmail(anyString()))
+                .willReturn(Optional.of(member));
+
+        given(monthlyTotalAmountRepository.findByDateInfoAndMemberId(
+                anyString(), anyLong()
+            )
+        ).willReturn(Optional.empty());
+
+        //when
+
+        //then
+        assertThrows(AccountBookException.class,
+                () -> dailyPaymentsService.getMonthlyDailyPaymentsResult(
+                        requestEmail,
+                        requestDate
+                )
+        );
+    }
+
+    @Test
+    void success_getYearlyResult() {
+        //given
+        String requestEmail = "hello@abc.com";
+        String requestYear = "2022";
+        Member member = Member.builder()
+                .id(1L)
+                .email(requestEmail)
+                .build();
+        given(memberRepository.findByEmail(anyString()))
+                .willReturn(Optional.of(member));
+
+        int totalAmountOfTheYear = 150000;
+        given(monthlyTotalAmountRepository.sumByMemberIdAndDateInfoContainingYear(
+                anyLong(), anyString()
+            )
+        ).willReturn(totalAmountOfTheYear);
+
+        DailyPaymentsCategoryDto category1 = DailyPaymentsCategoryDto.builder()
+                .categoryName("category1")
+                .totalAmount(100000)
+                .build();
+        DailyPaymentsCategoryDto category2 = DailyPaymentsCategoryDto.builder()
+                .categoryName("category2")
+                .totalAmount(50000)
+                .build();
+        List<DailyPaymentsCategoryDto> list = new ArrayList<>();
+        list.add(category1);
+        list.add(category2);
+        given(dailyPaymentsQueryDsl
+                .getYearlyTotalAmountPerCategoryByMemberId(anyLong(), anyString())
+        ).willReturn(list);
+
+        //when
+        GetYearlyResultResponseDto responseDto =
+                dailyPaymentsService.getYearlyResult(requestYear, requestYear);
+
+        //then
+        assertEquals(
+                totalAmountOfTheYear,
+                responseDto.getYearlyTotalAmount()
+        );
+        assertEquals(list.size(), responseDto.getList().size());
+    }
+
+    @Test
+    void fail_getYearlyResult_존재하지_않는_회원() {
+        //given
+        String requestEmail = "hello@abc.com";
+        String requestYear = "2023";
+        given(memberRepository.findByEmail(anyString()))
+                .willReturn(Optional.empty());
+
+        //when
+
+        //then
+        assertThrows(AccountBookException.class,
+                () -> dailyPaymentsService.getYearlyResult(
+                        requestEmail,
+                        requestYear
+                )
+        );
+    }
+
+    @Test
+    void fail_getYearlyResult_조회할_수_없는_년도() {
+        //given
+        String requestEmail = "hello@abc.com";
+        String requestYear = "2023";
+        Member member = Member.builder()
+                .id(1L)
+                .email(requestEmail)
+                .build();
+        given(memberRepository.findByEmail(anyString()))
+                .willReturn(Optional.of(member));
+
+
+        //when
+
+        //then
+        assertThrows(AccountBookException.class,
+                () -> dailyPaymentsService.getYearlyResult(
+                        requestEmail,
+                        requestYear
+                )
         );
     }
 }
