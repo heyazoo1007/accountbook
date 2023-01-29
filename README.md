@@ -57,5 +57,22 @@
 ## API Documentation
 - API Docs : [link](https://mixed-leotard-ccd.notion.site/API-84da8d061e894bcfa5aecddadc2bc79c)
 
+</br>
+
 ## 주요 기능 
+
+### 공통 
+* 기능 구현 후 단위 테스트 코드 작성 
+* 공통 예외/응답 처리 - 
+
+### 회원가입
+### 로그인 
+### 사용자 
+### 예산
+### 매일 지출내역 
+### 검색 
+### 카테고리 
+### Monthly 지출내역 
+#### Yearly 총 결산 
+
 
