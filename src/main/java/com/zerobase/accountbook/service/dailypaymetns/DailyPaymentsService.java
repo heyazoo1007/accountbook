@@ -46,7 +46,6 @@ public class DailyPaymentsService {
 
         Member member = validateMember(memberEmail);
 
-        // 해시태그 부분 추후에 추가 예정
         return CreateDailyPaymentsResponseDto.of(
                 dailyPaymentsRepository.save(DailyPayments.builder()
                 .member(member)

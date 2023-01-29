@@ -34,7 +34,7 @@ public enum ErrorCode {
 
     // 401 UnAuthorized
     UNAUTHORIZED_EXCEPTION(UNAUTHORIZED, "토큰이 만료되었습니다. 다시 로그인 해주세요"),
-    UNAUTHORIZED_EMAIL_EXCEPTION(UNAUTHORIZED, "인증이 완료되지 않은 이메일입니다."),
+    UNAUTHORIZED_EMAIL_EXCEPTION(UNAUTHORIZED, "인증 요청하지 않은 이메일입니다."),
     UNAUTHORIZED_AUTH_KEY_EXCEPTION(UNAUTHORIZED, "인증키를 입력해주세요."),
 
     // 403 Forbidden
@@ -48,7 +48,7 @@ public enum ErrorCode {
     NOT_FOUND_EMAIL_EXCEPTION(NOT_FOUND, "가입되지 않은 이메일입니다."),
     NOT_FOUND_BUDGET_EXCEPTION(NOT_FOUND, "존재하지 않은 예산입니다."),
 
-    NOT_FOUND_DAILY_PAYMENTS_EXCEPTION(NOT_FOUND, "가입되지 않은 이메일입니다."),
+    NOT_FOUND_DAILY_PAYMENTS_EXCEPTION(NOT_FOUND, "존재하지 않는 지출내역 입니다."),
 
     NOT_FOUND_CATEGORY_EXCEPTION(NOT_FOUND, "존재하지 않는 카테고리입니다."),
     NOT_FOUND_MONTHLY_TOTAL_AMOUNT_EXCEPTION(NOT_FOUND, "총 지출이 존재하지 않습니다."),

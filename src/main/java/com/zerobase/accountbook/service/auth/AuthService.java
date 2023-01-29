@@ -88,7 +88,7 @@ public class AuthService {
 
         validateEmail(email);
 
-        if (email == null) { // 이메일에 해당하는 인증키가 없음
+        if (email == null) { // 인증키에 해당하는 이메일 없음
             throw new AccountBookException(
                     "잘못된 이메일 인증번호입니다.",
                     VALIDATION_EMAIL_AUTH_KEY_EXCEPTION);

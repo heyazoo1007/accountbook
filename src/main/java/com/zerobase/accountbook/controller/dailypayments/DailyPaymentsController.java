@@ -13,7 +13,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -50,15 +49,16 @@ public class DailyPaymentsController {
     }
 
     @DeleteMapping()
-    public void deleteDailyPayments(
+    public ApiResponse<String> deleteDailyPayments(
             @AuthenticationPrincipal UserDetails user,
             @Valid @RequestBody DeleteDailyPaymentsRequestDto request
     ) {
         dailyPaymentsService.deleteDailyPayments(user.getUsername(), request);
+        return ApiResponse.SUCCESS;
     }
 
     @GetMapping("/{dailyPaymentsId}")
-    public ApiResponse<GetDailyPaymentsResponseDto> getDailyPayments(
+    public ApiResponse<GetDailyPaymentsResponseDto> getDailyPayment(
             @AuthenticationPrincipal UserDetails user,
             @PathVariable Long dailyPaymentsId
     ) {
@@ -96,11 +96,11 @@ public class DailyPaymentsController {
         return ApiResponse.success(response);
     }
 
-    @GetMapping("/monthly/{date}")
+    @GetMapping("/monthly")
     public ApiResponse<GetMonthlyResultResponseDto>
     getMonthlyResultResponseDto(
             @AuthenticationPrincipal UserDetails user,
-            @PathVariable String date
+            @RequestParam String date
     ) {
         GetMonthlyResultResponseDto response =
                 dailyPaymentsService.getMonthlyDailyPaymentsResult(

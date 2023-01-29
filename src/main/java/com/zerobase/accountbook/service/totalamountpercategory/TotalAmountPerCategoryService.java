@@ -30,7 +30,7 @@ public class TotalAmountPerCategoryService {
     private final DailyPaymentsQueryDsl dailyPaymentsQueryDsl;
 
     @Scheduled(cron = "0 0 0 1 * * *") // 매달 1일 정각에 모든 사용자에 대해 실행
-    public void saveMoneyPerCategory() {
+    private void saveMoneyPerCategory() {
 
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime oneMonthBefore = now.minusMonths(1);
