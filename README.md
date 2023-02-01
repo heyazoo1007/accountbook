@@ -39,6 +39,7 @@
 </br>
 
 ## Software Architecture
+<img width="800" alt="스크린샷 2023-02-01 오후 2 15 31" src="https://user-images.githubusercontent.com/81020108/215957503-6cb3fab8-770e-4ae3-87a3-821c0519ac0d.png">
 
 
 </br>
