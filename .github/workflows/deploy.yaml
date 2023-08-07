@@ -48,18 +48,6 @@ jobs:
         with:
           arguments: clean build -x test
 
-      # (5) 하위 디렉토리 생성
-      - name: Make Directory
-        run: mkdir deploy
-
-      # (6) JAR 파일 복사
-      - name: Copy Jar File
-        run: cp ./build/libs/*.jar ./deploy/
-
-      # (7) JAR 디렉토리 -> ZIP
-      - name: Zip Directory
-        run: zip -r -qq -j ./spring-project.zip ./deploy
-
       # (8) AWS 인증 (IAM 사용자 Access Key, Secret Key 활용)
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
