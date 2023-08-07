@@ -1,9 +1,9 @@
 name: Deploy to Amazon EC2
 
-on:
-  push:
-    branches:
-      - deploy/#27
+  on:
+    push:
+      branches:
+        - deploy/#27
 
   env:
     AWS_REGION: ap-northeast-2
