@@ -58,7 +58,7 @@ public class TotalAmountPerCategoryService {
                     totalAmountPerCategoryRepository.save(
                             TotalAmountPerCategory.builder()
                                     .member(member)
-                                    .dateInfo(String.valueOf(oneMonthBefore) // 2023-01 형태로 저장
+                                    .date(String.valueOf(oneMonthBefore) // YYYY-mm 형태로 저장
                                             .substring(0, 7)
                                     )
                                     .categoryName(dto.getCategoryName())

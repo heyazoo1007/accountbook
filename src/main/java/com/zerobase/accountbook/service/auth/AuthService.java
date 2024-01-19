@@ -38,7 +38,6 @@ public class AuthService {
     private final JavaMailSender javaMailSender;
     private final RedisRepository redisRepository;
     private final JwtTokenProvider jwtTokenProvider;
-
     private final PasswordEncoder passwordEncoder;
 
     public ValidateEmailResponseDto validateEmail(String email) {

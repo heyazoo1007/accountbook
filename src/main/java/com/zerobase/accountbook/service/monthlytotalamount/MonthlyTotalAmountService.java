@@ -49,7 +49,7 @@ public class MonthlyTotalAmountService {
             Member member = validateMember(dto);
 
             monthlyTotalAmountRepository.save(MonthlyTotalAmount.builder()
-                    .dateInfo(oneMonthBefore.toString().substring(0, 7)) // 2023-01 형태로 저장
+                    .date(oneMonthBefore.toString().substring(0, 7)) // YYYY-mm 형태로 저장
                     .member(member)
                     .totalAmount(dto.getTotalAmount())
                     .createdAt(now)

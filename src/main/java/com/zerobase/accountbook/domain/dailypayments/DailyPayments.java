@@ -19,24 +19,24 @@ public class DailyPayments {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @CreatedDate
+    private String createdAt;
+
+    @LastModifiedDate
+    private String updatedAt;
+
     @ManyToOne
     @JoinColumn(name = "MEMBER_ID")
     private Member member;
 
     private Integer paidAmount;
 
-    private String paidWhere;
+    private String payLocation;
 
     private String methodOfPayment;
 
     private String categoryName;
 
     private String memo;
-
-    @CreatedDate
-    private String createdAt;
-
-    @LastModifiedDate
-    private String updatedAt;
 }
 

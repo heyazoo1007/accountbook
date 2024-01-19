@@ -50,7 +50,7 @@ public class DailyPaymentsService {
                 dailyPaymentsRepository.save(DailyPayments.builder()
                 .member(member)
                 .paidAmount(request.getPaidAmount())
-                .paidWhere(request.getPaidWhere())
+                .payLocation(request.getPaidWhere())
                 .methodOfPayment(request.getMethodOfPayment())
                 .categoryName(request.getCategoryName())
                 .memo(request.getMemo())
@@ -73,7 +73,7 @@ public class DailyPaymentsService {
         checkDailyPaymentsOwner(member, dailyPayments);
 
         dailyPayments.setPaidAmount(request.getPaidAmount());
-        dailyPayments.setPaidWhere(request.getPaidWhere());
+        dailyPayments.setPayLocation(request.getPaidWhere());
         dailyPayments.setMethodOfPayment(request.getMethodOfPayment());
         dailyPayments.setCategoryName(request.getCategoryName());
         dailyPayments.setMemo(request.getMemo());
@@ -193,7 +193,7 @@ public class DailyPaymentsService {
     ) {
         // 총 사용 금액 가져오기
         MonthlyTotalAmount monthlyTotalAmount = monthlyTotalAmountRepository
-                .findByDateInfoAndMemberId(requestDate, memberId).orElseThrow(
+                .findByDateAndMemberId(requestDate, memberId).orElseThrow(
                         () -> new AccountBookException(
                                 "해당 월에 총 지출이 존재하지 않습니다.",
                                 NOT_FOUND_MONTHLY_TOTAL_AMOUNT_EXCEPTION
@@ -203,7 +203,7 @@ public class DailyPaymentsService {
         // 날짜, 사용자를 기준으로 저장된 데이터 가져온 다음 카테고리랑 금액 넘겨서 진행
         List<TotalAmountPerCategory> all =
                 totalAmountPerCategoryRepository
-                        .findByDateInfoAndMemberId(requestDate, memberId);
+                        .findByDateAndMemberId(requestDate, memberId);
 
         List<MonthlyResultDto> list = new ArrayList<>();
         for (TotalAmountPerCategory each : all) {

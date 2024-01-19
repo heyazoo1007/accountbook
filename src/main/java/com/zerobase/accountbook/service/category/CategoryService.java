@@ -86,7 +86,7 @@ public class CategoryService {
                         validateMember(memberEmail).getId()
                 );
         return all.stream()
-                .map(category -> GetCategoryListResponseDto.of(category))
+                .map(GetCategoryListResponseDto::of)
                 .collect(Collectors.toList());
     }
 

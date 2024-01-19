@@ -7,13 +7,13 @@ import java.util.Optional;
 
 public interface MonthlyTotalAmountRepository extends JpaRepository<MonthlyTotalAmount, Long> {
 
-    Optional<MonthlyTotalAmount> findByDateInfoAndMemberId(String dateInfo, Long memberId);
+    Optional<MonthlyTotalAmount> findByDateAndMemberId(String date, Long memberId);
 
     @Query(
             nativeQuery = true,
             value = "select sum(mt.total_amount) " +
                     "from monthly_total_amount mt " +
-                    "where mt.date_info like :year% " +
+                    "where mt.date like :year% " +
                     "and mt.member_id = :memberId"
     )
     Integer sumByMemberIdAndDateInfoContainingYear(Long memberId, String year);

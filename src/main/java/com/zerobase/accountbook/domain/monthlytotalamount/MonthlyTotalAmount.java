@@ -20,19 +20,18 @@ public class MonthlyTotalAmount {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "MEMBER_ID")
-    private Member member;
-
-    private String dateInfo;
-
-    private Integer totalAmount;
-
     @CreatedDate
     private LocalDateTime createdAt;
 
     @LastModifiedDate
     private LocalDateTime updatedAt;
 
+    @ManyToOne
+    @JoinColumn(name = "MEMBER_ID")
+    private Member member;
+
+    private String date;
+
+    private Integer totalAmount;
 }
 

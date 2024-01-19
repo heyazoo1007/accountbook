@@ -54,7 +54,7 @@ public class DailyPaymentsQueryDsl {
                 perCategory.totalAmount.sum().as("totalAmount")
         ))
                 .from(perCategory)
-                .where(perCategory.dateInfo.contains(year),
+                .where(perCategory.date.contains(year),
                         perCategory.member.id.eq(memberId))
                 .groupBy(perCategory.categoryName)
                 .fetch();

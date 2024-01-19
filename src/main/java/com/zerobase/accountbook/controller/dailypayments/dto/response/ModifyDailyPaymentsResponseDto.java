@@ -14,7 +14,7 @@ public class ModifyDailyPaymentsResponseDto {
 
     private Integer paidAmount;
 
-    private String paidWhere;
+    private String payLocation;
 
     private String methodOfPayment;
 
@@ -28,7 +28,7 @@ public class ModifyDailyPaymentsResponseDto {
         return ModifyDailyPaymentsResponseDto.builder()
                 .dailyPaymentsId(dailyPayments.getId())
                 .paidAmount(dailyPayments.getPaidAmount())
-                .paidWhere(dailyPayments.getPaidWhere())
+                .payLocation(dailyPayments.getPayLocation())
                 .methodOfPayment(dailyPayments.getMethodOfPayment())
                 .categoryName(dailyPayments.getCategoryName())
                 .memo(dailyPayments.getMemo())

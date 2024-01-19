@@ -15,22 +15,21 @@ import java.time.LocalDateTime;
 @Setter
 @Entity
 public class Budget {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-
-    private String budgetYearMonth;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "MEMBER_ID")
-    private Member member;
-
-    private Integer monthlyBudget;
 
     @CreatedDate
     private LocalDateTime createdAt;
 
     @LastModifiedDate
     private LocalDateTime updatedAt;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "MEMBER_ID")
+    private Member member;
+
+    private String budgetYearMonth;
+
+    private int monthlyBudget;
 }

@@ -20,15 +20,19 @@ public class Category {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "MEMBER_ID")
-    private Member member;
-
-    private String categoryName;
-
     @CreatedDate
     private LocalDateTime createdAt;
 
     @LastModifiedDate
     private LocalDateTime updatedAt;
+
+    // YYYY-mm-dd HH:MM 형태, 사용자가 입력하는 문자열 날짜
+    // 클라이언트로부터 데이터 받음
+    private String date;
+
+    @ManyToOne
+    @JoinColumn(name = "MEMBER_ID")
+    private Member member;
+
+    private String categoryName;
 }

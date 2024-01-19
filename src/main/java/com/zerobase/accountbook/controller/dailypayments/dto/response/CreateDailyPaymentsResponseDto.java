@@ -12,7 +12,7 @@ public class CreateDailyPaymentsResponseDto {
 
     private Long dailyPaymentsId;
 
-    private Integer paidAmount;
+    private Integer payLocation;
 
     private String paidWhere;
 
@@ -27,8 +27,8 @@ public class CreateDailyPaymentsResponseDto {
     public static CreateDailyPaymentsResponseDto of(DailyPayments dailyPayments) {
         return CreateDailyPaymentsResponseDto.builder()
                 .dailyPaymentsId(dailyPayments.getId())
-                .paidAmount(dailyPayments.getPaidAmount())
-                .paidWhere(dailyPayments.getPaidWhere())
+                .payLocation(dailyPayments.getPaidAmount())
+                .paidWhere(dailyPayments.getPayLocation())
                 .categoryName(dailyPayments.getCategoryName())
                 .methodOfPayment(dailyPayments.getMethodOfPayment())
                 .memo(dailyPayments.getMemo())
