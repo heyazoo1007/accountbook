@@ -26,7 +26,7 @@ public class ModifyDailyPaymentsRequestDto {
 
     private String methodOfPayment;
 
-    private String categoryName;
+    private long categoryId;
 
     @Size(max = 30, message = "메모의 길이는 최대 30자입니다.")
     private String memo;

@@ -18,7 +18,7 @@ public class ModifyDailyPaymentsResponseDto {
 
     private String methodOfPayment;
 
-    private String categoryName;
+    private long categoryId;
 
     private String memo;
 
@@ -30,7 +30,7 @@ public class ModifyDailyPaymentsResponseDto {
                 .paidAmount(dailyPayments.getPaidAmount())
                 .payLocation(dailyPayments.getPayLocation())
                 .methodOfPayment(dailyPayments.getMethodOfPayment())
-                .categoryName(dailyPayments.getCategoryName())
+                .categoryId(dailyPayments.getCategoryId())
                 .memo(dailyPayments.getMemo())
                 .updatedAt(dailyPayments.getUpdatedAt())
                 .build();

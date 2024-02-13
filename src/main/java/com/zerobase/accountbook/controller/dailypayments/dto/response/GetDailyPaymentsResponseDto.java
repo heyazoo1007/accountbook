@@ -16,7 +16,7 @@ public class GetDailyPaymentsResponseDto {
 
     private String methodOfPayment;
 
-    private String categoryName;
+    private Long categoryId;
 
     private String memo;
 
@@ -26,7 +26,7 @@ public class GetDailyPaymentsResponseDto {
                 .paidAmount(dailyPayments.getPaidAmount())
                 .payLocation(dailyPayments.getPayLocation())
                 .methodOfPayment(dailyPayments.getMethodOfPayment())
-                .categoryName(dailyPayments.getCategoryName())
+                .categoryId(dailyPayments.getCategoryId())
                 .memo(dailyPayments.getMemo())
                 .build();
     }

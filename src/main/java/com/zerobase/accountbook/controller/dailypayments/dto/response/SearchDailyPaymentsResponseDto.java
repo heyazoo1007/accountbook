@@ -14,7 +14,7 @@ public class SearchDailyPaymentsResponseDto {
 
     private String payLocation;
 
-    private String categoryName;
+    private long categoryId;
 
     private String methodOfPayment;
 
@@ -32,7 +32,7 @@ public class SearchDailyPaymentsResponseDto {
         return SearchDailyPaymentsResponseDto.builder()
                 .dailyPaymentsId(dailyPayments.getId())
                 .payLocation(dailyPayments.getPayLocation())
-                .categoryName(dailyPayments.getCategoryName())
+                .categoryId(dailyPayments.getCategoryId())
                 .methodOfPayment(dailyPayments.getMethodOfPayment())
                 .paidAmount(dailyPayments.getPaidAmount())
                 .memo(dailyPayments.getMemo())
