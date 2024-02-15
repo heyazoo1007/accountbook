@@ -58,7 +58,6 @@ public class CategoryService {
         return ModifyCategoryResponseDto.of(category);
     }
 
-    // hard delete 보다 soft delete 적용하기
     public void deleteCategory(
             String memberEmail, DeleteCategoryRequestDto request
     ) {
@@ -66,7 +65,7 @@ public class CategoryService {
         Category category = validateCategory(request.getCategoryId());
         checkCategoryOwner(member, category);
 
-        // 객체를 삭제하지 말고 categoryName 을 "미분류"로 변경하자
+        // soft delete(categoryName = "미분류"로 변경)
         // 이름이 미분류인 카테고리 레코드들이 많아지지 않을까?
         categoryRepository.updateUncategory(category.getId());
     }
