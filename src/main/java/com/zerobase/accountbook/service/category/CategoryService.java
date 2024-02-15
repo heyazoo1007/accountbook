@@ -32,10 +32,7 @@ public class CategoryService {
             String memberEmail,
             CreateCategoryRequestDto request
     ) {
-
         Member member = validateMember(memberEmail);
-
-        validateUniqueCategoryName(request.getCategoryName());
 
         return CreateCategoryResponseDto.of(categoryRepository.save(Category.builder()
                 .member(member)
@@ -44,18 +41,15 @@ public class CategoryService {
                 .build()));
     }
 
+    // 카테고리명 중복 허용
     public ModifyCategoryResponseDto modifyCategory(
             String memberEmail,
             ModifyCategoryRequestDto request
     ) {
-
         Member member = validateMember(memberEmail);
-
         Category category = validateCategory(request.getCategoryId());
 
         checkCategoryOwner(member, category);
-
-        validateUniqueCategoryName(request.getCategoryName());
 
         category.setCategoryName(request.getCategoryName());
         category.setUpdatedAt(LocalDateTime.now());
@@ -64,23 +58,22 @@ public class CategoryService {
         return ModifyCategoryResponseDto.of(category);
     }
 
+    // hard delete 보다 soft delete 적용하기
     public void deleteCategory(
             String memberEmail, DeleteCategoryRequestDto request
     ) {
-
         Member member = validateMember(memberEmail);
-
         Category category = validateCategory(request.getCategoryId());
-
         checkCategoryOwner(member, category);
 
-        categoryRepository.deleteById(request.getCategoryId());
+        // 객체를 삭제하지 말고 categoryName 을 "미분류"로 변경하자
+        // 이름이 미분류인 카테고리 레코드들이 많아지지 않을까?
+        categoryRepository.updateUncategory(category.getId());
     }
 
     public List<GetCategoryListResponseDto> getCategoryList(
             String memberEmail
     ) {
-
         List<Category> all =
                 categoryRepository.findAllByMemberId(
                         validateMember(memberEmail).getId()
