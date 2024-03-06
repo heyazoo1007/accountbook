@@ -50,7 +50,8 @@ public class SecurityConfig {
                         "/configuration/security",
                         "/swagger-ui.html",
                         "/swagger-ui.html/**",
-                        "/webjars/**"
+                        "/webjars/**",
+                        "/ws-stomp/**"
                 ).permitAll()
                 .anyRequest().authenticated()
                 .and()
