@@ -7,7 +7,15 @@ import java.util.List;
 
 public interface DailyPaymentsRepository extends JpaRepository<DailyPayments, Long> {
 
-    List<DailyPayments> findAllByMemberIdAndCreatedAtContaining(Long memberId, String createdAt);
+    List<DailyPayments> findAllByMemberIdAndCreatedAtContaining(Long memberId, String CreatedAt);
+
+    @Query(value = "select sum(dp.paid_amount) " +
+                   "from daily_payments dp " +
+                   "where dp.member_id = :memberId" +
+                   "  and dp.date >= :startDate" +
+                   "  and dp.date <= :endDate",
+            nativeQuery = true)
+    Integer findMonthlySum(Long memberId, String startDate, String endDate);
 
     @Query(
             nativeQuery = true,
