@@ -10,7 +10,6 @@ import com.zerobase.accountbook.domain.member.Member;
 import com.zerobase.accountbook.domain.member.MemberRepository;
 import com.zerobase.accountbook.domain.member.MemberRole;
 import lombok.RequiredArgsConstructor;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -166,7 +165,6 @@ public class AuthService {
         }
     }
 
-    @NotNull
     private Member notExistedMember(String email) {
         Optional<Member> optionalMember = memberRepository.findByEmail(email);
         if (!optionalMember.isPresent()) {
