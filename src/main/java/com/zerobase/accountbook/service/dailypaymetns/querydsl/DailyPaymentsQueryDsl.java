@@ -29,13 +29,13 @@ public class DailyPaymentsQueryDsl {
 
         return qf.select(Projections.bean(
                         DailyPaymentsCategoryDto.class,
-                        dailyPayments.categoryName.as("categoryName"),
+                        dailyPayments.categoryId.as("categoryId"),
                         dailyPayments.paidAmount.sum().as("totalAmount")
                 ))
                 .from(dailyPayments)
                 .where(dailyPayments.createdAt.contains(date),
                         dailyPayments.member.id.eq(memberId))
-                .groupBy(dailyPayments.member.id, dailyPayments.categoryName)
+                .groupBy(dailyPayments.member.id, dailyPayments.categoryId)
                 .fetch();
     }
 

@@ -69,7 +69,7 @@ class DailyPaymentsServiceTest {
                 .paidAmount(1000)
                 .payLocation("place1")
                 .methodOfPayment("card1")
-                .categoryName("category1")
+                .categoryId(1)
                 .memo("memo1")
                 .build();
         given(dailyPaymentsRepository.save(any()))
@@ -80,7 +80,7 @@ class DailyPaymentsServiceTest {
                         .paidAmount(1000)
                         .paidWhere("place1")
                         .methodOfPayment("card1")
-                        .categoryName("category1")
+                        .categoryId(1)
                         .memo("memo1")
                         .build();
 
@@ -103,16 +103,12 @@ class DailyPaymentsServiceTest {
                 responseDto.getDailyPaymentsId()
         );
         assertEquals(
-                captor.getValue().getPaidAmount(),
-                responseDto.getPaidAmount()
-        );
-        assertEquals(
                 captor.getValue().getPayLocation(),
                 responseDto.getPaidWhere()
         );
         assertEquals(
-                captor.getValue().getCategoryName(),
-                responseDto.getCategoryName()
+                captor.getValue().getCategoryId(),
+                responseDto.getCategoryId()
         );
         assertEquals(
                 captor.getValue().getMethodOfPayment(),
@@ -136,7 +132,7 @@ class DailyPaymentsServiceTest {
                         .paidAmount(1000)
                         .paidWhere("place1")
                         .methodOfPayment("card1")
-                        .categoryName("category1")
+                        .categoryId(1)
                         .memo("memo1")
                         .build();
 
@@ -167,7 +163,7 @@ class DailyPaymentsServiceTest {
                 .paidAmount(1000)
                 .payLocation("place1")
                 .methodOfPayment("card1")
-                .categoryName("category1")
+                .categoryId(1)
                 .memo("memo1")
                 .build();
         given(dailyPaymentsRepository.save(any()))
@@ -181,7 +177,7 @@ class DailyPaymentsServiceTest {
                     .paidAmount(2000)
                     .paidWhere("place2")
                     .methodOfPayment("card2")
-                    .categoryName("category2")
+                    .categoryId(1)
                     .memo("memo2")
                     .build();
 
@@ -208,15 +204,15 @@ class DailyPaymentsServiceTest {
         );
         assertEquals(
                 captor.getValue().getPayLocation(),
-                responseDto.getPaidWhere()
+                responseDto.getPayLocation()
         );
         assertEquals(
                 captor.getValue().getMethodOfPayment(),
                 responseDto.getMethodOfPayment()
         );
         assertEquals(
-                captor.getValue().getCategoryName(),
-                responseDto.getCategoryName()
+                captor.getValue().getCategoryId(),
+                responseDto.getCategoryId()
         );
         assertEquals(
                 captor.getValue().getMemo(),
@@ -237,7 +233,7 @@ class DailyPaymentsServiceTest {
                         .paidAmount(2000)
                         .paidWhere("place2")
                         .methodOfPayment("card2")
-                        .categoryName("category2")
+                        .categoryId(1)
                         .memo("memo2")
                         .build();
 
@@ -272,7 +268,7 @@ class DailyPaymentsServiceTest {
                         .paidAmount(2000)
                         .paidWhere("place2")
                         .methodOfPayment("card2")
-                        .categoryName("category2")
+                        .categoryId(1)
                         .memo("memo2")
                         .build();
 
@@ -308,7 +304,7 @@ class DailyPaymentsServiceTest {
                 .paidAmount(1000)
                 .payLocation("place1")
                 .methodOfPayment("card1")
-                .categoryName("category1")
+                .categoryId(1)
                 .memo("memo1")
                 .build();
 
@@ -321,7 +317,7 @@ class DailyPaymentsServiceTest {
                         .paidAmount(2000)
                         .paidWhere("place2")
                         .methodOfPayment("card2")
-                        .categoryName("category2")
+                        .categoryId(1)
                         .memo("memo2")
                         .build();
 
@@ -353,7 +349,7 @@ class DailyPaymentsServiceTest {
                 .paidAmount(1000)
                 .payLocation("place1")
                 .methodOfPayment("card1")
-                .categoryName("category1")
+                .categoryId(1)
                 .memo("memo1")
                 .build();
         given(dailyPaymentsRepository.findById(anyLong()))
@@ -449,7 +445,7 @@ class DailyPaymentsServiceTest {
                 .paidAmount(1000)
                 .payLocation("place1")
                 .methodOfPayment("card1")
-                .categoryName("category1")
+                .categoryId(1)
                 .memo("memo1")
                 .build();
 
@@ -489,7 +485,7 @@ class DailyPaymentsServiceTest {
                 .paidAmount(1000)
                 .payLocation("place1")
                 .methodOfPayment("card1")
-                .categoryName("category1")
+                .categoryId(1)
                 .memo("memo1")
                 .build();
         given(dailyPaymentsRepository.findById(anyLong()))
@@ -510,15 +506,15 @@ class DailyPaymentsServiceTest {
         );
         assertEquals(
                 dailyPayments.getPayLocation(),
-                responseDto.getPaidWhere()
+                responseDto.getPayLocation()
         );
         assertEquals(
                 dailyPayments.getMethodOfPayment(),
                 responseDto.getMethodOfPayment()
         );
         assertEquals(
-                dailyPayments.getCategoryName(),
-                responseDto.getCategoryName()
+                dailyPayments.getCategoryId(),
+                responseDto.getCategoryId()
         );
         assertEquals(
                 dailyPayments.getMemo(),
@@ -594,7 +590,7 @@ class DailyPaymentsServiceTest {
                 .paidAmount(1000)
                 .payLocation("place1")
                 .methodOfPayment("card1")
-                .categoryName("category1")
+                .categoryId(1)
                 .memo("memo1")
                 .build();
 
@@ -630,7 +626,7 @@ class DailyPaymentsServiceTest {
                 .paidAmount(1000)
                 .payLocation("place1")
                 .methodOfPayment("card1")
-                .categoryName("category1")
+                .categoryId(1)
                 .memo("memo1")
                 .build();
         DailyPayments dailyPayment2 = DailyPayments.builder()
@@ -639,7 +635,7 @@ class DailyPaymentsServiceTest {
                 .paidAmount(2000)
                 .payLocation("place2")
                 .methodOfPayment("card2")
-                .categoryName("category2")
+                .categoryId(1)
                 .memo("memo2")
                 .build();
         List<DailyPayments> dailyPaymentsList = new ArrayList<>();
@@ -703,7 +699,7 @@ class DailyPaymentsServiceTest {
                 .paidAmount(1000)
                 .payLocation("place1")
                 .methodOfPayment("card1")
-                .categoryName("category1")
+                .categoryId(1)
                 .memo("memo1")
                 .build();
         DailyPayments notSearchNotOwner = DailyPayments.builder()
@@ -712,7 +708,7 @@ class DailyPaymentsServiceTest {
                 .paidAmount(2000)
                 .payLocation("keyword2")
                 .methodOfPayment("card2")
-                .categoryName("category2")
+                .categoryId(1)
                 .memo("keyword2")
                 .build();
         DailyPayments searchDailyPaymentByPaidWhere = DailyPayments.builder()
@@ -721,7 +717,7 @@ class DailyPaymentsServiceTest {
                 .paidAmount(3000)
                 .payLocation("keyword2")
                 .methodOfPayment("card2")
-                .categoryName("category2")
+                .categoryId(1)
                 .memo("memo2")
                 .build();
         DailyPayments searchDailyPaymentByMemo = DailyPayments.builder()
@@ -730,7 +726,7 @@ class DailyPaymentsServiceTest {
                 .paidAmount(4000)
                 .payLocation("paidWhere2")
                 .methodOfPayment("card2")
-                .categoryName("category2")
+                .categoryId(1)
                 .memo("keyword2")
                 .build();
         DailyPayments searchDailyPaymentBoth = DailyPayments.builder()
@@ -739,7 +735,7 @@ class DailyPaymentsServiceTest {
                 .paidAmount(5000)
                 .payLocation("keyword2")
                 .methodOfPayment("card2")
-                .categoryName("category2")
+                .categoryId(1)
                 .memo("keyword2")
                 .build();
         List<DailyPayments> list = new ArrayList<>();

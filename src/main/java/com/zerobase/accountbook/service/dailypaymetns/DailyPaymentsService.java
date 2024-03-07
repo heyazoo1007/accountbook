@@ -39,6 +39,7 @@ public class DailyPaymentsService {
     private final TotalAmountPerCategoryRepository totalAmountPerCategoryRepository;
     private final MonthlyTotalAmountRepository monthlyTotalAmountRepository;
 
+    // 클라이언트에서 카테고리 기본값 = "미분류"로 만들어 보내기. 그럼 카테고리 선택 안해도 문제 없음
     public CreateDailyPaymentsResponseDto createDailyPayments(
             String memberEmail,
             CreateDailyPaymentsRequestDto request
@@ -52,7 +53,7 @@ public class DailyPaymentsService {
                 .paidAmount(request.getPaidAmount())
                 .payLocation(request.getPaidWhere())
                 .methodOfPayment(request.getMethodOfPayment())
-                .categoryName(request.getCategoryName())
+                .categoryId(request.getCategoryId())
                 .memo(request.getMemo())
                 .createdAt(getCurrentTimeUntilMinutes())
                 .build()));
@@ -75,7 +76,7 @@ public class DailyPaymentsService {
         dailyPayments.setPaidAmount(request.getPaidAmount());
         dailyPayments.setPayLocation(request.getPaidWhere());
         dailyPayments.setMethodOfPayment(request.getMethodOfPayment());
-        dailyPayments.setCategoryName(request.getCategoryName());
+        dailyPayments.setCategoryId(request.getCategoryId());
         dailyPayments.setMemo(request.getMemo());
         dailyPayments.setUpdatedAt(request.getCreatedAt());
 

@@ -35,8 +35,10 @@ public class DailyPayments {
 
     private String methodOfPayment;
 
-    private String categoryName;
+    private long categoryId;
 
     private String memo;
+
+    private String date;
 }
 
