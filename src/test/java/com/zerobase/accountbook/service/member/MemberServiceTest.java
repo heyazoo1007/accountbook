@@ -12,8 +12,10 @@ import com.zerobase.accountbook.domain.category.CategoryRepository;
 import com.zerobase.accountbook.domain.dailypayments.DailyPaymentsRepository;
 import com.zerobase.accountbook.domain.member.Member;
 import com.zerobase.accountbook.domain.member.MemberRepository;
+import com.zerobase.accountbook.domain.member.MemberRole;
 import com.zerobase.accountbook.domain.monthlytotalamount.MonthlyTotalAmountRepository;
 import com.zerobase.accountbook.domain.totalamountpercategory.TotalAmountPerCategoryRepository;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -25,6 +27,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.Optional;
 
+import static com.zerobase.accountbook.domain.member.MemberRole.DELETED;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
@@ -39,21 +42,6 @@ class MemberServiceTest {
 
     @Spy
     private BCryptPasswordEncoder passwordEncoder;
-
-    @Mock
-    private BudgetRepository budgetRepository;
-
-    @Mock
-    private CategoryRepository categoryRepository;
-
-    @Mock
-    private DailyPaymentsRepository dailyPaymentsRepository;
-
-    @Mock
-    private MonthlyTotalAmountRepository monthlyTotalAmountRepository;
-
-    @Mock
-    private TotalAmountPerCategoryRepository totalAmountPerCategoryRepository;
 
     @InjectMocks
     private MemberService memberService;
@@ -329,30 +317,23 @@ class MemberServiceTest {
     void success_deleteMember() {
         //given
         String requestEmail = "hello@abc.com";
-        Member member = Member.builder().id(1L).email(requestEmail).build();
+        Member member = Member.builder().id(1L).email(requestEmail).role(MemberRole.MEMBER).build();
         given(memberRepository.findById(anyLong()))
                 .willReturn(Optional.of(member));
+        given(memberRepository.save(any())).willReturn(member);
 
         DeleteMemberRequestDto requestDto =
                 DeleteMemberRequestDto.builder().memberId(1L).build();
+
+        ArgumentCaptor<Member> captor = ArgumentCaptor.forClass(Member.class);
 
         //when
         memberService.deleteMember(requestEmail, requestDto);
 
         //then
-        Long memberId = member.getId();
-        verify(budgetRepository, times(1))
-                .deleteAllByMemberId(memberId);
-        verify(categoryRepository, times(1))
-                .deleteAllByMemberId(memberId);
-        verify(dailyPaymentsRepository, times(1))
-                .deleteAllByMemberId(memberId);
-        verify(monthlyTotalAmountRepository, times(1))
-                .deleteAllByMemberId(memberId);
-        verify(totalAmountPerCategoryRepository, times(1))
-                .deleteAllByMemberId(memberId);
         verify(memberRepository, times(1))
-                .deleteAllById(memberId);
+                .save(captor.capture());
+        assertEquals(DELETED, captor.getValue().getRole());
     }
 
     @Test

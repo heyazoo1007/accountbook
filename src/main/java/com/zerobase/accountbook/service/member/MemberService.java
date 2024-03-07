@@ -8,13 +8,9 @@ import com.zerobase.accountbook.controller.auth.dto.response.GetMemberInfoRespon
 import com.zerobase.accountbook.controller.auth.dto.response.ModifyMemberInfoResponseDto;
 import com.zerobase.accountbook.controller.auth.dto.response.ModifyMemberPasswordResponseDto;
 import com.zerobase.accountbook.controller.member.dto.request.DeleteMemberRequestDto;
-import com.zerobase.accountbook.domain.budget.BudgetRepository;
-import com.zerobase.accountbook.domain.category.CategoryRepository;
-import com.zerobase.accountbook.domain.dailypayments.DailyPaymentsRepository;
 import com.zerobase.accountbook.domain.member.Member;
 import com.zerobase.accountbook.domain.member.MemberRepository;
-import com.zerobase.accountbook.domain.monthlytotalamount.MonthlyTotalAmountRepository;
-import com.zerobase.accountbook.domain.totalamountpercategory.TotalAmountPerCategoryRepository;
+import com.zerobase.accountbook.domain.member.MemberRole;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -24,29 +20,18 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static com.zerobase.accountbook.common.exception.ErrorCode.*;
+import static com.zerobase.accountbook.domain.member.MemberRole.DELETED;
 
 @Service
 @RequiredArgsConstructor
 public class MemberService {
 
     private final MemberRepository memberRepository;
-
     private final PasswordEncoder passwordEncoder;
-
-    private final BudgetRepository budgetRepository;
-
-    private final CategoryRepository categoryRepository;
-
-    private final DailyPaymentsRepository dailyPaymentsRepository;
-
-    private final MonthlyTotalAmountRepository monthlyTotalAmountRepository;
-
-    private final TotalAmountPerCategoryRepository totalAmountPerCategoryRepository;
 
     public GetMemberInfoResponseDto getMemberInfo(
             String memberEmail, Long memberId
     ) {
-
         notAuthorizedMember(memberEmail, validateMemberByMemberId(memberId));
 
         return GetMemberInfoResponseDto.of(validateMemberByMemberId(memberId));
@@ -61,7 +46,6 @@ public class MemberService {
 
         member.setMemberName(request.getMemberName());
         member.setMonthlyBudget(request.getMonthlyBudget());
-        member.setUpdatedAt(LocalDateTime.now());
         memberRepository.save(member);
 
         return ModifyMemberInfoResponseDto.of(member);
@@ -101,25 +85,15 @@ public class MemberService {
             );
         }
 
-        Long memberId = targetMember.getId();
-
-        budgetRepository.deleteAllByMemberId(memberId);
-
-        categoryRepository.deleteAllByMemberId(memberId);
-
-        dailyPaymentsRepository.deleteAllByMemberId(memberId);
-
-        monthlyTotalAmountRepository.deleteAllByMemberId(memberId);
-
-        totalAmountPerCategoryRepository.deleteAllByMemberId(memberId);
-
-        memberRepository.deleteAllById(memberId);
+        // soft delete 로 회원 삭제. DB 에는 회원 정보 존재
+        targetMember.setRole(DELETED);
+        memberRepository.save(targetMember);
     }
 
     private static void notAuthorizedMember(String memberEmail, Member member) {
         if (!member.getEmail().equals(memberEmail)) {
             throw new AccountBookException(
-                    "당사자만 볼 수 있는 회원정보 입니다.",
+                    "회원정보는 본인만 확인 가능합니다.",
                     ErrorCode.FORBIDDEN_EXCEPTION
             );
         }

@@ -10,7 +10,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Setter
 @Getter
 @Entity
 public class Member {
@@ -35,4 +34,20 @@ public class Member {
     private MemberRole role;
 
     private Integer monthlyBudget;
+
+    public void setMemberName(String memberName) {
+        this.memberName = memberName;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public void setRole(MemberRole role) {
+        this.role = role;
+    }
+
+    public void setMonthlyBudget(Integer monthlyBudget) {
+        this.monthlyBudget = monthlyBudget;
+    }
 }
