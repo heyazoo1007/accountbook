@@ -11,6 +11,7 @@ import com.zerobase.accountbook.controller.auth.dto.response.CreateMemberRespons
 import com.zerobase.accountbook.controller.auth.dto.response.ValidateEmailResponseDto;
 import com.zerobase.accountbook.domain.member.Member;
 import com.zerobase.accountbook.domain.member.MemberRepository;
+import com.zerobase.accountbook.domain.member.MemberRole;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -224,7 +225,7 @@ class AuthServiceTest {
                 .memberName(requestDto.getMemberName())
                 .email(requestDto.getEmail())
                 .password(passwordEncoder.encode(requestDto.getPassword()))
-                .role(ROLE_MEMBER)
+                .role(MEMBER)
                 .build();
         given(memberRepository.save(any()))
                 .willReturn(member);
@@ -307,7 +308,7 @@ class AuthServiceTest {
         Member member = Member.builder()
                 .email(email)
                 .password(passwordEncoder.encode(password))
-                .role(ROLE_MEMBER)
+                .role(MEMBER)
                 .build();
         given(memberRepository.findByEmail(anyString()))
                 .willReturn(Optional.of(member));
@@ -335,7 +336,7 @@ class AuthServiceTest {
         Member member = Member.builder()
                 .email(email)
                 .password(passwordEncoder.encode(password))
-                .role(ROLE_MEMBER)
+                .role(MEMBER)
                 .build();
 
         given(memberRepository.findByEmail(anyString()))
@@ -360,7 +361,7 @@ class AuthServiceTest {
         Member member = Member.builder()
                 .email(email)
                 .password(passwordEncoder.encode(password))
-                .role(ROLE_MEMBER)
+                .role(MEMBER)
                 .build();
 
         given(memberRepository.findByEmail(anyString()))

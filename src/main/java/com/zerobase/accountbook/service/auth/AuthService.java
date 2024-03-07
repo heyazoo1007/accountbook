@@ -136,7 +136,7 @@ public class AuthService {
                 .memberName(request.getMemberName())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
-                .role(MemberRole.ROLE_MEMBER)
+                .role(MemberRole.MEMBER)
                 .createdAt(LocalDateTime.now())
                 .build()));
     }
