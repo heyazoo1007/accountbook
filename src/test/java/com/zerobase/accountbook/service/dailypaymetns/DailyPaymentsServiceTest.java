@@ -24,6 +24,8 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -827,7 +829,7 @@ class DailyPaymentsServiceTest {
     void success_getMonthlyDailyPaymentsResult_getCurrentMonthlyResult() {
         //given
         String requestEmail = "hello@abc.com";
-        String requestDate = "2023-01";
+        String requestDate = YearMonth.now().toString(); // 테스트하는 월의 정보 가져오기
         Member member = Member.builder()
                 .id(1L)
                 .email(requestEmail)
@@ -850,13 +852,11 @@ class DailyPaymentsServiceTest {
                 .getTotalAmountPerCategoryByMemberId(anyString(), anyLong())
         ).willReturn(list);
 
-
         //when
         GetMonthlyResultResponseDto responseDto =
                 dailyPaymentsService.getMonthlyDailyPaymentsResult(
                         requestEmail,
-                        requestDate
-                );
+                        requestDate);
 
         //then
         assertEquals(
@@ -867,7 +867,7 @@ class DailyPaymentsServiceTest {
     }
 
     @Test
-    @DisplayName("실패_지출내역_통계_조회_존재하지_않는_회원일_때")
+    @DisplayName("실패_지출내역_통계_조회_존재하지_않는_회원")
     void fail_getMonthlyDailyPaymentsResult_존재하지_않는_회원() {
         //given
         String requestEmail = "hello@abc.com";
@@ -986,7 +986,7 @@ class DailyPaymentsServiceTest {
     void fail_getYearlyResult_조회할_수_없는_년도() {
         //given
         String requestEmail = "hello@abc.com";
-        String requestYear = "2023";
+        int requestYear = LocalDateTime.now().getYear() + 1;
         Member member = Member.builder()
                 .id(1L)
                 .email(requestEmail)
@@ -994,14 +994,13 @@ class DailyPaymentsServiceTest {
         given(memberRepository.findByEmail(anyString()))
                 .willReturn(Optional.of(member));
 
-
         //when
 
         //then
         assertThrows(AccountBookException.class,
                 () -> dailyPaymentsService.getYearlyResult(
                         requestEmail,
-                        requestYear
+                        String.valueOf(requestYear)
                 )
         );
     }

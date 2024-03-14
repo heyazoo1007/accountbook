@@ -146,7 +146,6 @@ public class DailyPaymentsService {
     @Transactional(readOnly = true)
     public GetMonthlyResultResponseDto
     getMonthlyDailyPaymentsResult(String memberEmail, String requestDate) {
-
         Long memberId = validateMember(memberEmail).getId();
 
         String currentDate = getCurrentTimeUntilMinutes().substring(0, 7);
@@ -180,10 +179,7 @@ public class DailyPaymentsService {
 
         // 카테고리별 다달이 금액을 모두 더하면 카테고리 연 총 지출금액
         List<DailyPaymentsCategoryDto> totalAmountOfTheYearPerCategory =
-                dailyPaymentsQueryDsl
-                        .getYearlyTotalAmountPerCategoryByMemberId(
-                                memberId, year
-                        );
+                dailyPaymentsQueryDsl.getYearlyTotalAmountPerCategoryByMemberId(memberId, year);
 
         return GetYearlyResultResponseDto.of(
                 totalAmountOfTheYear, totalAmountOfTheYearPerCategory);
@@ -223,8 +219,7 @@ public class DailyPaymentsService {
 
         int totalAmount = 0;
 
-        // 요청한 사용자의 해당 월 지출내역을 카테고리로 가져옴
-        // (카페 : 15000, 식당 : 50000, )
+        // 카테고리별 월 지출내역 조회
         List<DailyPaymentsCategoryDto> all =
                 dailyPaymentsQueryDsl.getTotalAmountPerCategoryByMemberId(
                         getCurrentTimeUntilMinutes().substring(0, 7),
