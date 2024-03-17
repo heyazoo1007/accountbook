@@ -19,6 +19,12 @@ configurations {
 	compileOnly {
 		extendsFrom annotationProcessor
 	}
+
+	developmentOnly {
+		runtimeClasspath {
+			extendsFrom developmentOnly
+		}
+	}
 }
 
 repositories {
@@ -33,6 +39,10 @@ dependencies {
 	implementation 'org.springframework.security:spring-security-test'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+
+	compileOnly 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
+
 	implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
 	implementation 'io.jsonwebtoken:jjwt-impl:0.11.5'
 	implementation 'io.jsonwebtoken:jjwt-jackson:0.11.5'
@@ -40,20 +50,20 @@ dependencies {
 	implementation 'io.springfox:springfox-swagger-ui:2.9.2'
 	implementation "com.querydsl:querydsl-jpa:${queryDslVersion}"
 	annotationProcessor "com.querydsl:querydsl-apt:${queryDslVersion}"
-	compileOnly 'org.projectlombok:lombok'
 	implementation 'mysql:mysql-connector-java'
-	annotationProcessor 'org.projectlombok:lombok'
+
 
 	// 웹소켓
 	implementation 'org.springframework.boot:spring-boot-starter-websocket'
 	implementation 'org.webjars:stomp-websocket:2.3.3'
 	implementation 'org.webjars:webjars-locator-core'
 
+	// 화면
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 	implementation 'org.webjars:sockjs-client:1.0.2'
 	implementation 'org.webjars:bootstrap:3.3.7'
 	implementation 'org.webjars:jquery:3.1.1-1'
-
 
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'
