@@ -16,14 +16,6 @@ public class AuthController {
 
     private final AuthService authService;
 
-    @PostMapping("/email/validate")
-    public ApiResponse<String> validateEmail(
-            @Valid @RequestBody ValidateEmailRequestDto request
-    ) {
-        authService.validateEmail(request.getEmail());
-        return ApiResponse.SUCCESS;
-    }
-
     @PostMapping("/email/send")
     public ApiResponse<String> sendAuthEmail(
             @Valid @RequestBody SendAuthEmailRequestDto request

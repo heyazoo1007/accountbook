@@ -39,24 +39,8 @@ public class AuthService {
     private final JwtTokenProvider jwtTokenProvider;
     private final PasswordEncoder passwordEncoder;
 
-    public ValidateEmailResponseDto validateEmail(String email) {
-
-        if (memberRepository.findByEmail(email).isPresent()) {
-            throw new AccountBookException(
-                    String.format("이미 가입된 유저의 이메일 (%s) 입니다.", email),
-                    CONFLICT_USER_EXCEPTION
-            );
-        }
-
-        return ValidateEmailResponseDto.builder()
-                .email(email)
-                .build();
-    }
-
     public void sendAuthEmail(SendAuthEmailRequestDto request) {
-
         String email = request.getEmail();
-
         validateEmail(email);
 
         // 인증 이메일 전송 버튼을 누르고 또 누르는 경우에 대한 예외처리
@@ -69,9 +53,7 @@ public class AuthService {
         }
 
         String authKey = getAuthKey();
-
         sendAuthKeyToEmail(email, authKey);
-
         setAuthKeyAuthCache(authKey, email, AUTH_KEY_EXPIRATION);
         setAuthKeyAuthCache(
                 "EMAIL-AUTH:" + email,
@@ -154,6 +136,20 @@ public class AuthService {
         roles.add(member.getRole().toString());
 
         return jwtTokenProvider.createToken(email, roles);
+    }
+
+    private ValidateEmailResponseDto validateEmail(String email) {
+
+        if (memberRepository.findByEmail(email).isPresent()) {
+            throw new AccountBookException(
+                    String.format("이미 가입된 유저의 이메일 (%s) 입니다.", email),
+                    CONFLICT_USER_EXCEPTION
+            );
+        }
+
+        return ValidateEmailResponseDto.builder()
+                .email(email)
+                .build();
     }
 
     private void emailOrPasswordMismatch(String password, String memberPassword) {

@@ -51,41 +51,6 @@ class AuthServiceTest {
     @InjectMocks
     private AuthService authService;
 
-    @Test
-    void success_validateEmail() {
-        //given
-        String email = "hello@abc.com";
-
-        // 해당 이메일의 회원 미존재
-        given(memberRepository.findByEmail(anyString()))
-                .willReturn(Optional.empty());
-
-        //when
-        ValidateEmailResponseDto validateEmailResponseDto =
-                authService.validateEmail(email);
-
-        //then
-        assertEquals(email, validateEmailResponseDto.getEmail());
-    }
-
-    @Test
-    void fail_validateEmail_중복된_이메일() {
-        //given
-        String email = "hello@abc.com";
-        Member member = Member.builder()
-                .email(email)
-                .build();
-        given(memberRepository.findByEmail(anyString()))
-                .willReturn(Optional.of(member));
-
-        //when
-
-        //then
-        assertThrows(
-                AccountBookException.class,
-                () -> authService.validateEmail(email)
-        );
-    }
 
     // 해당 부분은 PostMan 으로 정상 동작하는 걸로 확인했습니다.
     @Test
