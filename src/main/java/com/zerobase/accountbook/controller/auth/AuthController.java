@@ -5,11 +5,12 @@ import com.zerobase.accountbook.common.dto.ApiResponse;
 import com.zerobase.accountbook.controller.auth.dto.request.*;
 import com.zerobase.accountbook.service.auth.AuthService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
-@RestController
+@Controller
 @RequestMapping("/v1/auth")
 @RequiredArgsConstructor
 public class AuthController {
@@ -17,6 +18,7 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/email/send")
+    @ResponseBody // @ResponseBody : 자바 객체를 HTTP 요청의 body 내용으로 매핑하는 역할
     public ApiResponse<String> sendAuthEmail(
             @Valid @RequestBody SendAuthEmailRequestDto request
     ) {
@@ -25,6 +27,7 @@ public class AuthController {
     }
 
     @PostMapping("/email/complete")
+    @ResponseBody
     public ApiResponse<String> completeAuthEmail(
             @Valid @RequestBody CompleteAuthEmailRequestDto request
     ) {
@@ -33,14 +36,15 @@ public class AuthController {
     }
 
     @PostMapping("/sign-up")
-    public ApiResponse<String> createMember(
+    public String signUp(
             @Valid @RequestBody CreateMemberRequestDto request
     ) {
         authService.createMember(request);
-        return ApiResponse.SUCCESS;
+        return "redirect:/v1";
     }
 
     @PostMapping("/sign-in")
+    @ResponseBody
     public ApiResponse<String> signIn(
             @Valid @RequestBody LoginRequestDto request
     ) {
