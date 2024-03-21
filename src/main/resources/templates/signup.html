@@ -136,6 +136,7 @@
             data : JSON.stringify(params),
             success : function(response) {
                 alert('회원가입이 완료 되었습니다.');
+                location.replace(response.data['redirectURL']);
             },
             error : function(request, status, error) {
                 alert(JSON.parse(request.responseText).message);
