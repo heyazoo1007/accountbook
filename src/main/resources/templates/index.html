@@ -12,11 +12,45 @@
     <div class="container-fluid">
         <h1 class="navbar-brand">AccountBook</h1>
         <div>
-            <a class="join-us" href="/signup">Join Us!</a>
-            <a role="button" href="/login" >Login</a>
+            <!--로그인 전-->
+            <a id="join-us" href="/signup">Join Us!</a>
+            <a id="login" role="button" href="/login" >Login</a>
+
+            <!--로그인 후-->
+            <a id="my-accountbook" href="/money-calendar">가계부 달력</a>
+            <a id="monthly" href="/monthly">월별 지출 통계</a>
+            <a id="yearly" href="/yearly">연도별 지출 통계</a>
+            <a id="my-page" href="my-page">마이페이지</a>
+            <a id="logout" onclick="logout();">로그아웃</a>
         </div>
     </div>
 </nav>
 
 </body>
+
+<script>
+    // httpOnly 로 설정된 Cookie 는 document.cookie 로 읽을 수 없음
+    const accessToken = document.cookie.split('access_token=')[1];
+
+    if(accessToken != null) { // 쿠키에 access_token 이 있을 때
+        document.getElementById("join-us").style.visibility = 'hidden';
+        document.getElementById("login").style.visibility = 'hidden';
+
+        document.getElementById("my-accountbook").style.visibility = 'visible';
+        document.getElementById("monthly").style.visibility = 'visible';
+        document.getElementById("yearly").style.visibility = 'visible';
+        document.getElementById("my-page").style.visibility = 'visible';
+        document.getElementById("logout").style.visibility = 'visible';
+    } else { // 쿠키에 access_token 이 없을 때
+        document.getElementById("join-us").style.visibility = 'visible';
+        document.getElementById("login").style.visibility = 'visible';
+
+        document.getElementById("my-accountbook").style.visibility = 'hidden';
+        document.getElementById("monthly").style.visibility = 'hidden';
+        document.getElementById("yearly").style.visibility = 'hidden';
+        document.getElementById("my-page").style.visibility = 'hidden';
+        document.getElementById("logout").style.visibility = 'hidden';
+    }
+
+</script>
 </html>

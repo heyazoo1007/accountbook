@@ -7,11 +7,16 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.HttpBasicConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+
+import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
 @EnableWebSecurity
@@ -35,28 +40,28 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-                .httpBasic().disable()
-                .csrf().disable()
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and()
-                .authorizeRequests()
-                .antMatchers(
-                        "/v1/**",
-                        "/v2/api-docs",
-                        "/swagger-resources",
-                        "/swagger-resources/**",
-                        "/configuration/ui",
-                        "/configuration/security",
-                        "/swagger-ui.html",
-                        "/swagger-ui.html/**",
-                        "/webjars/**",
-                        "/ws-stomp/**"
-                ).permitAll()
-                .anyRequest().authenticated()
-                .and()
+        http.httpBasic(HttpBasicConfigurer::disable);
+        http.csrf(AbstractHttpConfigurer::disable);
+        http.sessionManagement(configurer ->
+                configurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(authorize-> authorize
+                                        .requestMatchers(new AntPathRequestMatcher("/index")).permitAll()
+                                        .requestMatchers(new AntPathRequestMatcher("/signup")).permitAll()
+                                        .requestMatchers(new AntPathRequestMatcher("/login")).permitAll()
+                                        .requestMatchers(new AntPathRequestMatcher("/money-calendar")).permitAll()
+                                        .requestMatchers(new AntPathRequestMatcher("/v1/**")).permitAll()
+                                        .requestMatchers(new AntPathRequestMatcher("/v2/api-docs")).permitAll()
+                                        .requestMatchers(new AntPathRequestMatcher("/swagger-resources/**")).permitAll()
+                                        .requestMatchers(new AntPathRequestMatcher("/swagger-ui.html/**")).permitAll()
+                                        .requestMatchers(new AntPathRequestMatcher("/configuration/ui")).permitAll()
+                                        .requestMatchers(new AntPathRequestMatcher("/configuration/security")).permitAll()
+                                        .requestMatchers(new AntPathRequestMatcher("/webjars/**")).permitAll()
+                                        .requestMatchers(new AntPathRequestMatcher("/ws-stomp/**")).permitAll()
+                                        .anyRequest().authenticated())
+                .logout(withDefaults())
                 .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider),
-                        UsernamePasswordAuthenticationFilter.class);
+                                UsernamePasswordAuthenticationFilter.class);
+
         return http.build();
     }
 }

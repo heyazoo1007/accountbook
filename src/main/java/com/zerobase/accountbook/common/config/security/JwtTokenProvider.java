@@ -10,8 +10,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.PostConstruct;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 
@@ -72,14 +74,33 @@ public class JwtTokenProvider {
     }
 
     public String resolveToken(HttpServletRequest request) {
-        return request.getHeader("Authorization");
+        String bearerToken = request.getHeader("Authorization");
+
+        // 헤더에 값이 없다면 토큰 확인
+        if (bearerToken == null) {
+            Cookie[] cookies = request.getCookies(); // 모든 쿠키 가져오기
+            if (cookies != null) {
+                for (Cookie c : cookies) {
+                    String name = c.getName(); // 쿠키 이름 가져오기
+
+                    String value = c.getValue(); // 쿠키 값 가져오기
+                    if (name.equals("Authorization")) {
+                        bearerToken = value;
+                    }
+                }
+            }
+        }
+
+        if (StringUtils.hasText(bearerToken)) {
+            return bearerToken;
+        }
+        return null;
     }
 
     // 토큰의 유효성 + 만료일자 확인
     public boolean isValidateToken(String jwtToken) {
         try {
-            Jws<Claims> claims =
-                    Jwts.parser().
+            Jws<Claims> claims = Jwts.parser().
                             setSigningKey(secretKey).
                             parseClaimsJws(jwtToken);
             return !claims.getBody().getExpiration().before(new Date());

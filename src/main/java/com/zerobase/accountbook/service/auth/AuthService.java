@@ -124,7 +124,6 @@ public class AuthService {
     }
 
     public TokenResponseDto signIn(String email, String password) {
-
         // 해당 사용자가 존재하지 않는 경우
         Member member = notExistedMember(email);
 

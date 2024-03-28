@@ -9,13 +9,16 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 @Controller
 @RequestMapping("/v1/auth")
 @RequiredArgsConstructor
 public class AuthController {
-    private static final String redirectURL = "http://www.localhost:8080/index";
+    private static final String REDIRECT_URL = "http://www.localhost:8080/index";
+    private static final int LOGIN_DURATION = 60 *  60;
     private final AuthService authService;
 
     @PostMapping("/email/send")
@@ -42,15 +45,23 @@ public class AuthController {
             @Valid @RequestBody CreateMemberRequestDto request
     ) {
         authService.createMember(request);
-        return ApiResponse.success(LinkResponseDto.of(redirectURL));
+        return ApiResponse.success(LinkResponseDto.of(REDIRECT_URL));
     }
 
     @PostMapping("/login")
     @ResponseBody
     public ApiResponse<LinkResponseDto> signIn(
-            @Valid @RequestBody LoginRequestDto request
+            @Valid @RequestBody LoginRequestDto request, HttpServletResponse response
     ) {
-        authService.signIn(request.getEmail(), request.getPassword());
-        return ApiResponse.success(LinkResponseDto.of(redirectURL));
+        TokenResponseDto tokenResponseDto = authService.signIn(request.getEmail(), request.getPassword());
+
+        Cookie cookie = new Cookie("access_token", tokenResponseDto.getAccessToken());
+        cookie.setMaxAge(LOGIN_DURATION);
+        // cookie.setHttpOnly(true);
+        cookie.setPath("/");
+
+        response.addCookie(cookie);
+
+        return ApiResponse.success(LinkResponseDto.of(REDIRECT_URL));
     }
 }
