@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/event-stream; charset=utf-8"/>
+    <title>AccountBook Main Home</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="/webjars/jquery/jquery.min.js"></script>
+
+    <style>
+        .calendar {
+            padding-top: 60px;
+            position: relative;
+            margin: 0 auto;
+        }
+
+        .calendar .days {
+            display: flex;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .calendar .day {
+            display:flex;
+            align-items: center;
+            justify-content: center;
+            width: calc(100% / 7);
+            text-align: left;
+            color: #999;
+            font-size: 12px;
+            text-align: center;
+            border-radius:5px
+        }
+
+        .calendar .dates {
+            display: flex;
+            flex-flow: wrap;
+            height: 290px;
+        }
+    </style>
+
+</head>
+
+<body>
+<div id="top" class="container text-center">
+    <div class="row">
+        <div class="col-2"><a href="/index">AccountBook</a></div>
+        <div class="col-8">My AccountBook</div>
+        <div class="col-2">마이 페이지</div>
+    </div>
+</div>
+
+<div id="middle" class="container text-center" style="padding-top:50px;">
+    <div class="row">
+        <div class="col align-self-start">
+            <div class="row">
+                <div class="col-auto"><a href="goPrev();" class="nav-btn-prev"><</a></div>
+                <div id="year-month" class="col-auto"></div>
+                <div class="col-auto"><a href="goNext();" class="nav-btn-next">></a></div>
+            </div>
+        </div>
+            <div class="col align-self-end"><button type="button" class="btn-success" onclick="getAlarm();">예산 알림 받기</button></div>
+    </div>
+</div>
+
+<div class="calendar">
+    <div class="days">
+        <div class="day">MON</div>
+        <div class="day">TUE</div>
+        <div class="day">WED</div>
+        <div class="day">THU</div>
+        <div class="day">FRI</div>
+        <div class="day">SAT</div>
+        <div class="day">SUN</div>
+    </div>
+    <div class="dates"></div>
+</div>
+</body>
+
+<script>
+
+    $(document).ready(function() {
+        calendarInit();
+    });
+
+    function calendarInit() {
+        // 한국 표준시간 가져오기
+        var date = new Date();
+        var utc = date.getTime() + (date.getTimezoneOffset() * 60 * 1000);
+        var kstGap = 9 * 60 * 60 * 1000;
+        var today = new Date(utc + kstGap);
+        var thisMonth = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+
+        // 연, 월, 일 가져오기
+        var currentYear = thisMonth.getFullYear();
+        var currentMonth = thisMonth.getMonth();
+        var currentDate = thisMonth.getDate();
+
+        // 이번달 상단에 표시
+        $('#year-month').text(currentYear + '.' + (currentMonth + 1));
+
+        renderCalendar(currentYear, currentMonth, currentDate);
+    }
+
+    function renderCalendar(currentYear, currentMonth, currentDate) {
+        // 지난달 마지막 날짜, 요일 구하기
+        var startDay = new Date(currentYear, currentMonth, 0);
+        var prevDate = startDay.getDate();
+        var prevDay = startDay.getDay();
+
+        // 이번 달의 마지막 날짜, 요일 구하기
+        var endDay = new Date(currentYear, currentMonth + 1, 0);
+        var nextDate = endDay.getDate();
+        var nextDay = endDay.getDay();
+
+        calendar = document.querySelector('.dates')
+        calendar.innerHTML = '';
+
+        for (var i = prevDate - prevDay + 1; i <= prevDate; i++) {
+            calendar.innerHTML = calendar.innerHTML + '<div class="day prev disable"></div>'
+        }
+
+        for (var i = 1; i <= nextDate; i++) {
+            calendar.innerHTML = calendar.innerHTML + '<div class="day current">' + i + '</div>'
+        }
+    }
+
+    function goPrev() {
+        thisMonth = new Date(currentYear, currentMonth - 1, 1);
+        renderCalender(thisMonth);
+    }
+
+    function goNext() {
+        thisMonth = new Date(currentYear, currentMonth + 1, 1);
+        renderCalender(thisMonth);
+    }
+
+</script>
+
+</html>
