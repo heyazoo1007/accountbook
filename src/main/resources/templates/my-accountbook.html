@@ -4,8 +4,11 @@
     <meta http-equiv="Content-Type" content="text/event-stream; charset=utf-8"/>
     <title>AccountBook Main Home</title>
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!--아래 3개의 순서가 중요하다-->
     <script src="/webjars/jquery/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
 
     <style>
         .calendar {
@@ -76,32 +79,41 @@
     </div>
     <div class="dates"></div>
 </div>
-</body>
 
+<div class="modal fade" id="dateModal" tabindex="-1" aria-labelledby="dateModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="dateModalLabel">오늘의 지출내역(월/일 받아서 입력하기)</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                여기에 지출내역 불러오기
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" onclick="location.href='/expenditure'">+ 지출 입력하기</button>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
 <script>
 
-    $(document).ready(function() {
-        calendarInit();
-    });
+    // 한국 표준시간 가져오기
+    var date = new Date();
+    var utc = date.getTime() + (date.getTimezoneOffset() * 60 * 1000);
+    var kstGap = 9 * 60 * 60 * 1000;
+    var today = new Date(utc + kstGap);
+    var thisMonth = new Date(today.getFullYear(), today.getMonth(), today.getDate());
 
-    function calendarInit() {
-        // 한국 표준시간 가져오기
-        var date = new Date();
-        var utc = date.getTime() + (date.getTimezoneOffset() * 60 * 1000);
-        var kstGap = 9 * 60 * 60 * 1000;
-        var today = new Date(utc + kstGap);
-        var thisMonth = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    // 연, 월, 일 가져오기
+    var currentYear = thisMonth.getFullYear();
+    var currentMonth = thisMonth.getMonth();
+    var currentDate = thisMonth.getDate();
 
-        // 연, 월, 일 가져오기
-        var currentYear = thisMonth.getFullYear();
-        var currentMonth = thisMonth.getMonth();
-        var currentDate = thisMonth.getDate();
-
-        // 이번달 상단에 표시
-        $('#year-month').text(currentYear + '.' + (currentMonth + 1));
-
-        renderCalendar(currentYear, currentMonth, currentDate);
-    }
+    // 이번달 상단에 표시
+    $('#year-month').text(currentYear + '.' + (currentMonth + 1));
+    renderCalendar(currentYear, currentMonth, currentDate);
 
     function renderCalendar(currentYear, currentMonth, currentDate) {
         // 지난달 마지막 날짜, 요일 구하기
@@ -122,7 +134,7 @@
         }
 
         for (var i = 1; i <= nextDate; i++) {
-            calendar.innerHTML = calendar.innerHTML + '<div class="day current">' + i + '</div>'
+            calendar.innerHTML = calendar.innerHTML + '<button type="button" class="day current btn-light" data-bs-toggle="modal" data-bs-target="#dateModal" onclick="modal();">' + i + '</button> ';
         }
     }
 
@@ -134,6 +146,13 @@
     function goNext() {
         thisMonth = new Date(currentYear, currentMonth + 1, 1);
         renderCalender(thisMonth);
+    }
+
+    function modal() {
+        var header = (currentMonth + 1) + '월 ' + '일 지출내역';
+        console.log(header);
+        var date = document.getElementsByClassName("current");
+        console.log(date);
     }
 
 </script>
