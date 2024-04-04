@@ -11,8 +11,80 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
 </head>
 <body>
+<div id="top" class="container text-center">
+    <div class="row">
+        <h3>지출 입력하기</h3>
+    </div>
+</div>
 
-<h1>지출 입력하기</h1>
+<div id="middle1" class="container text-center" style="padding-top:50px;">
+    <div class="row">
+        <div class="col-6">금액<input placeholder="금액을 입력하세요"></div>
+        <div class="col-6">
+            카테고리
+            <button class="btn btn-light" type="button" id="category-radio" data-bs-toggle="modal" data-bs-target="#categoryModal">카테고리를 선택하세요</button>
+        </div>
+    </div>
+</div>
+
+<div id="middle2" class="container text-center" style="padding-top:50px;">
+    <div class="row">
+        <div class="col-6">거래처<input placeholder="거래처를 입력하세요"></div>
+        <div class="col-6">결제 수단<input placeholder="결제 수단을 입력하세요"></div>
+    </div>
+</div>
+
+<div id="middle3" class="container text-center" style="padding-top:50px;">
+    <div class="row">
+        <div class="col-6">메모<input placeholder="메모를 입력하세요"></div>
+        </div>
+    </div>
+</div>
+
+<div id="middle4" class="container text-center" style="padding-top:50px;">
+    <button class="btn btn-success" type="button" id="saveExpenditure" onclick="createDailyPayments();">저장하기</button>
+</div>
+
+<div class="modal fade" id="categoryModal" tabindex="-1" aria-labelledby="categoryModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="categoryModalLabel">카테고리 선택하기</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="categoryRadio" id="categoryRadio1" value="카테고리1">
+                    <label class="form-check-label" for="categoryRadio1">카테고리1</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="categoryRadio" id="categoryRadio2" value="카테고리2">
+                    <label class="form-check-label" for="categoryRadio2">카테고리2</label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light">편집</button>
+                <button type="button" class="btn btn-success" onclick="selectCategory();">선택</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 </body>
+<script>
+
+    function selectCategory() {
+        // 선택이 된 라디오 버튼의 value 가져오기
+        const selectedCategory = document.querySelector('input[type=radio][name="categoryRadio"]:checked').value;
+
+        // 가져온 value 를 버튼 위에 뒤집어 씌우기
+        const categoryRadio = document.getElementById('category-radio');
+        categoryRadio.innerHTML = selectedCategory;
+    }
+
+    function createDailyPayments() {
+        console.log('API 요청 날리기');
+    }
+
+</script>
 </html>
