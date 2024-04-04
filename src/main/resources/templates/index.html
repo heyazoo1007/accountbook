@@ -1,56 +1,51 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta http-equiv="Content-Type" content="text/event-stream; charset=utf-8"/>
-    <title>AccountBook Main Home</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="/webjars/jquery/jquery.min.js"></script>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="layout/default_layout">
+<th:block layout:fragment="content">
 
-</head>
-<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+            <h1 class="navbar-brand">AccountBook</h1>
+            <div>
+                <!--로그인 전-->
+                <a id="join-us" href="/signup">Join Us!</a>
+                <a id="login" role="button" href="/login" >Login</a>
 
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <div class="container-fluid">
-        <h1 class="navbar-brand">AccountBook</h1>
-        <div>
-            <!--로그인 전-->
-            <a id="join-us" href="/signup">Join Us!</a>
-            <a id="login" role="button" href="/login" >Login</a>
-
-            <!--로그인 후-->
-            <a id="my-accountbook" href="/my-accountbook">가계부 달력</a>
-            <a id="monthly" href="/monthly">월별 지출 통계</a>
-            <a id="yearly" href="/yearly">연도별 지출 통계</a>
-            <a id="my-page" href="/my-page">마이페이지</a>
-            <a id="logout" onclick="logout();">로그아웃</a>
+                <!--로그인 후-->
+                <a id="my-accountbook" href="/my-accountbook">가계부 달력</a>
+                <a id="monthly" href="/monthly">월별 지출 통계</a>
+                <a id="yearly" href="/yearly">연도별 지출 통계</a>
+                <a id="my-page" href="/my-page">마이페이지</a>
+                <a id="logout" onclick="logout();">로그아웃</a>
+            </div>
         </div>
-    </div>
-</nav>
+    </nav>
 
-</body>
-<script>
-    // httpOnly 로 설정된 Cookie 는 document.cookie 로 읽을 수 없음
-    const accessToken = document.cookie.split('access_token=')[1];
+    <script>
+        // httpOnly 로 설정된 Cookie 는 document.cookie 로 읽을 수 없음
+        const accessToken = document.cookie.split('access_token=')[1];
 
-    if(accessToken != null) { // 쿠키에 access_token 이 있을 때
-        document.getElementById("join-us").style.visibility = 'hidden';
-        document.getElementById("login").style.visibility = 'hidden';
+        if(accessToken != null) { // 쿠키에 access_token 이 있을 때
+            document.getElementById("join-us").style.visibility = 'hidden';
+            document.getElementById("login").style.visibility = 'hidden';
 
-        document.getElementById("my-accountbook").style.visibility = 'visible';
-        document.getElementById("monthly").style.visibility = 'visible';
-        document.getElementById("yearly").style.visibility = 'visible';
-        document.getElementById("my-page").style.visibility = 'visible';
-        document.getElementById("logout").style.visibility = 'visible';
-    } else { // 쿠키에 access_token 이 없을 때
-        document.getElementById("join-us").style.visibility = 'visible';
-        document.getElementById("login").style.visibility = 'visible';
+            document.getElementById("my-accountbook").style.visibility = 'visible';
+            document.getElementById("monthly").style.visibility = 'visible';
+            document.getElementById("yearly").style.visibility = 'visible';
+            document.getElementById("my-page").style.visibility = 'visible';
+            document.getElementById("logout").style.visibility = 'visible';
+        } else { // 쿠키에 access_token 이 없을 때
+            document.getElementById("join-us").style.visibility = 'visible';
+            document.getElementById("login").style.visibility = 'visible';
 
-        document.getElementById("my-accountbook").style.visibility = 'hidden';
-        document.getElementById("monthly").style.visibility = 'hidden';
-        document.getElementById("yearly").style.visibility = 'hidden';
-        document.getElementById("my-page").style.visibility = 'hidden';
-        document.getElementById("logout").style.visibility = 'hidden';
-    }
+            document.getElementById("my-accountbook").style.visibility = 'hidden';
+            document.getElementById("monthly").style.visibility = 'hidden';
+            document.getElementById("yearly").style.visibility = 'hidden';
+            document.getElementById("my-page").style.visibility = 'hidden';
+            document.getElementById("logout").style.visibility = 'hidden';
+        }
 
-</script>
+    </script>
+</th:block>
 </html>
