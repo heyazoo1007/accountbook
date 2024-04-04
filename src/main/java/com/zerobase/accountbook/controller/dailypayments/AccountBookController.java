@@ -8,11 +8,11 @@ public class AccountBookController {
 
     @GetMapping("/my-accountbook")
     public String myAccountBook() {
-        return "/my-accountbook";
+        return "my-accountbook";
     }
 
     @GetMapping("/expenditure") // 지출 입력하는 페이지로 이동하기
     public String expenditure() {
-        return "/expenditure";
+        return "expenditure";
     }
 }
