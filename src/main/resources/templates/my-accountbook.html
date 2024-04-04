@@ -134,7 +134,7 @@
         }
 
         for (var i = 1; i <= nextDate; i++) {
-            calendar.innerHTML = calendar.innerHTML + '<button type="button" class="day current btn-light" data-bs-toggle="modal" data-bs-target="#dateModal" onclick="modal();">' + i + '</button> ';
+            calendar.innerHTML = calendar.innerHTML + '<button type="button" id=' + i + ' class="day current btn-light" data-bs-toggle="modal" data-bs-target="#dateModal" onclick="modal(this.id);">' + i + '</button> ';
         }
     }
 
@@ -148,11 +148,10 @@
         renderCalender(thisMonth);
     }
 
-    function modal() {
-        var header = (currentMonth + 1) + '월 ' + '일 지출내역';
-        console.log(header);
-        var date = document.getElementsByClassName("current");
-        console.log(date);
+    function modal(clickedId) {
+        // 모달 헤더 가지고 온 뒤 날짜 동적으로 텍스트 변경하기'
+        var dateModalLabel = document.getElementById('dateModalLabel');
+        dateModalLabel.innerHTML = (currentMonth + 1) + '월 ' + clickedId + '일 지출내역';;
     }
 
 </script>
