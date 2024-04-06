@@ -15,7 +15,7 @@
             <div class="col-6">금액<input placeholder="금액을 입력하세요"></div>
             <div class="col-6">
                 카테고리
-                <button class="btn btn-light" type="button" id="category-radio" data-bs-toggle="modal" data-bs-target="#categoryModal">카테고리를 선택하세요</button>
+                <button class="btn btn-light" type="button" id="category-radio" data-bs-toggle="modal" data-bs-target="#categoryModal" onclick="getCategoryList();">카테고리를 선택하세요</button>
             </div>
         </div>
     </div>
@@ -46,14 +46,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="categoryRadio" id="categoryRadio1" value="카테고리1">
-                        <label class="form-check-label" for="categoryRadio1">카테고리1</label>
-                    </div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="categoryRadio" id="categoryRadio2" value="카테고리2">
-                        <label class="form-check-label" for="categoryRadio2">카테고리2</label>
-                    </div>
+
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-light">편집</button>
@@ -63,21 +56,52 @@
         </div>
     </div>
 
-    <script>
+<script>
 
-        function selectCategory() {
-            // 선택이 된 라디오 버튼의 value 가져오기
-            const selectedCategory = document.querySelector('input[type=radio][name="categoryRadio"]:checked').value;
+    function selectCategory() {
+        // 선택이 된 라디오 버튼의 value 가져오기
+        const selectedCategory = document.querySelector('input[type=radio][name="categoryRadio"]:checked').value;
 
-            // 가져온 value 를 버튼 위에 뒤집어 씌우기
-            const categoryRadio = document.getElementById('category-radio');
-            categoryRadio.innerHTML = selectedCategory;
-        }
+        // 가져온 value 를 버튼 위에 뒤집어 씌우기
+        const categoryRadio = document.getElementById('category-radio');
+        categoryRadio.innerHTML = selectedCategory;
+    }
 
-        function createDailyPayments() {
-            console.log('API 요청 날리기');
-        }
+    var categoryCheck = 0;
+    function getCategoryList() {
+        $.ajax({
+            url : `/v1/category/list`,
+            type : 'get',
+            contentType : 'application/json; charset=utf-8;',
+            dataType : 'json',
+            success : function(response) {
+                var data = response.data;
 
-    </script>
+                if (categoryCheck == 0) {
+                    modalContent = document.querySelector('.modal-body');
+                    for(var i = 0; i < data.length; i++) {
+                        var categoryName = data[i].categoryName;
+                        if (categoryName == '미분류') continue;
+
+                        var content = `<div class="form-check">
+                                        <input class="form-check-input" type="radio" name="categoryRadio" id="categoryRadio`+ i + `" value="`+ categoryName + `">
+                                        <label class="form-check-label" for="categoryRadio`+ i + `">` + categoryName + `</label></div>`;
+
+                        modalContent.innerHTML = modalContent.innerHTML + content;
+                    }
+                    categoryCheck++;
+                }
+            },
+            error : function(request, status, error) {
+                alert(JSON.parse(request.responseText).message);
+            }
+        })
+    }
+
+    function createDailyPayments() {
+        console.log('API 요청 날리기');
+    }
+
+</script>
 </th:block>
 </html>
