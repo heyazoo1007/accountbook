@@ -48,8 +48,6 @@ public class SecurityConfig {
                                         .requestMatchers(new AntPathRequestMatcher("/index")).permitAll()
                                         .requestMatchers(new AntPathRequestMatcher("/signup")).permitAll()
                                         .requestMatchers(new AntPathRequestMatcher("/login")).permitAll()
-                                        .requestMatchers(new AntPathRequestMatcher("/my-accountbook")).permitAll()
-                                        .requestMatchers(new AntPathRequestMatcher("/expenditure")).permitAll()
                                         .requestMatchers(new AntPathRequestMatcher("/v1/**")).permitAll()
                                         .requestMatchers(new AntPathRequestMatcher("/v2/api-docs")).permitAll()
                                         .requestMatchers(new AntPathRequestMatcher("/swagger-resources/**")).permitAll()

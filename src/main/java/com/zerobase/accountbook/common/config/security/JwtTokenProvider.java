@@ -74,25 +74,12 @@ public class JwtTokenProvider {
     }
 
     public String resolveToken(HttpServletRequest request) {
-        String bearerToken = request.getHeader("Authorization");
-
-        // 헤더에 값이 없다면 토큰 확인
-        if (bearerToken == null) {
-            Cookie[] cookies = request.getCookies(); // 모든 쿠키 가져오기
-            if (cookies != null) {
-                for (Cookie c : cookies) {
-                    String name = c.getName(); // 쿠키 이름 가져오기
-
-                    String value = c.getValue(); // 쿠키 값 가져오기
-                    if (name.equals("Authorization")) {
-                        bearerToken = value;
-                    }
-                }
+        String cookie = request.getHeader("Cookie");
+        if (cookie != null) {
+            String bearerToken = cookie.split("access_token=")[1];
+            if (StringUtils.hasText(bearerToken)) {
+                return bearerToken;
             }
-        }
-
-        if (StringUtils.hasText(bearerToken)) {
-            return bearerToken;
         }
         return null;
     }
