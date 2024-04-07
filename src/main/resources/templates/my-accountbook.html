@@ -63,7 +63,7 @@
                 <div class="col-auto"><a href="goNext();" class="nav-btn-next">></a></div>
             </div>
         </div>
-            <div class="col align-self-end"><button type="button" class="btn-success" onclick="getAlarm();">예산 알림 받기</button></div>
+            <div class="col align-self-end"><button type="button" class="btn btn-success" onclick="getAlarm();">예산 알림 받기</button></div>
     </div>
 </div>
 
@@ -88,7 +88,6 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                여기에 지출내역 불러오기
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-success" onclick="location.href='/expenditure'">+ 지출 입력하기</button>
@@ -148,10 +147,51 @@
         renderCalender(thisMonth);
     }
 
+    var paymentsCheck = 0;
     function modal(clickedId) {
         // 모달 헤더 가지고 온 뒤 날짜 동적으로 텍스트 변경하기
         var dateModalLabel = document.getElementById('dateModalLabel');
-        dateModalLabel.innerHTML = (currentMonth + 1) + '월 ' + clickedId + '일 지출내역';;
+        dateModalLabel.innerHTML = (currentMonth + 1) + '월 ' + clickedId + '일 지출내역';
+
+
+        // 클릭한 날짜로 요청 메시지 보내기, 응답 받은 걸로 modal-body 변경하기
+        var requestDate = currentYear + '-' + (currentMonth + 1) + '-' + clickedId;
+        $.ajax({
+            url : `/v1/daily-payments/list/` + requestDate,
+            type : 'get',
+            contentType : 'application/json; charset=utf-8;',
+            dataType : 'json',
+            success : function(response) {
+                var data = response.data;
+
+                var content = `<ul> `;
+                if (paymentsCheck == 0) {
+                    modalContent = document.querySelector('.modal-body');
+                    for(var i = 0; i < data.length; i++) {
+                        var paymentId = data[i].dailyPaymentId;
+                        var paidAmount = data[i].paidAmount;
+                        var payLocation = data[i].payLocation;
+                        var methodOfPayment = data[i].methodOfPayment;
+                        var categoryId = data[i].categoryId;
+                        var categoryName = data[i].categoryName;
+                        var memo = data[i].memo;
+
+                        content += `<li id="` + paymentId + `">`+
+                                     paidAmount +`|`+ payLocation + `|` + methodOfPayment + `|` + categoryName + `|` + memo + '                  ' +
+                                     `<button class="btn btn-success btn-payment" id="`+ paymentId + `" onclick="modifyDailyPayments(this.paymentId);">수정</button></li> `;
+                    }
+                    paymentsCheck++;
+                    modalContent.innerHTML += (content + `</ul>`);
+                }
+            },
+            error : function(request, status, error) {
+                alert(JSON.parse(request.responseText).message);
+            }
+        })
+    }
+
+    function modifyDailyPayments(paymentId) {
+        console.log('지출Id 담아서 수정하는 페이지로 이동 + 이 페이지 내에서 서버로 수정 API 날리기');
     }
 
 </script>
