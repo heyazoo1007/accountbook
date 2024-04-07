@@ -51,10 +51,11 @@ public class DailyPaymentsService {
                 dailyPaymentsRepository.save(DailyPayments.builder()
                 .member(member)
                 .paidAmount(request.getPaidAmount())
-                .payLocation(request.getPaidWhere())
+                .payLocation(request.getPayLocation())
                 .methodOfPayment(request.getMethodOfPayment())
                 .categoryId(request.getCategoryId())
                 .memo(request.getMemo())
+                .date(request.getDate())
                 .createdAt(getCurrentTimeUntilMinutes())
                 .build()));
     }

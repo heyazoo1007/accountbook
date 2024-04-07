@@ -17,7 +17,7 @@ public class CreateDailyPaymentsRequestDto {
     private Integer paidAmount;
 
     @Size(max = 10, message = "가게 이름은 10자를 넘어서는 안됩니다.")
-    private String paidWhere;
+    private String payLocation;
 
     private String methodOfPayment;
 
@@ -25,4 +25,6 @@ public class CreateDailyPaymentsRequestDto {
 
     @Size(max = 30, message = "메모의 길이는 최대 30자입니다.")
     private String memo;
+
+    private String date;
 }

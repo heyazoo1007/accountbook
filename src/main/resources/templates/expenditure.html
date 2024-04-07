@@ -12,7 +12,7 @@
 
     <div id="middle1" class="container text-center" style="padding-top:50px;">
         <div class="row">
-            <div class="col-6">금액<input placeholder="금액을 입력하세요"></div>
+            <div class="col-6">금액<input id="paid-amount" placeholder="금액을 입력하세요"></div>
             <div class="col-6">
                 카테고리
                 <button class="btn btn-light" type="button" id="category-radio" data-bs-toggle="modal" data-bs-target="#categoryModal" onclick="getCategoryList();">카테고리를 선택하세요</button>
@@ -22,20 +22,23 @@
 
     <div id="middle2" class="container text-center" style="padding-top:50px;">
         <div class="row">
-            <div class="col-6">거래처<input placeholder="거래처를 입력하세요"></div>
-            <div class="col-6">결제 수단<input placeholder="결제 수단을 입력하세요"></div>
+            <div class="col-6">거래처<input id="pay-location" placeholder="거래처를 입력하세요"></div>
+            <div class="col-6">결제 수단<input id="method-payment" placeholder="결제 수단을 입력하세요"></div>
         </div>
     </div>
 
     <div id="middle3" class="container text-center" style="padding-top:50px;">
         <div class="row">
-            <div class="col-6">메모<input placeholder="메모를 입력하세요"></div>
+            <div class="col-6">메모<input id="memo" placeholder="메모를 입력하세요"></div>
+            <div class="col-6">날짜
+                <select id="date-select" class="form-select" aria-label="날짜를 선택하세요" onclick="getDate();">
+                </select>
             </div>
         </div>
     </div>
 
     <div id="middle4" class="container text-center" style="padding-top:50px;">
-        <button class="btn btn-success" type="button" id="saveExpenditure" onclick="createDailyPayments();">저장하기</button>
+        <button class="btn btn-success" type="button" id="create-dailypayment" onclick="createDailyPayments();">저장하기</button>
     </div>
 
     <div class="modal fade" id="categoryModal" tabindex="-1" aria-labelledby="categoryModalLabel" aria-hidden="true">
@@ -58,16 +61,19 @@
 
 <script>
 
+    var categoryId = 1; // 서버에 넘길 카테고리 id 전역변수 설정
     function selectCategory() {
         // 선택이 된 라디오 버튼의 value 가져오기
         const selectedCategory = document.querySelector('input[type=radio][name="categoryRadio"]:checked').value;
+        categoryId = document.querySelector('input[type=radio][name="categoryRadio"]:checked').id;
 
         // 가져온 value 를 버튼 위에 뒤집어 씌우기
         const categoryRadio = document.getElementById('category-radio');
         categoryRadio.innerHTML = selectedCategory;
     }
 
-    var categoryCheck = 0;
+
+    var categoryCheck = 0; // 카테고리 리스트 중복 방지용
     function getCategoryList() {
         $.ajax({
             url : `/v1/category/list`,
@@ -81,13 +87,14 @@
                     modalContent = document.querySelector('.modal-body');
                     for(var i = 0; i < data.length; i++) {
                         var categoryName = data[i].categoryName;
+                        var categoryId = data[i].categoryId;
+
                         if (categoryName == '미분류') continue;
 
                         var content = `<div class="form-check">
-                                        <input class="form-check-input" type="radio" name="categoryRadio" id="categoryRadio`+ i + `" value="`+ categoryName + `">
-                                        <label class="form-check-label" for="categoryRadio`+ i + `">` + categoryName + `</label></div>`;
-
-                        modalContent.innerHTML = modalContent.innerHTML + content;
+                                        <input class="form-check-input" type="radio" name="categoryRadio" id="`+ categoryId + `" value="`+ categoryName + `">
+                                        <label class="form-check-label" for="`+ categoryId + `">` + categoryName + `</label></div>`;
+                        modalContent.innerHTML += content;
                     }
                     categoryCheck++;
                 }
@@ -98,8 +105,59 @@
         })
     }
 
+    function getDate() {
+        // 한국 표준시간 가져오기
+        var date = new Date();
+        var utc = date.getTime() + (date.getTimezoneOffset() * 60 * 1000);
+        var kstGap = 9 * 60 * 60 * 1000;
+        var today = new Date(utc + kstGap);
+        var thisMonth = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+
+        // 연, 월, 일 가져오기
+        var currentYear = thisMonth.getFullYear();
+        var currentMonth = thisMonth.getMonth() + 1;
+        var currentDate = thisMonth.getDate();
+
+        dateSelect = document.querySelector('#date-select');
+        for(var month = currentMonth; month < 12; month++) {
+            var date = currentYear + '-' + month + '-';
+
+            // 각 월의 마지막 날 구하기 -> TODO 날짜 정확하게 계산하기
+            var lastDay = new Date(currentYear, month + 1, 0).getDate();
+            for(var day = 1; day < lastDay; day++) {
+                tempDate = date + day
+                dateSelect.innerHTML += `<option value="`+ tempDate + `">`+ tempDate + `</option>`;
+            }
+        }
+    }
+
+    // 지출내역 post 요청
     function createDailyPayments() {
-        console.log('API 요청 날리기');
+        const date = document.getElementById('date-select');
+        alert(date.options[date.selectedIndex].value)
+        const params = {
+            'paidAmount': $('#paid-amount').val(),
+            'payLocation': $('#pay-location').val(),
+            'methodOfPayment' : $('#method-payment').val(),
+            'categoryId': categoryId,
+            'memo': $('#memo').val(),
+            'date' : date.options[date.selectedIndex].value
+        };
+
+        $.ajax({
+            url : `/v1/daily-payments`,
+            type : 'post',
+            contentType : 'application/json; charset=utf-8;',
+            dataType : 'json',
+            data : JSON.stringify(params),
+            success : function(response) {
+                alert('지출 입력이 성공적으로 되었습니다');
+                location.replace('http://www.localhost:8080/my-accountbook');
+            },
+            error : function(request, status, error) {
+                alert(JSON.parse(request.responseText).message);
+            }
+        })
     }
 
 </script>
