@@ -73,10 +73,7 @@ public class CategoryService {
     public List<GetCategoryListResponseDto> getCategoryList(
             String memberEmail
     ) {
-        List<Category> all =
-                categoryRepository.findAllByMemberId(
-                        validateMember(memberEmail).getId()
-                );
+        List<Category> all = categoryRepository.findAllByMemberId(validateMember(memberEmail).getId());
         return all.stream()
                 .map(GetCategoryListResponseDto::of)
                 .collect(Collectors.toList());

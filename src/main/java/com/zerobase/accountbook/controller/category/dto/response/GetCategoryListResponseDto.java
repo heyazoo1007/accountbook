@@ -10,10 +10,12 @@ import lombok.*;
 @AllArgsConstructor
 public class GetCategoryListResponseDto {
 
+    private long categoryId;
     private String categoryName;
 
     public static GetCategoryListResponseDto of(Category category) {
         return GetCategoryListResponseDto.builder()
+                .categoryId(category.getId())
                 .categoryName(category.getCategoryName())
                 .build();
     }
