@@ -70,16 +70,13 @@ public class DailyPaymentsController {
         return ApiResponse.success(response);
     }
 
-    @GetMapping("/list")
+    @GetMapping("/list/{requestDate}")
     public ApiResponse<List<GetDailyPaymentsResponseDto>> getDailyPaymentsList(
             @AuthenticationPrincipal UserDetails user,
-            @RequestParam @DateTimeFormat(pattern = "yyyy-MM") String date
+            @PathVariable String requestDate
     ) {
-        List<GetDailyPaymentsResponseDto> response =
-                dailyPaymentsService.getDailyPaymentsList(
-                        user.getUsername(),
-                        date
-                );
+        List<GetDailyPaymentsResponseDto> response = dailyPaymentsService.
+                getDailyPaymentsList(user.getUsername(), requestDate);
         return ApiResponse.success(response);
     }
 

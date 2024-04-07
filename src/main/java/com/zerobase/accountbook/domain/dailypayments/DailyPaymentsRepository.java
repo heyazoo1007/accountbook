@@ -7,6 +7,7 @@ import java.util.List;
 
 public interface DailyPaymentsRepository extends JpaRepository<DailyPayments, Long> {
 
+    List<DailyPayments> findAllByMemberIdAndDateContaining(Long memberId, String date);
     List<DailyPayments> findAllByMemberIdAndCreatedAtContaining(Long memberId, String CreatedAt);
 
     @Query(value = "select sum(dp.paid_amount) " +
@@ -34,6 +35,4 @@ public interface DailyPaymentsRepository extends JpaRepository<DailyPayments, Lo
                     "and dp.created_at like :date%"
     )
     int totalPaidAmountSoFarByMemberId(Long memberId, String date);
-
-    void deleteAllByMemberId(Long memberId);
 }

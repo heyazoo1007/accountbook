@@ -5,6 +5,7 @@ import com.zerobase.accountbook.controller.dailypayments.dto.request.CreateDaily
 import com.zerobase.accountbook.controller.dailypayments.dto.request.DeleteDailyPaymentsRequestDto;
 import com.zerobase.accountbook.controller.dailypayments.dto.request.ModifyDailyPaymentsRequestDto;
 import com.zerobase.accountbook.controller.dailypayments.dto.response.*;
+import com.zerobase.accountbook.domain.category.CategoryRepository;
 import com.zerobase.accountbook.domain.dailypayments.DailyPayments;
 import com.zerobase.accountbook.domain.dailypayments.DailyPaymentsRepository;
 import com.zerobase.accountbook.domain.member.Member;
@@ -36,6 +37,7 @@ public class DailyPaymentsService {
     private final DailyPaymentsQueryDsl dailyPaymentsQueryDsl;
     private final MemberRepository memberRepository;
     private final DailyPaymentsRepository dailyPaymentsRepository;
+    private final CategoryRepository categoryRepository;
     private final TotalAmountPerCategoryRepository totalAmountPerCategoryRepository;
     private final MonthlyTotalAmountRepository monthlyTotalAmountRepository;
 
@@ -100,7 +102,6 @@ public class DailyPaymentsService {
         dailyPaymentsRepository.delete(dailyPayments);
     }
 
-    @Transactional(readOnly = true)
     public GetDailyPaymentsResponseDto getDailyPayment(
             String memberEmail, Long dailyPaymentsId
     ) {
@@ -114,24 +115,25 @@ public class DailyPaymentsService {
         return GetDailyPaymentsResponseDto.of(dailyPayments);
     }
 
-    @Transactional(readOnly = true)
     @Cacheable("dailyPayments")
     public List<GetDailyPaymentsResponseDto> getDailyPaymentsList(
             String memberEmail,
             String date
     ) {
         Long memberId = validateMember(memberEmail).getId();
+        List<DailyPayments> dailyPayments = dailyPaymentsRepository
+                        .findAllByMemberIdAndDateContaining(memberId, date);
 
-        List<DailyPayments> all =
-                dailyPaymentsRepository
-                        .findAllByMemberIdAndCreatedAtContaining(memberId, date);
+        List<GetDailyPaymentsResponseDto> responseDtos = new ArrayList<>();
+        for (DailyPayments dailyPayment : dailyPayments) {
+            String categoryName = categoryRepository.
+                    findById(dailyPayment.getCategoryId()).get().getCategoryName();
 
-        return all.stream()
-                .map(GetDailyPaymentsResponseDto:: of)
-                .collect(Collectors.toList());
+            responseDtos.add(GetDailyPaymentsResponseDto.of(dailyPayment, categoryName));
+        }
+        return responseDtos;
     }
 
-    @Transactional(readOnly = true)
     public List<SearchDailyPaymentsResponseDto> searchDailyPayments(
             String memberEmail, String keyword
     ) {
@@ -144,7 +146,6 @@ public class DailyPaymentsService {
                 .collect(Collectors.toList());
     }
 
-    @Transactional(readOnly = true)
     public GetMonthlyResultResponseDto
     getMonthlyDailyPaymentsResult(String memberEmail, String requestDate) {
         Long memberId = validateMember(memberEmail).getId();
