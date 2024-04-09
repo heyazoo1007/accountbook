@@ -58,9 +58,9 @@
     <div class="row">
         <div class="col align-self-start">
             <div class="row">
-                <div class="col-auto"><a href="goPrev();" class="nav-btn-prev"><</a></div>
+                <div class="col-auto"><button class="btn btn-light nav-btn-prev" onclick="goPrev();"><</button></div>
                 <div id="year-month" class="col-auto"></div>
-                <div class="col-auto"><a href="goNext();" class="nav-btn-next">></a></div>
+                <div class="col-auto"><button class="btn btn-light nav-btn-next" onclick="goNext();">></button></div>
             </div>
         </div>
             <div class="col align-self-end"><button type="button" class="btn btn-success" onclick="getAlarm();">예산 알림 받기</button></div>
@@ -110,11 +110,12 @@
     var currentMonth = thisMonth.getMonth();
     var currentDate = thisMonth.getDate();
 
-    // 이번달 상단에 표시
-    $('#year-month').text(currentYear + '.' + (currentMonth + 1));
+    // 페이지 로딩 초기에 달력 가져오기
     renderCalendar(currentYear, currentMonth, currentDate);
 
     function renderCalendar(currentYear, currentMonth, currentDate) {
+        $('#year-month').text(currentYear + '.' + (currentMonth + 1));
+
         // 지난달 마지막 날짜, 요일 구하기
         var startDay = new Date(currentYear, currentMonth, 0);
         var prevDate = startDay.getDate();
@@ -138,13 +139,21 @@
     }
 
     function goPrev() {
-        thisMonth = new Date(currentYear, currentMonth - 1, 1);
-        renderCalender(thisMonth);
+        currentMonth -= 1
+        if (currentMonth == -1) {
+            currentYear -= 1;
+            currentMonth = 11;
+        }
+        renderCalendar(currentYear, currentMonth, 1);
     }
 
     function goNext() {
-        thisMonth = new Date(currentYear, currentMonth + 1, 1);
-        renderCalender(thisMonth);
+        currentMonth += 1
+        if (currentMonth == 12) {
+            currentYear += 1;
+            currentMonth = 0;
+        }
+        renderCalendar(currentYear, currentMonth, 1);
     }
 
     var paymentsCheck = 0;
@@ -192,6 +201,10 @@
 
     function modifyDailyPayments(paymentId) {
         console.log('지출Id 담아서 수정하는 페이지로 이동 + 이 페이지 내에서 서버로 수정 API 날리기');
+    }
+
+    function dismissTag() {
+
     }
 
 </script>
