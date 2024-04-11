@@ -6,6 +6,7 @@ import com.zerobase.accountbook.controller.category.dto.request.DeleteCategoryRe
 import com.zerobase.accountbook.controller.category.dto.request.ModifyCategoryRequestDto;
 import com.zerobase.accountbook.controller.category.dto.response.CreateCategoryResponseDto;
 import com.zerobase.accountbook.controller.category.dto.response.GetCategoryListResponseDto;
+import com.zerobase.accountbook.controller.category.dto.response.GetCategoryResponseDto;
 import com.zerobase.accountbook.controller.category.dto.response.ModifyCategoryResponseDto;
 import com.zerobase.accountbook.domain.category.Category;
 import com.zerobase.accountbook.domain.category.CategoryRepository;
@@ -59,15 +60,22 @@ public class CategoryService {
     }
 
     public void deleteCategory(
-            String memberEmail, DeleteCategoryRequestDto request
+            String memberEmail, long categoryId
     ) {
         Member member = validateMember(memberEmail);
-        Category category = validateCategory(request.getCategoryId());
+        Category category = validateCategory(categoryId);
         checkCategoryOwner(member, category);
 
         // soft delete(categoryName = "미분류"로 변경)
         // 이름이 미분류인 카테고리 레코드들이 많아지지 않을까?
         categoryRepository.updateUncategory(category.getId());
+    }
+
+    public GetCategoryResponseDto getCategory(
+            String memberEmail, long categoryId
+    ) {
+        Member member = validateMember(memberEmail);
+        return GetCategoryResponseDto.of(validateCategory(categoryId));
     }
 
     public List<GetCategoryListResponseDto> getCategoryList(

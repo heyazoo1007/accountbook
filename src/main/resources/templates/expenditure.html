@@ -41,6 +41,7 @@
         <button class="btn btn-success" type="button" id="create-dailypayment" onclick="createDailyPayments();">저장하기</button>
     </div>
 
+    <!--카테고리 리스트 모달-->
     <div class="modal fade" id="categoryModal" tabindex="-1" aria-labelledby="categoryModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -48,12 +49,49 @@
                     <h5 class="modal-title" id="categoryModalLabel">카테고리 선택하기</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
+                <div class="modal-body"></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-target="#createCategoryModal" data-bs-toggle="modal" data-bs-dismiss="modal">카테고리 추가</button>
+                    <button type="button" class="btn btn-success" onclick="selectCategory();">선택</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
+    <!--카테고리 추가 모달-->
+    <div class="modal fade" id="createCategoryModal" tabindex="-1" aria-labelledby="categoryModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="createCategoryModalLabel">카테고리 추가하기</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    카테고리를 입력하세요
+                    <input id="category-name" placeholder="ex) 식비">
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-light">편집</button>
-                    <button type="button" class="btn btn-success" onclick="selectCategory();">선택</button>
+                    <button type="button" class="btn btn-light" onclick="createCategory();" data-bs-target="#categoryModal" data-bs-toggle="modal" data-bs-dismiss="modal">완료</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--카테고리 수정 모달-->
+    <div class="modal fade" id="modifyCategoryModal" tabindex="-1" aria-labelledby="categoryModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modifyCategoryModalLabel">카테고리 수정하기</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    카테고리 이름을 입력하세요
+                    <input type="text" class="edit-category" value="">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" onclick="deleteCategory();" data-bs-target="#categoryModal" data-bs-toggle="modal" data-bs-dismiss="modal">삭제</button>
+                    <button type="button" class="btn btn-success" onclick="modifyCategory();" data-bs-target="#categoryModal" data-bs-toggle="modal" data-bs-dismiss="modal">완료</button>
                 </div>
             </div>
         </div>
@@ -83,19 +121,22 @@
             success : function(response) {
                 var data = response.data;
 
-                if (categoryCheck == 0) {
+                if (newCategory > 0 || categoryCheck == 0) {
                     modalContent = document.querySelector('.modal-body');
+                    var content = ``;
                     for(var i = 0; i < data.length; i++) {
                         var categoryName = data[i].categoryName;
                         var categoryId = data[i].categoryId;
 
                         if (categoryName == '미분류') continue;
 
-                        var content = `<div class="form-check">
-                                        <input class="form-check-input" type="radio" name="categoryRadio" id="`+ categoryId + `" value="`+ categoryName + `">
-                                        <label class="form-check-label" for="`+ categoryId + `">` + categoryName + `</label></div>`;
-                        modalContent.innerHTML += content;
+                        content += `<div class="form-check">
+                                      <input class="form-check-input" type="radio" name="categoryRadio" id="`+ categoryId + `" value="`+ categoryName + `">
+                                      <label class="form-check-label" for="`+ categoryId + `">` + categoryName + `</label>
+                                      <button class="btn btn-success" onclick="getCategoryName(`+ categoryId + `);" data-bs-target="#modifyCategoryModal" data-bs-toggle="modal" data-bs-dismiss="modal">수정</button>
+                                    </div>`;
                     }
+                    modalContent.innerHTML = content;
                     categoryCheck++;
                 }
             },
@@ -131,7 +172,6 @@
         }
     }
 
-    // 지출내역 post 요청
     function createDailyPayments() {
         const date = document.getElementById('date-select');
         alert(date.options[date.selectedIndex].value)
@@ -153,6 +193,87 @@
             success : function(response) {
                 alert('지출 입력이 성공적으로 되었습니다');
                 location.replace('http://www.localhost:8080/my-accountbook');
+            },
+            error : function(request, status, error) {
+                alert(JSON.parse(request.responseText).message);
+            }
+        })
+    }
+
+    var newCategory = 0;
+    function createCategory() {
+        const params = {
+            'categoryName' : $('#category-name').val()
+        };
+
+        $.ajax({
+            url : `/v1/category`,
+            type : 'post',
+            contentType : 'application/json; charset=utf-8;',
+            dataType : 'json',
+            data : JSON.stringify(params),
+            success : function(response) {
+                alert('새로운 카테고리가 추가되었습니다.');
+                document.getElementById('category-name').value = null;
+                newCategory++;
+            },
+            error : function(request, status, error) {
+                alert(JSON.parse(request.responseText).message);
+            }
+        })
+    }
+
+    function getCategoryName(categoryId) {
+        $.ajax({
+            url : `/v1/category/` + categoryId,
+            type : 'get',
+            contentType : 'application/json; charset=utf-8;',
+            dataType : 'json',
+            success : function(response) {
+                const data = response.data;
+                const editCategory = document.querySelector('.edit-category');
+
+                editCategory.value = data.categoryName;
+                editCategory.id = data.categoryId;
+            },
+            error : function(request, status, error) {
+                alert(JSON.parse(request.responseText).message);
+            }
+        })
+    }
+
+    function modifyCategory(categoryId) {
+        const editCategory = document.querySelector('.edit-category');
+        const params = {
+            'categoryId' : editCategory.id,
+            'categoryName' : editCategory.value
+        };
+
+        $.ajax({
+            url : `/v1/category`,
+            type : 'put',
+            contentType : 'application/json; charset=utf-8;',
+            dataType : 'json',
+            data : JSON.stringify(params),
+            success : function(response) {
+                alert('카테고리 수정이 완료되었습니다.');
+            },
+            error : function(request, status, error) {
+                alert(JSON.parse(request.responseText).message);
+            }
+        })
+    }
+
+    function deleteCategory() {
+        var categoryId = document.querySelector('.edit-category').id;
+
+        $.ajax({
+            url : `/v1/category/` + categoryId,
+            type : 'delete',
+            contentType : 'application/json; charset=utf-8;',
+            dataType : 'json',
+            success : function(response) {
+                alert('카테고리 삭제가 완료되었습니다.');
             },
             error : function(request, status, error) {
                 alert(JSON.parse(request.responseText).message);

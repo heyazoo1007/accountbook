@@ -2,10 +2,10 @@ package com.zerobase.accountbook.controller.category;
 
 import com.zerobase.accountbook.common.dto.ApiResponse;
 import com.zerobase.accountbook.controller.category.dto.request.CreateCategoryRequestDto;
-import com.zerobase.accountbook.controller.category.dto.request.DeleteCategoryRequestDto;
 import com.zerobase.accountbook.controller.category.dto.request.ModifyCategoryRequestDto;
 import com.zerobase.accountbook.controller.category.dto.response.CreateCategoryResponseDto;
 import com.zerobase.accountbook.controller.category.dto.response.GetCategoryListResponseDto;
+import com.zerobase.accountbook.controller.category.dto.response.GetCategoryResponseDto;
 import com.zerobase.accountbook.controller.category.dto.response.ModifyCategoryResponseDto;
 import com.zerobase.accountbook.service.category.CategoryService;
 import lombok.RequiredArgsConstructor;
@@ -43,13 +43,22 @@ public class CategoryController {
         return ApiResponse.success(response);
     }
 
-    @DeleteMapping()
+    @DeleteMapping("/{categoryId}")
     public ApiResponse<String> deleteCategory(
             @AuthenticationPrincipal UserDetails user,
-            @Valid @RequestBody DeleteCategoryRequestDto request
+            @PathVariable long categoryId
     ) {
-        categoryService.deleteCategory(user.getUsername(), request);
+        categoryService.deleteCategory(user.getUsername(), categoryId);
         return ApiResponse.SUCCESS;
+    }
+
+    @GetMapping("/{categoryId}")
+    public ApiResponse<GetCategoryResponseDto> getCategory(
+            @AuthenticationPrincipal UserDetails user,
+            @PathVariable long categoryId
+    ) {
+        return ApiResponse.success(categoryService.
+                getCategory(user.getUsername(), categoryId));
     }
 
     @GetMapping("/list")
