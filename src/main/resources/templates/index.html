@@ -3,6 +3,36 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="layout/default_layout">
 <th:block layout:fragment="content">
+    <script>
+        $(document).ready(function() {
+            indexInit();
+        });
+
+        function indexInit() {
+            // httpOnly 로 설정된 Cookie 는 document.cookie 로 읽을 수 없음
+            const accessToken = document.cookie.split('access_token=')[1];
+
+            if(accessToken != null) { // 쿠키에 access_token 이 있을 때
+                document.getElementById("join-us").style.visibility = 'hidden';
+                document.getElementById("login").style.visibility = 'hidden';
+
+                document.getElementById("my-accountbook").style.visibility = 'visible';
+                document.getElementById("monthly").style.visibility = 'visible';
+                document.getElementById("yearly").style.visibility = 'visible';
+                document.getElementById("my-page").style.visibility = 'visible';
+                document.getElementById("logout").style.visibility = 'visible';
+            } else { // 쿠키에 access_token 이 없을 때
+                document.getElementById("join-us").style.visibility = 'visible';
+                document.getElementById("login").style.visibility = 'visible';
+
+                document.getElementById("my-accountbook").style.visibility = 'hidden';
+                document.getElementById("monthly").style.visibility = 'hidden';
+                document.getElementById("yearly").style.visibility = 'hidden';
+                document.getElementById("my-page").style.visibility = 'hidden';
+                document.getElementById("logout").style.visibility = 'hidden';
+            }
+        }
+    </script>
 
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <div class="container-fluid">
@@ -21,31 +51,5 @@
             </div>
         </div>
     </nav>
-
-    <script>
-        // httpOnly 로 설정된 Cookie 는 document.cookie 로 읽을 수 없음
-        const accessToken = document.cookie.split('access_token=')[1];
-
-        if(accessToken != null) { // 쿠키에 access_token 이 있을 때
-            document.getElementById("join-us").style.visibility = 'hidden';
-            document.getElementById("login").style.visibility = 'hidden';
-
-            document.getElementById("my-accountbook").style.visibility = 'visible';
-            document.getElementById("monthly").style.visibility = 'visible';
-            document.getElementById("yearly").style.visibility = 'visible';
-            document.getElementById("my-page").style.visibility = 'visible';
-            document.getElementById("logout").style.visibility = 'visible';
-        } else { // 쿠키에 access_token 이 없을 때
-            document.getElementById("join-us").style.visibility = 'visible';
-            document.getElementById("login").style.visibility = 'visible';
-
-            document.getElementById("my-accountbook").style.visibility = 'hidden';
-            document.getElementById("monthly").style.visibility = 'hidden';
-            document.getElementById("yearly").style.visibility = 'hidden';
-            document.getElementById("my-page").style.visibility = 'hidden';
-            document.getElementById("logout").style.visibility = 'hidden';
-        }
-
-    </script>
 </th:block>
 </html>

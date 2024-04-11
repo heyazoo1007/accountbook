@@ -18,7 +18,7 @@ import javax.validation.Valid;
 @RequiredArgsConstructor
 public class AuthController {
     private static final String REDIRECT_URL = "http://www.localhost:8080/index";
-    private static final int LOGIN_DURATION = 60 *  60;
+    private static final int LOGIN_DURATION = 60 *  60 * 10;
     private final AuthService authService;
 
     @PostMapping("/email/send")
