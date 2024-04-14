@@ -16,13 +16,13 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class ModifyDailyPaymentsRequestDto {
 
-    private long dailyPaymentsId;
+    private long paymentId;
 
     @Min(0)
     private Integer paidAmount;
 
     @Size(max = 10, message = "가게 이름은 10자를 넘어서는 안됩니다.")
-    private String paidWhere;
+    private String payLocation;
 
     private String methodOfPayment;
 
@@ -31,6 +31,5 @@ public class ModifyDailyPaymentsRequestDto {
     @Size(max = 30, message = "메모의 길이는 최대 30자입니다.")
     private String memo;
 
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
-    private String createdAt;
+    private String date;
 }

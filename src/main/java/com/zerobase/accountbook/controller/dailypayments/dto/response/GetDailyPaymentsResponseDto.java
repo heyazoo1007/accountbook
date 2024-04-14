@@ -24,6 +24,8 @@ public class GetDailyPaymentsResponseDto {
 
     private String memo;
 
+    private String date;
+
     public static GetDailyPaymentsResponseDto of(DailyPayments dailyPayments) {
         return GetDailyPaymentsResponseDto
                 .builder()
@@ -45,6 +47,7 @@ public class GetDailyPaymentsResponseDto {
                 .categoryId(dailyPayments.getCategoryId())
                 .categoryName(categoryName)
                 .memo(dailyPayments.getMemo())
+                .date(dailyPayments.getDate())
                 .build();
     }
 }

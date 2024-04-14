@@ -62,30 +62,28 @@ public class DailyPaymentsService {
                 .build()));
     }
 
-    @CachePut(value = "dailyPayments", key = "#request.dailyPaymentsId")
+    //@CachePut(value = "dailyPayments", key = "#request.dailyPaymentsId")
     public ModifyDailyPaymentsResponseDto modifyDailyPayments(
             String memberEmail,
             ModifyDailyPaymentsRequestDto request
     ) {
-
         Member member = validateMember(memberEmail);
 
         DailyPayments dailyPayments =
-                validateDailyPayments(request.getDailyPaymentsId());
+                validateDailyPayments(request.getPaymentId());
 
         // 지출내역의 주인과 수정하려는 사용자가 다를 경우
         checkDailyPaymentsOwner(member, dailyPayments);
 
         dailyPayments.setPaidAmount(request.getPaidAmount());
-        dailyPayments.setPayLocation(request.getPaidWhere());
+        dailyPayments.setPayLocation(request.getPayLocation());
         dailyPayments.setMethodOfPayment(request.getMethodOfPayment());
         dailyPayments.setCategoryId(request.getCategoryId());
         dailyPayments.setMemo(request.getMemo());
-        dailyPayments.setUpdatedAt(request.getCreatedAt());
+        dailyPayments.setDate(request.getDate());
 
         return ModifyDailyPaymentsResponseDto.of(
-                dailyPaymentsRepository.save(dailyPayments)
-        );
+                dailyPaymentsRepository.save(dailyPayments));
     }
 
     @CacheEvict(value = "dailyPayments", allEntries = true)
@@ -102,17 +100,13 @@ public class DailyPaymentsService {
         dailyPaymentsRepository.delete(dailyPayments);
     }
 
-    public GetDailyPaymentsResponseDto getDailyPayment(
-            String memberEmail, Long dailyPaymentsId
-    ) {
+    public GetDailyPaymentsResponseDto getDailyPayment(Long dailyPaymentId) {
+        DailyPayments dailyPayment = validateDailyPayments(dailyPaymentId);
 
-        Member member = validateMember(memberEmail);
+        String categoryName = categoryRepository.
+                findById(dailyPayment.getCategoryId()).get().getCategoryName();
 
-        DailyPayments dailyPayments = validateDailyPayments(dailyPaymentsId);
-
-        checkDailyPaymentsOwner(member, dailyPayments);
-
-        return GetDailyPaymentsResponseDto.of(dailyPayments);
+        return GetDailyPaymentsResponseDto.of(dailyPayment, categoryName);
     }
 
     @Cacheable("dailyPayments")
@@ -216,7 +210,6 @@ public class DailyPaymentsService {
     }
 
     private GetMonthlyResultResponseDto getCurrentMonthlyResult(Long memberId) {
-
         int totalAmount = 0;
 
         // 카테고리별 월 지출내역 조회
@@ -267,17 +260,13 @@ public class DailyPaymentsService {
         return dailyPaymentsRepository.findById(dailyPaymentsId).orElseThrow(
                 () -> new AccountBookException(
                         "존재하지 않는 지출내역 입니다.",
-                        NOT_FOUND_DAILY_PAYMENTS_EXCEPTION
-                )
-        );
+                        NOT_FOUND_DAILY_PAYMENTS_EXCEPTION));
     }
 
     private Member validateMember(String memberEmail) {
         return memberRepository.findByEmail(memberEmail).orElseThrow(
                 () -> new AccountBookException(
                         "존재하지 않는 회원입니다.",
-                        NOT_FOUND_USER_EXCEPTION
-                )
-        );
+                        NOT_FOUND_USER_EXCEPTION));
     }
 }

@@ -27,25 +27,18 @@ public class DailyPaymentsController {
             @AuthenticationPrincipal UserDetails user,
             @Valid @RequestBody CreateDailyPaymentsRequestDto request
     ) {
-        CreateDailyPaymentsResponseDto response =
-                dailyPaymentsService.createDailyPayments(
-                        user.getUsername(),
-                        request
-                );
+        CreateDailyPaymentsResponseDto response = dailyPaymentsService.
+                createDailyPayments(user.getUsername(), request);
         return ApiResponse.success(response);
     }
 
     @PutMapping()
-    public ApiResponse<ModifyDailyPaymentsResponseDto> modifyDailyPayments(
+    public ApiResponse<String> modifyDailyPayments(
             @AuthenticationPrincipal UserDetails user,
             @Valid @RequestBody ModifyDailyPaymentsRequestDto request
     ) {
-        ModifyDailyPaymentsResponseDto response =
-                dailyPaymentsService.modifyDailyPayments(
-                        user.getUsername(),
-                        request
-                );
-        return ApiResponse.success(response);
+        dailyPaymentsService.modifyDailyPayments(user.getUsername(), request);
+        return ApiResponse.SUCCESS;
     }
 
     @DeleteMapping()
@@ -57,16 +50,13 @@ public class DailyPaymentsController {
         return ApiResponse.SUCCESS;
     }
 
-    @GetMapping("/{dailyPaymentsId}")
+    @GetMapping("/{paymentId}")
     public ApiResponse<GetDailyPaymentsResponseDto> getDailyPayment(
             @AuthenticationPrincipal UserDetails user,
-            @PathVariable Long dailyPaymentsId
+            @PathVariable Long paymentId
     ) {
-        GetDailyPaymentsResponseDto response =
-                dailyPaymentsService.getDailyPayment(
-                        user.getUsername(),
-                        dailyPaymentsId
-                );
+        GetDailyPaymentsResponseDto response = dailyPaymentsService.
+                getDailyPayment(paymentId);
         return ApiResponse.success(response);
     }
 
