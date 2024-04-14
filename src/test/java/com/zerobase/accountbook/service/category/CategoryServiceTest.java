@@ -50,9 +50,6 @@ class CategoryServiceTest {
         given(memberRepository.findByEmail(anyString()))
                 .willReturn(Optional.of(member));
 
-        given(categoryRepository.existsByCategoryName(anyString()))
-                .willReturn(false);
-
         Category category = Category.builder()
                 .id(1L)
                 .member(member)
@@ -95,30 +92,6 @@ class CategoryServiceTest {
     }
 
     @Test
-    void fail_createCategory_카테고리명_중복() {
-        //given
-        String requestEmail = "hello@abc.com";
-        Member member = Member.builder()
-                .email(requestEmail)
-                .build();
-        given(memberRepository.findByEmail(anyString()))
-                .willReturn(Optional.of(member));
-
-        given(categoryRepository.existsByCategoryName(anyString()))
-                .willReturn(true);
-
-        CreateCategoryRequestDto requestDto = CreateCategoryRequestDto.builder()
-                .categoryName("category1")
-                .build();
-
-        //when
-
-        //then
-        assertThrows(AccountBookException.class,
-                () -> categoryService.createCategory(requestEmail, requestDto));
-    }
-
-    @Test
     void success_modifyCategory() {
         //given
         String requestEmail = "hello@abc.com";
@@ -133,9 +106,6 @@ class CategoryServiceTest {
                 .build();
         given(categoryRepository.findById(anyLong()))
                 .willReturn(Optional.of(category));
-
-        given(categoryRepository.existsByCategoryName(anyString()))
-                .willReturn(false);
 
         ModifyCategoryRequestDto requestDto = ModifyCategoryRequestDto.builder()
                 .categoryId(1L)
@@ -231,37 +201,6 @@ class CategoryServiceTest {
     }
 
     @Test
-    void fail_modifyCategory_카테고리명_중복() {
-        //given
-        String requestEmail = "hello@abc.com";
-        Member member = Member.builder().id(1L).email(requestEmail).build();
-        given(memberRepository.findByEmail(anyString()))
-                .willReturn(Optional.of(member));
-
-        Category category = Category.builder()
-                .id(1L)
-                .member(member)
-                .categoryName("category1")
-                .build();
-        given(categoryRepository.findById(anyLong()))
-                .willReturn(Optional.of(category));
-
-        given(categoryRepository.existsByCategoryName(anyString()))
-                .willReturn(true);
-
-        ModifyCategoryRequestDto requestDto = ModifyCategoryRequestDto.builder()
-                .categoryId(1L)
-                .categoryName("modifyCategoryName")
-                .build();
-
-        //when
-
-        //then
-        assertThrows(AccountBookException.class,
-                () -> categoryService.modifyCategory(requestEmail, requestDto));
-    }
-
-    @Test
     void success_deleteCategory() {
         //given
         String requestEmail = "hello@abc.com";
@@ -282,11 +221,11 @@ class CategoryServiceTest {
                 .build();
 
         //when
-        categoryService.deleteCategory(requestEmail, requestDto);
+        categoryService.deleteCategory(requestEmail, category.getId());
 
         //then
         verify(categoryRepository, times(1))
-                .deleteById(requestDto.getCategoryId());
+                .updateUncategory(requestDto.getCategoryId());
     }
 
     @Test
@@ -304,7 +243,7 @@ class CategoryServiceTest {
 
         //then
         assertThrows(AccountBookException.class,
-                () -> categoryService.deleteCategory(requestEmail, requestDto));
+                () -> categoryService.deleteCategory(requestEmail, requestDto.getCategoryId()));
     }
 
     @Test
@@ -326,7 +265,7 @@ class CategoryServiceTest {
 
         //then
         assertThrows(AccountBookException.class,
-                () -> categoryService.deleteCategory(requestEmail, requestDto));
+                () -> categoryService.deleteCategory(requestEmail, requestDto.getCategoryId()));
     }
 
     @Test
@@ -355,7 +294,7 @@ class CategoryServiceTest {
 
         //then
         assertThrows(AccountBookException.class,
-                () -> categoryService.deleteCategory(notOwnerEmail, requestDto));
+                () -> categoryService.deleteCategory(notOwnerEmail, requestDto.getCategoryId()));
     }
 
     @Test

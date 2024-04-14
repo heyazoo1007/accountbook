@@ -5,6 +5,8 @@ import com.zerobase.accountbook.controller.dailypayments.dto.request.CreateDaily
 import com.zerobase.accountbook.controller.dailypayments.dto.request.DeleteDailyPaymentsRequestDto;
 import com.zerobase.accountbook.controller.dailypayments.dto.request.ModifyDailyPaymentsRequestDto;
 import com.zerobase.accountbook.controller.dailypayments.dto.response.*;
+import com.zerobase.accountbook.domain.category.Category;
+import com.zerobase.accountbook.domain.category.CategoryRepository;
 import com.zerobase.accountbook.domain.dailypayments.DailyPayments;
 import com.zerobase.accountbook.domain.dailypayments.DailyPaymentsRepository;
 import com.zerobase.accountbook.domain.member.Member;
@@ -54,6 +56,9 @@ class DailyPaymentsServiceTest {
     @Mock
     private DailyPaymentsRepository dailyPaymentsRepository;
 
+    @Mock
+    private CategoryRepository categoryRepository;
+
     @InjectMocks
     private DailyPaymentsService dailyPaymentsService;
 
@@ -80,7 +85,7 @@ class DailyPaymentsServiceTest {
         CreateDailyPaymentsRequestDto requestDto =
                 CreateDailyPaymentsRequestDto.builder()
                         .paidAmount(1000)
-                        .paidWhere("place1")
+                        .payLocation("place1")
                         .methodOfPayment("card1")
                         .categoryId(1)
                         .memo("memo1")
@@ -132,7 +137,7 @@ class DailyPaymentsServiceTest {
         CreateDailyPaymentsRequestDto requestDto =
                 CreateDailyPaymentsRequestDto.builder()
                         .paidAmount(1000)
-                        .paidWhere("place1")
+                        .payLocation("place1")
                         .methodOfPayment("card1")
                         .categoryId(1)
                         .memo("memo1")
@@ -613,10 +618,10 @@ class DailyPaymentsServiceTest {
     @Test
     void success_getDailyPaymentsList() {
         //given
-        String requestDate = "yyyy-MM";
-
+        String requestDate = "yyyy-MM-dd";
         String requestEmail = "hello@abc.com";
         Member owner = Member.builder()
+                .id(1L)
                 .email(requestEmail)
                 .build();
         given(memberRepository.findByEmail(anyString()))
@@ -643,12 +648,17 @@ class DailyPaymentsServiceTest {
         List<DailyPayments> dailyPaymentsList = new ArrayList<>();
         dailyPaymentsList.add(dailyPayment1);
         dailyPaymentsList.add(dailyPayment2);
-        given(dailyPaymentsRepository.findAllByMemberIdAndCreatedAtContaining(
+        given(dailyPaymentsRepository.findAllByMemberIdAndDateContaining(
                 owner.getId(),
-                requestDate
-                )
-        )
-                .willReturn(dailyPaymentsList);
+                requestDate)).willReturn(dailyPaymentsList);
+
+        Category category = Category.builder()
+                .id(1L)
+                .date("yyyy-mm-dd")
+                .member(owner)
+                .build();
+        given(categoryRepository.findById(anyLong()))
+                .willReturn(Optional.of(category));
 
         //when
         List<GetDailyPaymentsResponseDto> responseDtoList =
