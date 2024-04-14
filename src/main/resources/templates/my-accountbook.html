@@ -156,7 +156,9 @@
         renderCalendar(currentYear, currentMonth, 1);
     }
 
+
     var paymentsCheck = 0;
+    var dateCheck = '';
     function modal(clickedId) {
         // 모달 헤더 가지고 온 뒤 날짜 동적으로 텍스트 변경하기
         var dateModalLabel = document.getElementById('dateModalLabel');
@@ -173,25 +175,22 @@
             success : function(response) {
                 var data = response.data;
 
+                modalContent = document.querySelector('.modal-body');
+                modalContent.innerHTML = '';
                 var content = `<ul> `;
-                if (paymentsCheck == 0) {
-                    modalContent = document.querySelector('.modal-body');
-                    for(var i = 0; i < data.length; i++) {
-                        var paymentId = data[i].dailyPaymentId;
-                        var paidAmount = data[i].paidAmount;
-                        var payLocation = data[i].payLocation;
-                        var methodOfPayment = data[i].methodOfPayment;
-                        var categoryId = data[i].categoryId;
-                        var categoryName = data[i].categoryName;
-                        var memo = data[i].memo;
-
-                        content += `<li id="` + paymentId + `">`+
-                                     paidAmount +`|`+ payLocation + `|` + methodOfPayment + `|` + categoryName + `|` + memo + '                  ' +
-                                     `<button class="btn btn-success btn-payment" id="`+ paymentId + `" onclick="modifyDailyPayments(this.paymentId);">수정</button></li> `;
-                    }
-                    paymentsCheck++;
-                    modalContent.innerHTML += (content + `</ul>`);
+                for(var i = 0; i < data.length; i++) {
+                    var paymentId = data[i].dailyPaymentId;
+                    var paidAmount = data[i].paidAmount;
+                    var payLocation = data[i].payLocation;
+                    var methodOfPayment = data[i].methodOfPayment;
+                    var categoryId = data[i].categoryId;
+                    var categoryName = data[i].categoryName;
+                    var memo = data[i].me
+                    content += `<li id="` + paymentId + `">` +
+                                 paidAmount +`|`+ payLocation + `|` + methodOfPayment + `|` + categoryName + `|` + memo + '                  ' +
+                                 `<button class="btn btn-success btn-payment" id="`+ paymentId + `" onclick="modifyDailyPayments(this.paymentId);">수정</button></li> `;
                 }
+                modalContent.innerHTML += (content + `</ul>`);
             },
             error : function(request, status, error) {
                 alert(JSON.parse(request.responseText).message);
@@ -201,10 +200,6 @@
 
     function modifyDailyPayments(paymentId) {
         console.log('지출Id 담아서 수정하는 페이지로 이동 + 이 페이지 내에서 서버로 수정 API 날리기');
-    }
-
-    function dismissTag() {
-
     }
 
 </script>

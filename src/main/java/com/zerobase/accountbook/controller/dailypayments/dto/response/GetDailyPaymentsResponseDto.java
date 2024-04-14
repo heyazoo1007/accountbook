@@ -38,6 +38,7 @@ public class GetDailyPaymentsResponseDto {
     public static GetDailyPaymentsResponseDto of(DailyPayments dailyPayments, String categoryName) {
         return GetDailyPaymentsResponseDto
                 .builder()
+                .dailyPaymentId(dailyPayments.getId())
                 .paidAmount(dailyPayments.getPaidAmount())
                 .payLocation(dailyPayments.getPayLocation())
                 .methodOfPayment(dailyPayments.getMethodOfPayment())

@@ -120,15 +120,13 @@ public class DailyPaymentsService {
             String memberEmail,
             String date
     ) {
-        Long memberId = validateMember(memberEmail).getId();
         List<DailyPayments> dailyPayments = dailyPaymentsRepository
-                        .findAllByMemberIdAndDateContaining(memberId, date);
+                        .findAllByMemberIdAndDateContaining(validateMember(memberEmail).getId(), date);
 
         List<GetDailyPaymentsResponseDto> responseDtos = new ArrayList<>();
         for (DailyPayments dailyPayment : dailyPayments) {
             String categoryName = categoryRepository.
                     findById(dailyPayment.getCategoryId()).get().getCategoryName();
-
             responseDtos.add(GetDailyPaymentsResponseDto.of(dailyPayment, categoryName));
         }
         return responseDtos;
