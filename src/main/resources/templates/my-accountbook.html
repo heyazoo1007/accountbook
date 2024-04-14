@@ -176,7 +176,7 @@
                 var data = response.data;
 
                 modalContent = document.querySelector('.modal-body');
-                modalContent.innerHTML = '';
+                modalContent.innerHTML = ''; // 모달 바디 초기화
                 var content = `<ul> `;
                 for(var i = 0; i < data.length; i++) {
                     var paymentId = data[i].dailyPaymentId;
@@ -185,10 +185,10 @@
                     var methodOfPayment = data[i].methodOfPayment;
                     var categoryId = data[i].categoryId;
                     var categoryName = data[i].categoryName;
-                    var memo = data[i].me
+                    var memo = data[i].memo
                     content += `<li id="` + paymentId + `">` +
                                  paidAmount +`|`+ payLocation + `|` + methodOfPayment + `|` + categoryName + `|` + memo + '                  ' +
-                                 `<button class="btn btn-success btn-payment" id="`+ paymentId + `" onclick="modifyDailyPayments(this.paymentId);">수정</button></li> `;
+                                 `<button class="btn btn-success btn-payment" id="`+ paymentId + `" onclick="modifyDailyPayments(this.id);">수정</button></li> `;
                 }
                 modalContent.innerHTML += (content + `</ul>`);
             },
@@ -199,7 +199,7 @@
     }
 
     function modifyDailyPayments(paymentId) {
-        console.log('지출Id 담아서 수정하는 페이지로 이동 + 이 페이지 내에서 서버로 수정 API 날리기');
+        location.replace("http://localhost:8080/expenditure/" + paymentId);
     }
 
 </script>
