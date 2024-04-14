@@ -6,39 +6,38 @@
 
     <div id="top" class="container text-center">
         <div class="row">
-            <h3>지출 입력하기</h3>
+            <h3>지출 수정하기</h3>
         </div>
     </div>
 
     <div id="middle1" class="container text-center" style="padding-top:50px;">
         <div class="row">
-            <div class="col-6">금액<input id="paid-amount" placeholder="금액을 입력하세요"></div>
+            <div class="col-6">금액<input id="paid-amount" th:value="${payment.paidAmount}"></div>
             <div class="col-6">
                 카테고리
-                <button class="btn btn-light" type="button" id="category-radio" data-bs-toggle="modal" data-bs-target="#categoryModal" onclick="getCategoryList();">카테고리를 선택하세요</button>
+                <button class="btn btn-light" type="button" th:text="${payment.categoryName}" id="category-radio" data-bs-toggle="modal" data-bs-target="#categoryModal" onclick="getCategoryList();" ></button>
             </div>
         </div>
     </div>
 
     <div id="middle2" class="container text-center" style="padding-top:50px;">
         <div class="row">
-            <div class="col-6">거래처<input id="pay-location" placeholder="거래처를 입력하세요"></div>
-            <div class="col-6">결제 수단<input id="method-payment" placeholder="결제 수단을 입력하세요"></div>
+            <div class="col-6">거래처<input id="pay-location" th:value="${payment.payLocation}"></div>
+            <div class="col-6">결제 수단<input id="method-payment" th:value="${payment.methodOfPayment}"></div>
         </div>
     </div>
 
     <div id="middle3" class="container text-center" style="padding-top:50px;">
         <div class="row">
-            <div class="col-6">메모<input id="memo" placeholder="메모를 입력하세요"></div>
+            <div class="col-6">메모<input id="memo" th:value="${payment.memo}"></div>
             <div class="col-6">날짜
-                <select id="date-select" class="form-select" aria-label="날짜를 선택하세요" onclick="getDate();">
-                </select>
+                <select id="date-select" class="form-select" onclick="getDate();" th:text="${payment.date}"></select>
             </div>
         </div>
     </div>
 
     <div id="middle4" class="container text-center" style="padding-top:50px;">
-        <button class="btn btn-success" type="button" id="create-dailypayment" onclick="createDailyPayments();">저장하기</button>
+        <button class="btn btn-success" type="button" id="modify-payment" onclick="modifyPayment();">수정하기</button>
     </div>
 
     <!--카테고리 리스트 모달-->
@@ -125,27 +124,26 @@
         }
     }
 
-    function createDailyPayments() {
+    function modifyPayment() {
         const date = document.getElementById('date-select');
-        alert(date.options[date.selectedIndex].value)
         const params = {
-            'paidAmount': $('#paid-amount').val(),
-            'payLocation': $('#pay-location').val(),
+            'paymentId' : window.location.pathname.split('/')[2],
+            'paidAmount' : $('#paid-amount').val(),
+            'payLocation' : $('#pay-location').val(),
             'methodOfPayment' : $('#method-payment').val(),
-            'categoryId': categoryId,
+            'categoryId' : categoryId,
             'memo': $('#memo').val(),
             'date' : date.options[date.selectedIndex].value
         };
 
         $.ajax({
             url : `/v1/daily-payments`,
-            type : 'post',
+            type : 'put',
             contentType : 'application/json; charset=utf-8;',
             dataType : 'json',
             data : JSON.stringify(params),
             success : function(response) {
-                alert('지출 입력이 성공적으로 되었습니다');
-                location.replace('http://www.localhost:8080/my-accountbook');
+                location.replace("http://www.localhost:8080/my-accountbook"); // 달력 캐시된 걸로 이동해야하나?
             },
             error : function(request, status, error) {
                 alert(JSON.parse(request.responseText).message);
@@ -158,7 +156,7 @@
         // 선택이 된 라디오 버튼의 value 가져오기
         const selectedCategory = document.querySelector('input[type=radio][name="categoryRadio"]:checked');
         const categoryName = selectedCategory.value;
-        categoryId = selected.id;
+        categoryId = selectedCategory.id;
 
         // 가져온 카테고리 value 를 버튼 위에 뒤집어 씌우기
         document.getElementById('category-radio').innerHTML = categoryName;

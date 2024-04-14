@@ -1,18 +1,39 @@
 package com.zerobase.accountbook.controller.dailypayments;
 
+import com.zerobase.accountbook.controller.dailypayments.dto.response.GetDailyPaymentsResponseDto;
+import com.zerobase.accountbook.service.dailypaymetns.DailyPaymentsService;
+import lombok.RequiredArgsConstructor;
+import org.apache.catalina.User;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
 
 @Controller
+@RequiredArgsConstructor
 public class AccountBookController {
+
+    private final DailyPaymentsService dailyPaymentsService;
 
     @GetMapping("/my-accountbook")
     public String myAccountBook() {
         return "my-accountbook";
     }
 
-    @GetMapping("/expenditure") // 지출 입력하는 페이지로 이동하기
+    @GetMapping("/expenditure")
     public String expenditure() {
         return "expenditure";
+    }
+
+    @GetMapping("/expenditure/{paymentId}")
+    public String modifyExpenditure(
+            @PathVariable long paymentId,
+            Model model
+    ) {
+        GetDailyPaymentsResponseDto response = dailyPaymentsService.getDailyPayment(paymentId);
+        model.addAttribute("payment", response);
+        return "edit-expenditure";
     }
 }
