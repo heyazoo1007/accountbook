@@ -18,15 +18,15 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/ws-stomp") // ws-stomp 로 socket 연결
+        registry.addEndpoint("/ws-stomp")
+                .setAllowedOriginPatterns("*") // sockJS 로 웹소켓 연결 시 cors 설정 안되는 문제 해결
                 .withSockJS();
     }
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
-        registry.enableSimpleBroker("/sub");
+        registry.enableSimpleBroker("/sub"); // '/sub' 을 구독하고 있으면 메시지 전송 가능
         registry.setApplicationDestinationPrefixes("/app");
-        // /sub 을 구독하고 있으면 메시지 전송 가능
     }
 
     @Override
