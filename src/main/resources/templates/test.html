@@ -54,17 +54,17 @@
     function connect() {
         let socket = new SockJS('http://localhost:8080/ws-stomp');
         stompClient = Stomp.over(socket);
-        // TODO : 로그인 하고, 거기에서 토큰 가져오는 걸로 구현 필요
-        stompClient.connect({"token" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJoZXlhem9vMTAwN0BuYXZlci5jb20iLCJyb2xlcyI6WyJST0xFX01FTUJFUiJdLCJpYXQiOjE3MDk3MTE2NDIsImV4cCI6MTcwOTcxMzQ0Mn0.C4wso6V2QqWcW53Bm3OlEg5DEvbtmVUpCrwaOKfhs88"},
-                            function (frame) {
-                                setConnected(true);
-                                console.log('Connected: ' + frame);
+        const accessToken = document.cookie.split('access_token=')[1];
 
-                                stompClient.subscribe('/sub/1', function (data) {
-                                const body = JSON.parse(data.body);
-                                $('body').append(`${body.message}`);
-            });
-        });
+        stompClient.connect({"token" : accessToken}, function (frame) {
+                                                        setConnected(true);
+                                                        console.log('Connected: ' + frame);
+
+                                                        stompClient.subscribe('/sub/' + memberId, function (data) {
+                                                        const body = JSON.parse(data.body);
+                                                        $('body').append(`${body.message}`);
+                                                        });
+                            });
     }
 
     function disconnect() {
@@ -83,9 +83,9 @@
         $("form").on('submit', function (e) {
             e.preventDefault();
         });
-        $( "#connect" ).click(function() { connect(); });
-        $( "#disconnect" ).click(function() { disconnect(); });
-        $( "#send" ).click(function() { sendName(); });
+        $( "#connect" ).click(function() { connect(); }); // id가 connect 인 태그 클릭 -> 웹 소켓 연결
+        $( "#disconnect" ).click(function() { disconnect(); }); // id가 disconnect 인 태그 클릭 -> 웹 소켓 연결 종료
+        $( "#send" ).click(function() { sendName(); }); // 버튼 누르면 지정한 url 로 api 전송
     });
 
 </script>
