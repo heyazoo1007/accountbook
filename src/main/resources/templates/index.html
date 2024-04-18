@@ -5,15 +5,15 @@
 <th:block layout:fragment="content">
     <script>
         $(document).ready(function() {
-            wait(2);
             indexInit();
         });
 
+        var memberId = 0;
         function indexInit() {
             // httpOnly 로 설정된 Cookie 는 document.cookie 로 읽을 수 없음
             const accessToken = document.cookie.split('access_token=')[1];
 
-            if(accessToken != null) { // 쿠키에 access_token 이 있을 때
+            if(accessToken != null) { // 쿠키에 access_token 이 있을 때(로그인 했을 때)
                 document.getElementById("join-us").style.visibility = 'hidden';
                 document.getElementById("login").style.visibility = 'hidden';
 
@@ -22,6 +22,20 @@
                 document.getElementById("yearly").style.visibility = 'visible';
                 document.getElementById("my-page").style.visibility = 'visible';
                 document.getElementById("logout").style.visibility = 'visible';
+
+                // memberId 가져오기
+                $.ajax({
+                    url : `/v1/member`,
+                    type : 'get',
+                    contentType : 'application/json; charset=utf-8;',
+                    dataType : 'json',
+                    success : function(response) {
+                        memberId = response.data.memberId;
+                    },
+                    error : function(request, status, error) {
+                        alert(JSON.parse(request.responseText).message);
+                    }
+                })
             } else { // 쿠키에 access_token 이 없을 때
                 document.getElementById("join-us").style.visibility = 'visible';
                 document.getElementById("login").style.visibility = 'visible';
@@ -32,6 +46,10 @@
                 document.getElementById("my-page").style.visibility = 'hidden';
                 document.getElementById("logout").style.visibility = 'hidden';
             }
+        }
+
+        function move() {
+            location.replace('http://localhost:8080/my-accountbook/' + memberId);
         }
     </script>
 
@@ -44,7 +62,7 @@
                 <a id="login" role="button" href="/login" >Login</a>
 
                 <!--로그인 후-->
-                <a id="my-accountbook" href="/my-accountbook">가계부 달력</a>
+                <button id="my-accountbook" onclick="move()">가계부 달력</button>
                 <a id="monthly" href="/monthly">월별 지출 통계</a>
                 <a id="yearly" href="/yearly">연도별 지출 통계</a>
                 <a id="my-page" href="/my-page">마이페이지</a>
