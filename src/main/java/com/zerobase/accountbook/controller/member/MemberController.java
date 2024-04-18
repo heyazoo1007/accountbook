@@ -22,13 +22,12 @@ public class MemberController {
 
     private final MemberService memberService;
 
-    @GetMapping("/{memberId}")
+    @GetMapping()
     public ApiResponse<GetMemberInfoResponseDto> getMemberInfo(
-            @AuthenticationPrincipal UserDetails user,
-            @PathVariable long memberId
+            @AuthenticationPrincipal UserDetails user
     ) {
         GetMemberInfoResponseDto response =
-                memberService.getMemberInfo(user.getUsername(), memberId);
+                memberService.getMemberInfo(user.getUsername());
         return ApiResponse.success(response);
     }
 

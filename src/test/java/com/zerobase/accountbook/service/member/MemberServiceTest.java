@@ -56,7 +56,7 @@ class MemberServiceTest {
 
         //when
         GetMemberInfoResponseDto responseDto =
-                memberService.getMemberInfo(requestEmail, member.getId());
+                memberService.getMemberInfo(requestEmail);
 
         //then
         assertEquals(member.getEmail(), responseDto.getEmail());
@@ -74,7 +74,7 @@ class MemberServiceTest {
 
         //then
         assertThrows(AccountBookException.class,
-                () -> memberService.getMemberInfo(requestEmail, member.getId()));
+                () -> memberService.getMemberInfo(requestEmail));
     }
 
     @Test
@@ -89,7 +89,7 @@ class MemberServiceTest {
 
         //then
         assertThrows(AccountBookException.class,
-                () -> memberService.getMemberInfo(requestEmail, member.getId()));
+                () -> memberService.getMemberInfo(requestEmail));
     }
 
     @Test

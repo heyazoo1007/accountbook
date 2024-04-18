@@ -30,11 +30,8 @@ public class MemberService {
     private final PasswordEncoder passwordEncoder;
 
     public GetMemberInfoResponseDto getMemberInfo(
-            String memberEmail, Long memberId
-    ) {
-        notAuthorizedMember(memberEmail, validateMemberByMemberId(memberId));
-
-        return GetMemberInfoResponseDto.of(validateMemberByMemberId(memberId));
+            String memberEmail) {
+        return GetMemberInfoResponseDto.of(validateMemberByEmail(memberEmail));
     }
 
     public ModifyMemberInfoResponseDto modifyMemberInfo(
@@ -88,6 +85,17 @@ public class MemberService {
         // soft delete 로 회원 삭제. DB 에는 회원 정보 존재
         targetMember.setRole(DELETED);
         memberRepository.save(targetMember);
+    }
+
+    private Member validateMemberByEmail(String memberEmail) {
+        Optional<Member> optionalMember = memberRepository.findByEmail(memberEmail);
+        if (!optionalMember.isPresent()) {
+            throw new AccountBookException(
+                    "존재하지 않는 회원의 정보는 조회 불가능합니다.",
+                    NOT_FOUND_USER_EXCEPTION
+            );
+        }
+        return optionalMember.get();
     }
 
     private static void notAuthorizedMember(String memberEmail, Member member) {
