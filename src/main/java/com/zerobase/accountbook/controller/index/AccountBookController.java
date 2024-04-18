@@ -1,4 +1,4 @@
-package com.zerobase.accountbook.controller.dailypayments;
+package com.zerobase.accountbook.controller.index;
 
 import com.zerobase.accountbook.controller.dailypayments.dto.response.GetDailyPaymentsResponseDto;
 import com.zerobase.accountbook.service.dailypaymetns.DailyPaymentsService;
@@ -17,8 +17,8 @@ public class AccountBookController {
 
     private final DailyPaymentsService dailyPaymentsService;
 
-    @GetMapping("/my-accountbook")
-    public String myAccountBook() {
+    @GetMapping("/my-accountbook/{memberId}")
+    public String myAccountBook(@PathVariable long memberId) {
         return "my-accountbook";
     }
 
