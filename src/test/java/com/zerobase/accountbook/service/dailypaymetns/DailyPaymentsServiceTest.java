@@ -180,9 +180,9 @@ class DailyPaymentsServiceTest {
 
         ModifyDailyPaymentsRequestDto requestDto =
                 ModifyDailyPaymentsRequestDto.builder()
-                    .dailyPaymentsId(1L)
+                    .paymentId(1L)
                     .paidAmount(2000)
-                    .paidWhere("place2")
+                    .payLocation("place2")
                     .methodOfPayment("card2")
                     .categoryId(1)
                     .memo("memo2")
@@ -236,9 +236,9 @@ class DailyPaymentsServiceTest {
 
         ModifyDailyPaymentsRequestDto requestDto =
                 ModifyDailyPaymentsRequestDto.builder()
-                        .dailyPaymentsId(1L)
+                        .paymentId(1L)
                         .paidAmount(2000)
-                        .paidWhere("place2")
+                        .payLocation("place2")
                         .methodOfPayment("card2")
                         .categoryId(1)
                         .memo("memo2")
@@ -271,9 +271,9 @@ class DailyPaymentsServiceTest {
 
         ModifyDailyPaymentsRequestDto requestDto =
                 ModifyDailyPaymentsRequestDto.builder()
-                        .dailyPaymentsId(1L)
+                        .paymentId(1L)
                         .paidAmount(2000)
-                        .paidWhere("place2")
+                        .payLocation("place2")
                         .methodOfPayment("card2")
                         .categoryId(1)
                         .memo("memo2")
@@ -320,9 +320,9 @@ class DailyPaymentsServiceTest {
 
         ModifyDailyPaymentsRequestDto requestDto =
                 ModifyDailyPaymentsRequestDto.builder()
-                        .dailyPaymentsId(1L)
+                        .paymentId(1L)
                         .paidAmount(2000)
-                        .paidWhere("place2")
+                        .payLocation("place2")
                         .methodOfPayment("card2")
                         .categoryId(1)
                         .memo("memo2")
@@ -483,9 +483,7 @@ class DailyPaymentsServiceTest {
                 .id(1L)
                 .email(requestEmail)
                 .build();
-        given(memberRepository.findByEmail(anyString()))
-                .willReturn(Optional.of(owner));
-
+        
         DailyPayments dailyPayments = DailyPayments.builder()
                 .id(1L)
                 .member(owner)
@@ -498,67 +496,30 @@ class DailyPaymentsServiceTest {
         given(dailyPaymentsRepository.findById(anyLong()))
                 .willReturn(Optional.of(dailyPayments));
 
+        Category category = Category.builder()
+                .id(1L)
+                .date("yyyy-mm-dd")
+                .member(owner)
+                .build();
+        given(categoryRepository.findById(anyLong()))
+                .willReturn(Optional.of(category));
 
         //when
         GetDailyPaymentsResponseDto responseDto =
-                dailyPaymentsService.getDailyPayment(
-                        requestEmail,
-                        dailyPayments.getId()
-                );
+                dailyPaymentsService.getDailyPayment(dailyPayments.getId());
 
         //then
-        assertEquals(
-                dailyPayments.getPaidAmount(),
-                responseDto.getPaidAmount()
-        );
-        assertEquals(
-                dailyPayments.getPayLocation(),
-                responseDto.getPayLocation()
-        );
-        assertEquals(
-                dailyPayments.getMethodOfPayment(),
-                responseDto.getMethodOfPayment()
-        );
-        assertEquals(
-                dailyPayments.getCategoryId(),
-                responseDto.getCategoryId()
-        );
-        assertEquals(
-                dailyPayments.getMemo(),
-                responseDto.getMemo()
-        );
-    }
-
-    @Test
-    void fail_getDailyPayment_존재하지_않는_회원() {
-        //given
-        String requestEmail = "hello@abc.com";
-        given(memberRepository.findByEmail(anyString()))
-                .willReturn(Optional.empty());
-
-        Long requestDailyPaymentsId = 1L;
-
-        //when
-
-        //then
-        assertThrows(AccountBookException.class,
-                () -> dailyPaymentsService.getDailyPayment(
-                        requestEmail,
-                        requestDailyPaymentsId
-                )
-        );
+        assertEquals(dailyPayments.getPaidAmount(), responseDto.getPaidAmount());
+        assertEquals(dailyPayments.getPayLocation(), responseDto.getPayLocation());
+        assertEquals(dailyPayments.getMethodOfPayment(), responseDto.getMethodOfPayment());
+        assertEquals(dailyPayments.getCategoryId(), responseDto.getCategoryId());
+        assertEquals(dailyPayments.getMemo(), responseDto.getMemo());
     }
 
     @Test
     void fail_getDailyPayment_존재하지_않는_지출내역() {
         //given
         String requestEmail = "hello@abc.com";
-        Member owner = Member.builder()
-                .id(1L)
-                .email(requestEmail)
-                .build();
-        given(memberRepository.findByEmail(anyString()))
-                .willReturn(Optional.of(owner));
 
         given(dailyPaymentsRepository.findById(anyLong()))
                 .willReturn(Optional.empty());
@@ -570,49 +531,7 @@ class DailyPaymentsServiceTest {
         //then
         assertThrows(AccountBookException.class,
                 () -> dailyPaymentsService.getDailyPayment(
-                        requestEmail,
-                        requestDailyPaymentsId
-                )
-        );
-    }
-
-    @Test
-    void fail_getDailyPayment_지출내역_주인이_아닌_경우() {
-        //given
-        String notOwnerEmail = "notOwner@abc.com";
-        Member owner = Member.builder()
-                .id(1L)
-                .email("owner@abc.com")
-                .build();
-        Member notOwner = Member.builder()
-                .id(2L)
-                .email(notOwnerEmail)
-                .build();
-        given(memberRepository.findByEmail(anyString()))
-                .willReturn(Optional.of(notOwner));
-
-        DailyPayments dailyPayments = DailyPayments.builder()
-                .id(1L)
-                .member(owner)
-                .paidAmount(1000)
-                .payLocation("place1")
-                .methodOfPayment("card1")
-                .categoryId(1)
-                .memo("memo1")
-                .build();
-
-        given(dailyPaymentsRepository.findById(anyLong()))
-                .willReturn(Optional.of(dailyPayments));
-
-        //when
-
-        //then
-        assertThrows(AccountBookException.class,
-                () -> dailyPaymentsService.getDailyPayment(
-                        notOwnerEmail,
-                        dailyPayments.getId()
-                )
-        );
+                        requestDailyPaymentsId));
     }
 
     @Test
