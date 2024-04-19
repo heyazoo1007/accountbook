@@ -1,6 +1,7 @@
 package com.zerobase.accountbook.service.budget;
 
 import com.zerobase.accountbook.controller.budget.dto.response.SendBudgetAlarmDto;
+import com.zerobase.accountbook.domain.budget.BudgetRepository;
 import com.zerobase.accountbook.domain.dailypayments.DailyPayments;
 import com.zerobase.accountbook.domain.dailypayments.DailyPaymentsRepository;
 import com.zerobase.accountbook.domain.member.Member;
@@ -21,6 +22,7 @@ import java.util.Optional;
 public class AlarmService {
     private final MemberRepository memberRepository;
     private final DailyPaymentsRepository dailyPaymentsRepository;
+    private final BudgetRepository budgetRepository;
 
     public SendBudgetAlarmDto sendBudgetAlarm(long memberId) {
         LocalDateTime now = LocalDateTime.now();
@@ -30,7 +32,7 @@ public class AlarmService {
 
         Member member = memberRepository.findById(memberId).get();
         Integer monthlySum = dailyPaymentsRepository.findMonthlySum(member.getId(), startDate, endDate);
-        Integer monthlyBudget = member.getMonthlyBudget();
+        int monthlyBudget = budgetRepository.findByMemberIdAndYearMonth(member.getId(), yearMonth.toString());
 
         String message;
         if (monthlySum == null) {
