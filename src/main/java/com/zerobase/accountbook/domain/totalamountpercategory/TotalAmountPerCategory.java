@@ -32,7 +32,7 @@ public class TotalAmountPerCategory {
     @JoinColumn(name = "MEMBER_ID")
     private Member member;
 
-    private String categoryName;
+    private Long categoryId;
 
     private Integer totalAmount;
 }
