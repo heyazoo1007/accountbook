@@ -6,19 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Getter
-@Setter
-@Builder
-@NoArgsConstructor
-public class DailyPaymentsCategoryDto {
+public interface DailyPaymentsCategoryDto {
 
-    private String categoryName;
-
-    private Integer totalAmount;
-
-    @QueryProjection
-    public DailyPaymentsCategoryDto(String categoryName, Integer totalAmount) {
-        this.categoryName = categoryName;
-        this.totalAmount = totalAmount;
-    }
+    String getCategoryName();
+    Integer getTotalAmount();
 }

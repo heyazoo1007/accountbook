@@ -1,8 +1,10 @@
 package com.zerobase.accountbook.domain.monthlytotalamount;
 
+import com.zerobase.accountbook.domain.dailypayments.DailyPayments;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface MonthlyTotalAmountRepository extends JpaRepository<MonthlyTotalAmount, Long> {
@@ -17,6 +19,4 @@ public interface MonthlyTotalAmountRepository extends JpaRepository<MonthlyTotal
                     "and mt.member_id = :memberId"
     )
     Integer sumByMemberIdAndDateInfoContainingYear(Long memberId, String year);
-
-    void deleteAllByMemberId(Long memberId);
 }

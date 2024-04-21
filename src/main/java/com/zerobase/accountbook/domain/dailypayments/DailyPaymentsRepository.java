@@ -1,5 +1,7 @@
 package com.zerobase.accountbook.domain.dailypayments;
 
+import com.zerobase.accountbook.service.dailypaymetns.dto.DailyPaymentsCategoryDto;
+import com.zerobase.accountbook.service.dailypaymetns.dto.DailyPaymentsDto;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -35,4 +37,19 @@ public interface DailyPaymentsRepository extends JpaRepository<DailyPayments, Lo
                     "and dp.created_at like :date%"
     )
     int totalPaidAmountSoFarByMemberId(Long memberId, String date);
+
+    @Query(
+            nativeQuery = true,
+            value = "select c.category_name as categoryName, dp.totalAmount " +
+                    "from (select sum(paid_amount) as totalAmount, category_id " +
+                    "      from daily_payments " +
+                    "      where date >=:startDate " +
+                    "        and date <=:endDate " +
+                    "        and member_id =:memberId " +
+                    "      group by category_id" +
+                    ") dp " +
+                    "join category c " +
+                    "  on c.id = dp.category_id"
+    )
+    List<DailyPaymentsCategoryDto> findMonthlyCategory(String startDate, String endDate, Long memberId);
 }

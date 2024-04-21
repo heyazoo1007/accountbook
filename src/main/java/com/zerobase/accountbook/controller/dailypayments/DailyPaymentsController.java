@@ -75,25 +75,18 @@ public class DailyPaymentsController {
             @AuthenticationPrincipal UserDetails user,
             @RequestParam String keyword
     ) {
-        List<SearchDailyPaymentsResponseDto> response =
-                dailyPaymentsService.searchDailyPayments(
-                        user.getUsername(),
-                        keyword
-                );
+        List<SearchDailyPaymentsResponseDto> response = dailyPaymentsService.
+                searchDailyPayments(user.getUsername(), keyword);
         return ApiResponse.success(response);
     }
 
     @GetMapping("/monthly")
-    public ApiResponse<GetMonthlyResultResponseDto>
-    getMonthlyResultResponseDto(
+    public ApiResponse<GetMonthlyResultResponseDto> getMonthlyResult(
             @AuthenticationPrincipal UserDetails user,
             @RequestParam String date
     ) {
-        GetMonthlyResultResponseDto response =
-                dailyPaymentsService.getMonthlyDailyPaymentsResult(
-                        user.getUsername(),
-                        date
-                );
+        GetMonthlyResultResponseDto response = dailyPaymentsService.
+                getMonthlyDailyPaymentsResult(user.getUsername(), date);
         return ApiResponse.success(response);
     }
 
@@ -101,9 +94,9 @@ public class DailyPaymentsController {
     public ApiResponse<GetYearlyResultResponseDto> getYearlyResult(
             @AuthenticationPrincipal UserDetails user,
             @RequestParam @DateTimeFormat(pattern = "yyyy")String year
-            ) {
-        GetYearlyResultResponseDto response =
-                dailyPaymentsService.getYearlyResult(user.getUsername(), year);
+    ) {
+        GetYearlyResultResponseDto response = dailyPaymentsService.
+                getYearlyResult(user.getUsername(), year);
         return ApiResponse.success(response);
     }
 }

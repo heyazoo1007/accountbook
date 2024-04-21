@@ -23,9 +23,13 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Month;
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.zerobase.accountbook.common.exception.ErrorCode.*;
@@ -58,7 +62,6 @@ public class DailyPaymentsService {
                 .categoryId(request.getCategoryId())
                 .memo(request.getMemo())
                 .date(request.getDate())
-                .createdAt(getCurrentTimeUntilMinutes())
                 .build()));
     }
 
@@ -138,19 +141,20 @@ public class DailyPaymentsService {
                 .collect(Collectors.toList());
     }
 
-    public GetMonthlyResultResponseDto
-    getMonthlyDailyPaymentsResult(String memberEmail, String requestDate) {
+    public GetMonthlyResultResponseDto getMonthlyDailyPaymentsResult(
+            String memberEmail, String requestDate
+    ) {
         Long memberId = validateMember(memberEmail).getId();
+        YearMonth currentDate = YearMonth.from(LocalDate.now());
+        String yearMonth = getYearMonthString(currentDate);
 
-        String currentDate = getCurrentTimeUntilMinutes().substring(0, 7);
-
-        // 이전 달의 내역을 조회할 때
-        if (!currentDate.equals(requestDate)) {
+        // 이전 달의 내역을 조회할 때 -> 이전에 저장 해놓은 데이터 가져오면 됨
+        if (!yearMonth.equals(requestDate)) {
             return getPastMonthlyResult(requestDate, memberId);
         }
 
-        // 이번 달의 지출 내역 가져오기
-        return getCurrentMonthlyResult(memberId);
+        // 이번 달의 지출 내역 가져오기 -> 이번 달 지출 따로 계산해서 진행
+        return getCurrentMonthlyResult(currentDate, memberId);
     }
 
     // 지난 년도들만 확인할 수 있음
@@ -182,18 +186,15 @@ public class DailyPaymentsService {
     private GetMonthlyResultResponseDto getPastMonthlyResult(
             String requestDate, Long memberId
     ) {
-        // 총 사용 금액 가져오기
-        MonthlyTotalAmount monthlyTotalAmount = monthlyTotalAmountRepository
-                .findByDateAndMemberId(requestDate, memberId).orElseThrow(
-                        () -> new AccountBookException(
-                                "해당 월에 총 지출이 존재하지 않습니다.",
-                                NOT_FOUND_MONTHLY_TOTAL_AMOUNT_EXCEPTION
-                        )
-                );
+        // 총 지출금액 가져오기 + 없으면 기본값 0으로 설정
+        int monthlyTotalAmount = 0;
+        Optional<MonthlyTotalAmount> monthly = monthlyTotalAmountRepository.findByDateAndMemberId(requestDate, memberId);
+        if (monthly.isPresent()) {
+            monthlyTotalAmount = monthly.get().getTotalAmount();
+        }
 
         // 날짜, 사용자를 기준으로 저장된 데이터 가져온 다음 카테고리랑 금액 넘겨서 진행
-        List<TotalAmountPerCategory> all =
-                totalAmountPerCategoryRepository
+        List<TotalAmountPerCategory> all = totalAmountPerCategoryRepository
                         .findByDateAndMemberId(requestDate, memberId);
 
         List<MonthlyResultDto> list = new ArrayList<>();
@@ -204,28 +205,23 @@ public class DailyPaymentsService {
             ));
         }
 
-        return GetMonthlyResultResponseDto.of(
-                monthlyTotalAmount.getTotalAmount(), list
-        );
+        return GetMonthlyResultResponseDto.of(monthlyTotalAmount, list);
     }
 
-    private GetMonthlyResultResponseDto getCurrentMonthlyResult(Long memberId) {
-        int totalAmount = 0;
+    private GetMonthlyResultResponseDto getCurrentMonthlyResult(YearMonth currentDate, Long memberId) {
+        String startDate = currentDate.atDay(1).toString();
+        String endDate = currentDate.atEndOfMonth().toString();
 
         // 카테고리별 월 지출내역 조회
-        List<DailyPaymentsCategoryDto> all =
-                dailyPaymentsQueryDsl.getTotalAmountPerCategoryByMemberId(
-                        getCurrentTimeUntilMinutes().substring(0, 7),
-                        memberId
-                );
+        List<DailyPaymentsCategoryDto> all = dailyPaymentsRepository.
+                findMonthlyCategory(startDate, endDate, memberId);
 
+        int totalAmount = 0;
         List<MonthlyResultDto> list = new ArrayList<>();
         for (DailyPaymentsCategoryDto each : all) {
+            // 카테고리별 총 지출금액 list 에 저장
+            list.add(MonthlyResultDto.of(each.getCategoryName(), each.getTotalAmount()));
             totalAmount += each.getTotalAmount();
-            list.add(MonthlyResultDto.of(
-                    each.getCategoryName(),
-                    each.getTotalAmount()
-            ));
         }
 
         return GetMonthlyResultResponseDto.of(totalAmount, list);
@@ -242,18 +238,10 @@ public class DailyPaymentsService {
         }
     }
 
-    private static String getCurrentTimeUntilMinutes() {
-
-        int year = LocalDateTime.now().getYear();
-        int month = LocalDateTime.now().getMonthValue();
-        int day = LocalDateTime.now().getDayOfMonth();
-        int hour = LocalDateTime.now().getHour();
-        int minute = LocalDateTime.now().getMinute();
-
-        return year + "-" + String.format("%02d",month) +
-                "-" + String.format("%02d",day) +
-                " " + String.format("%02d", hour) +
-                ":" + String.format("%02d", minute);
+    private static String getYearMonthString(YearMonth currentDate) {
+        String year = String.format("%04d", currentDate.getYear());
+        String month = String.format("%02d", currentDate.getMonthValue());
+        return year + "-" + month;
     }
 
     private DailyPayments validateDailyPayments(Long dailyPaymentsId) {

@@ -7,7 +7,5 @@ import java.util.List;
 public interface TotalAmountPerCategoryRepository extends JpaRepository<TotalAmountPerCategory, Long> {
 
     List<TotalAmountPerCategory> findByDateAndMemberId(String date, Long memberId);
-
-    void deleteAllByMemberId(Long memberId);
 }
 
