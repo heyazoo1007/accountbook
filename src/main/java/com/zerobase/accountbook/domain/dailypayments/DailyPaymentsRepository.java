@@ -10,7 +10,6 @@ import java.util.List;
 public interface DailyPaymentsRepository extends JpaRepository<DailyPayments, Long> {
 
     List<DailyPayments> findAllByMemberIdAndDateContaining(Long memberId, String date);
-    List<DailyPayments> findAllByMemberIdAndCreatedAtContaining(Long memberId, String CreatedAt);
 
     @Query(value = "select sum(dp.paid_amount) " +
                    "from daily_payments dp " +
@@ -32,15 +31,7 @@ public interface DailyPaymentsRepository extends JpaRepository<DailyPayments, Lo
 
     @Query(
             nativeQuery = true,
-            value = "select sum(dp.paid_amount) " +
-                    "where dp.member_id = :memberId " +
-                    "and dp.created_at like :date%"
-    )
-    int totalPaidAmountSoFarByMemberId(Long memberId, String date);
-
-    @Query(
-            nativeQuery = true,
-            value = "select c.category_name as categoryName, dp.totalAmount " +
+            value = "select c.category_id as categoryId, c.category_name as categoryName, dp.totalAmount " +
                     "from (select sum(paid_amount) as totalAmount, category_id " +
                     "      from daily_payments " +
                     "      where date >=:startDate " +
@@ -52,4 +43,29 @@ public interface DailyPaymentsRepository extends JpaRepository<DailyPayments, Lo
                     "  on c.id = dp.category_id"
     )
     List<DailyPaymentsCategoryDto> findMonthlyCategory(String startDate, String endDate, Long memberId);
+
+    @Query(
+            nativeQuery = true,
+            value = "select c.category_id as categoryId, c.category_name as categoryName, tapc.totalAmount " +
+                    "from (select sum(total_amount) as totalAmount, category_id " +
+                    "      from total_amount_per_category " +
+                    "      where date =:year " +
+                    "        and member_id =:memberId " +
+                    "      group by category_id" +
+                    ") tapc " +
+                    "join category c " +
+                    "  on c.id = tapc.category_id"
+    )
+    List<DailyPaymentsCategoryDto> findYearlyCategory(String year, Long memberId);
+
+
+    @Query(
+            nativeQuery = true,
+            value = "select member_id as memberId, sum(paid_amount) as totalAmount " +
+                    "from daily_payments " +
+                    "where date <=:startDate " +
+                    "  and date >=:endDate " +
+                    "group by member_id "
+    )
+    List<DailyPaymentsDto> findAllTotalAmountByYearMonth(String startDate, String endDate);
 }

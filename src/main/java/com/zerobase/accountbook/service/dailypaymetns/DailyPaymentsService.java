@@ -5,6 +5,7 @@ import com.zerobase.accountbook.controller.dailypayments.dto.request.CreateDaily
 import com.zerobase.accountbook.controller.dailypayments.dto.request.DeleteDailyPaymentsRequestDto;
 import com.zerobase.accountbook.controller.dailypayments.dto.request.ModifyDailyPaymentsRequestDto;
 import com.zerobase.accountbook.controller.dailypayments.dto.response.*;
+import com.zerobase.accountbook.domain.category.Category;
 import com.zerobase.accountbook.domain.category.CategoryRepository;
 import com.zerobase.accountbook.domain.dailypayments.DailyPayments;
 import com.zerobase.accountbook.domain.dailypayments.DailyPaymentsRepository;
@@ -15,13 +16,10 @@ import com.zerobase.accountbook.domain.monthlytotalamount.MonthlyTotalAmountRepo
 import com.zerobase.accountbook.domain.totalamountpercategory.TotalAmountPerCategory;
 import com.zerobase.accountbook.domain.totalamountpercategory.TotalAmountPerCategoryRepository;
 import com.zerobase.accountbook.service.dailypaymetns.dto.DailyPaymentsCategoryDto;
-import com.zerobase.accountbook.service.dailypaymetns.querydsl.DailyPaymentsQueryDsl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -38,7 +36,6 @@ import static com.zerobase.accountbook.common.exception.ErrorCode.*;
 @RequiredArgsConstructor
 public class DailyPaymentsService {
 
-    private final DailyPaymentsQueryDsl dailyPaymentsQueryDsl;
     private final MemberRepository memberRepository;
     private final DailyPaymentsRepository dailyPaymentsRepository;
     private final CategoryRepository categoryRepository;
@@ -50,7 +47,6 @@ public class DailyPaymentsService {
             String memberEmail,
             CreateDailyPaymentsRequestDto request
     ) {
-
         Member member = validateMember(memberEmail);
 
         return CreateDailyPaymentsResponseDto.of(
@@ -157,27 +153,19 @@ public class DailyPaymentsService {
         return getCurrentMonthlyResult(currentDate, memberId);
     }
 
-    // 지난 년도들만 확인할 수 있음
+    // 데이터가 없는 미래 데이터는 기본값 담기
     public GetYearlyResultResponseDto getYearlyResult(
             String memberEmail, String year
     ) {
         Long memberId = validateMember(memberEmail).getId();
 
-        int currentYear = LocalDateTime.now().getYear();
-        if (Integer.parseInt(year) - currentYear >= 0) {
-            throw new AccountBookException(
-                    "해당 년도는 조회할 수 없습니다.",
-                    Not_FOUND_YEARLY_RESULT_EXCEPTION
-            );
-        }
-
         // 한달별 총 금액을 다 더하면 연 총 지출금액
-        Integer totalAmountOfTheYear = monthlyTotalAmountRepository
-                .sumByMemberIdAndDateInfoContainingYear(memberId, year);
+        Integer totalAmountOfTheYear = monthlyTotalAmountRepository.sumOfTheYearByMemberId(year, memberId);
+        if (totalAmountOfTheYear == null) { totalAmountOfTheYear = 0; }
 
         // 카테고리별 다달이 금액을 모두 더하면 카테고리 연 총 지출금액
         List<DailyPaymentsCategoryDto> totalAmountOfTheYearPerCategory =
-                dailyPaymentsQueryDsl.getYearlyTotalAmountPerCategoryByMemberId(memberId, year);
+                dailyPaymentsRepository.findYearlyCategory(year, memberId);
 
         return GetYearlyResultResponseDto.of(
                 totalAmountOfTheYear, totalAmountOfTheYearPerCategory);
@@ -193,16 +181,16 @@ public class DailyPaymentsService {
             monthlyTotalAmount = monthly.get().getTotalAmount();
         }
 
-        // 날짜, 사용자를 기준으로 저장된 데이터 가져온 다음 카테고리랑 금액 넘겨서 진행
+        // 날짜, 사용자를 기준으로 저장된 데이터 가져온 다음 카테고리랑 금액 넘김
         List<TotalAmountPerCategory> all = totalAmountPerCategoryRepository
                         .findByDateAndMemberId(requestDate, memberId);
 
         List<MonthlyResultDto> list = new ArrayList<>();
         for (TotalAmountPerCategory each : all) {
             list.add(MonthlyResultDto.of(
-                    each.getCategoryName(),
-                    each.getTotalAmount()
-            ));
+                    categoryRepository.findById(each.getCategoryId()).get().getCategoryName(),
+                    each.getTotalAmount())
+            );
         }
 
         return GetMonthlyResultResponseDto.of(monthlyTotalAmount, list);
