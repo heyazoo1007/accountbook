@@ -31,7 +31,6 @@ public class BudgetService {
 
     private final BudgetRepository budgetRepository;
     private final MemberRepository memberRepository;
-    private final DailyPaymentsRepository dailyPaymentsRepository;
 
     public CreateBudgetResponseDto createBudget(
             String memberEmail, CreateBudgetRequestDto request
@@ -85,10 +84,6 @@ public class BudgetService {
         checkBudgetOwner(validateMember(memberEmail), budget);
 
         return GetBudgetResponseDto.of(budget);
-    }
-
-    private int getTotalAmountSoFar(String budgetYearMonth, Long memberId) {
-        return dailyPaymentsRepository.totalPaidAmountSoFarByMemberId(memberId, budgetYearMonth);
     }
 
     private int getMonthlyBudget(String budgetYearMonth, String memberEmail) {
