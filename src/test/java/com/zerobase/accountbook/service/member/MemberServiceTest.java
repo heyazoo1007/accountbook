@@ -51,7 +51,7 @@ class MemberServiceTest {
         //given
         String requestEmail = "hello@abc.com";
         Member member = Member.builder().id(1L).email("hello@abc.com").build();
-        given(memberRepository.findById(anyLong()))
+        given(memberRepository.findByEmail(requestEmail))
                 .willReturn(Optional.of(member));
 
         //when
@@ -65,25 +65,9 @@ class MemberServiceTest {
     @Test
     void fail_getMemberInfo_존재하지_않는_회원() {
         //given
-        String requestEmail = "hello@abc.com";
-        Member member = Member.builder().id(1L).email("hello@abc.com").build();
-        given(memberRepository.findById(anyLong()))
+        String requestEmail = "non-exist-member";
+        given(memberRepository.findByEmail(requestEmail))
                 .willReturn(Optional.empty());
-
-        //when
-
-        //then
-        assertThrows(AccountBookException.class,
-                () -> memberService.getMemberInfo(requestEmail));
-    }
-
-    @Test
-    void fail_getMemberInfo_다른_회원_정보에_접근() {
-        //given
-        String requestEmail = "different@abc.com";
-        Member member = Member.builder().id(1L).email("hello@abc.com").build();
-        given(memberRepository.findById(anyLong()))
-                .willReturn(Optional.of(member));
 
         //when
 
