@@ -132,7 +132,7 @@
 
         // 연, 월, 일 가져오기
         currentYear = thisMonth.getFullYear();
-        currentMonth = thisMonth.getMonth();
+        currentMonth = thisMonth.getMonth() + 1;
         currentDate = thisMonth.getDate();
 
         // 페이지 로딩 초기에 달력 가져오기
@@ -143,15 +143,15 @@
     });
 
     function renderCalendar(currentYear, currentMonth, currentDate) {
-        $('#year-month').text(currentYear + '.' + (currentMonth + 1));
+        $('#year-month').text(currentYear + '.' + currentMonth);
 
         // 지난달 마지막 날짜, 요일 구하기
-        var startDay = new Date(currentYear, currentMonth, 0);
+        var startDay = new Date(currentYear, currentMonth - 1, 0);
         var prevDate = startDay.getDate();
         var prevDay = startDay.getDay();
 
         // 이번 달의 마지막 날짜, 요일 구하기
-        var endDay = new Date(currentYear, currentMonth + 1, 0);
+        var endDay = new Date(currentYear, currentMonth, 0);
         var nextDate = endDay.getDate();
         var nextDay = endDay.getDay();
 
@@ -178,38 +178,37 @@
                                  document.querySelector('.toast-body').innerHTML = JSON.parse(response.body).message;
                                  $('.toast').toast('show');
                              });
-        });
+                        });
     }
 
     function goPrev() {
         currentMonth -= 1
-        if (currentMonth == -1) {
+        if (currentMonth == 0) {
             currentYear -= 1;
-            currentMonth = 11;
+            currentMonth = 12;
         }
         renderCalendar(currentYear, currentMonth, 1);
     }
 
     function goNext() {
         currentMonth += 1
-        if (currentMonth == 12) {
+        if (currentMonth == 13) {
             currentYear += 1;
-            currentMonth = 0;
+            currentMonth = 1;
         }
         renderCalendar(currentYear, currentMonth, 1);
     }
-
 
     var paymentsCheck = 0;
     var dateCheck = '';
     function modal(clickedId) {
         // 모달 헤더 가지고 온 뒤 날짜 동적으로 텍스트 변경하기
         var dateModalLabel = document.getElementById('dateModalLabel');
-        dateModalLabel.innerHTML = (currentMonth + 1) + '월 ' + clickedId + '일 지출내역';
+        dateModalLabel.innerHTML = currentMonth + '월 ' + clickedId + '일 지출내역';
 
 
         // 클릭한 날짜로 요청 메시지 보내기, 응답 받은 걸로 modal-body 변경하기
-        var requestDate = currentYear + '-' + (currentMonth + 1) + '-' + clickedId;
+        var requestDate = currentYear + '-' + currentMonth + '-' + clickedId;
         $.ajax({
             url : `/v1/daily-payments/list/` + requestDate,
             type : 'get',
