@@ -2,6 +2,7 @@ package com.zerobase.accountbook.domain.budget;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.time.YearMonth;
 import java.util.Optional;
@@ -16,5 +17,6 @@ public interface BudgetRepository extends JpaRepository<Budget, Long> {
                     "where b.member_id =:memberId " +
                     "  and b.budget_year_month =:yearMonth "
     )
-    int findByMemberIdAndYearMonth(Long memberId, String yearMonth);
+    int findByMemberIdAndYearMonth(@Param("memberId") Long memberId,
+                                   @Param("yearMonth") String yearMonth);
 }

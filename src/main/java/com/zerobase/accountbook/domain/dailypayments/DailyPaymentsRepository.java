@@ -18,7 +18,9 @@ public interface DailyPaymentsRepository extends JpaRepository<DailyPayments, Lo
                    "  and dp.date >= :startDate" +
                    "  and dp.date <= :endDate",
             nativeQuery = true)
-    Integer findMonthlySum(Long memberId, String startDate, String endDate);
+    Integer findMonthlySum(@Param("memberId") Long memberId,
+                           @Param("startDate") String startDate,
+                           @Param("endDate") String endDate);
 
     @Query(
             nativeQuery = true,
@@ -43,10 +45,9 @@ public interface DailyPaymentsRepository extends JpaRepository<DailyPayments, Lo
                     "join category c " +
                     "  on c.id = dp.category_id"
     )
-    List<DailyPaymentsCategoryDto> findMonthlyCategory(
-            @Param("startDate") String startDate,
-            @Param("endDate") String endDate,
-            @Param("memberId") Long memberId);
+    List<DailyPaymentsCategoryDto> findMonthlyCategory(@Param("startDate") String startDate,
+                                                       @Param("endDate") String endDate,
+                                                       @Param("memberId") Long memberId);
 
     @Query(
             nativeQuery = true,
