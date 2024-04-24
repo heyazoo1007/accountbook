@@ -26,7 +26,7 @@ public class TotalAmountPerCategory {
     @LastModifiedDate
     private LocalDateTime updatedAt;
 
-    private String date; // YYYY-mm-DD 형태의 문자열 날짜
+    private String date; // YYYY 형태의 문자열 연도
 
     @ManyToOne()
     @JoinColumn(name = "MEMBER_ID")

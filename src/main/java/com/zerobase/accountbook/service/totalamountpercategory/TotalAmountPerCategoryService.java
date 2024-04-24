@@ -8,7 +8,6 @@ import com.zerobase.accountbook.domain.member.MemberRepository;
 import com.zerobase.accountbook.domain.totalamountpercategory.TotalAmountPerCategory;
 import com.zerobase.accountbook.domain.totalamountpercategory.TotalAmountPerCategoryRepository;
 import com.zerobase.accountbook.service.dailypaymetns.dto.DailyPaymentsCategoryDto;
-import jdk.vm.ci.meta.Local;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
