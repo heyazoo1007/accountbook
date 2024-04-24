@@ -28,12 +28,20 @@ public class AccountBookController {
     }
 
     @GetMapping("/expenditure/{paymentId}")
-    public String modifyExpenditure(
-            @PathVariable long paymentId,
-            Model model
-    ) {
-        GetDailyPaymentsResponseDto response = dailyPaymentsService.getDailyPayment(paymentId);
+    public String modifyExpenditure(@PathVariable long paymentId, Model model) {
+        GetDailyPaymentsResponseDto response = dailyPaymentsService
+                .getDailyPayment(paymentId);
         model.addAttribute("payment", response);
         return "edit-expenditure";
+    }
+
+    @GetMapping("/monthly")
+    public String monthlyPage() {
+        return "monthly";
+    }
+
+    @GetMapping("/yearly")
+    public String yearlyPage() {
+        return "yearly";
     }
 }

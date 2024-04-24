@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="layout/default_layout">
+<th:block layout:fragment="content">
+    <div id="top" class="container text-center">
+        <div class="row">
+            <div class="col-2"><a href="/index">AccountBook</a></div>
+            <div class="col-8" id="monthly-title"></div>
+            <div class="col-2"><a href="/mypage">마이 페이지</a></div>
+        </div>
+    </div>
+
+    <div id="middle" class="container text-center" style="padding-top:50px;">
+        <div class="row">
+            <div class="col align-self-start">
+                <div class="row">
+                    <div class="col-auto"><button class="btn btn-light nav-btn-prev" onclick="goPrev();"><</button></div>
+                    <div id="year-month" class="col-auto"></div>
+                    <div class="col-auto"><button class="btn btn-light nav-btn-next" onclick="goNext();">></button></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="bottom">
+        <div id="total-amount"></div>
+        <div id="category-amount"></div>
+    </div>
+
+    <script>
+
+        var currentYear = '';
+        var currentMonth = '';
+        var currentDate = '';
+        $(document).ready(function() {
+            // 한국 표준시간 가져오기
+            var date = new Date();
+            var utc = date.getTime() + (date.getTimezoneOffset() * 60 * 1000);
+            var kstGap = 9 * 60 * 60 * 1000;
+            var today = new Date(utc + kstGap);
+            var thisMonth = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+
+            // 연, 월, 일 가져오기
+            currentYear = thisMonth.getFullYear();
+            currentMonth = thisMonth.getMonth() + 1;
+            currentDate = thisMonth.getDate();
+
+            renderCategoryPage(currentYear, currentMonth);
+        });
+
+        function renderCategoryPage(year, month) {
+            // 월 %02 형식으로 포맷팅
+            var formattedMonth = '';
+            if ((month / 10) < 1) {
+                formattedMonth = '0' + month;
+            } else {
+                formattedMonth += month;
+            }
+
+            // 상단 제목 동적 설정
+            $('#monthly-title').text(formattedMonth + '월 지출 통계');
+
+            // 토글에 날짜 동적 설정
+            $('#year-month').text(year + '.' + formattedMonth);
+
+            // api 로 한 달 총 지출 + {카테고리 : 한 달 총 지출} 리스트 가져오기
+            var requestDate = year + '-' + formattedMonth;
+            $.ajax({
+                 url : `/v1/daily-payments/monthly?date=` + requestDate,
+                 type : 'get',
+                 contentType : 'application/json; charset=utf-8;',
+                 dataType : 'json',
+                 success : function(response) {
+                    var data = response.data;
+
+                    var totalAmount = data.totalAmount;
+                    $('#total-amount').text('총 지출액 : ' + totalAmount);
+
+                    categoryAmount = document.getElementById('category-amount');
+                    categoryAmount.innerHTML = '';
+                    var content = `<ul> `;
+                    var categoryList = data.list;
+                    for(var i = 0; i < categoryList.length; i++) {
+                        var categoryName = categoryList[i].categoryName;
+                        var totalAmount = categoryList[i].totalAmount;
+
+                        content += `<li>` + categoryName + ` : `+ totalAmount;
+                    }
+                    categoryAmount.innerHTML += (content + `</ul>`);
+                 },
+                 error : function(request, status, error) {
+                     alert(JSON.parse(request.responseText).message);
+                 }
+            })
+        }
+
+        function goPrev() {
+            currentMonth -= 1;
+            if (currentMonth == 0) {
+                currentYear -= 1;
+                currentMonth = 12;
+            }
+
+            renderCategoryPage(currentYear, currentMonth);
+        }
+
+        function goNext() {
+            currentMonth += 1;
+            if (currentMonth == 13) {
+                currentYear += 1;
+                currentMonth = 1;
+            }
+
+            renderCategoryPage(currentYear, currentMonth);
+        }
+    </script>
+
+</th:block>
+</html>
