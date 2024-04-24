@@ -36,12 +36,12 @@ public class AccountBookController {
     }
 
     @GetMapping("/monthly")
-    public String monthlyPage() {
+    public String getMonthly() {
         return "monthly";
     }
 
     @GetMapping("/yearly")
-    public String yearlyPage() {
+    public String getYearly() {
         return "yearly";
     }
 }

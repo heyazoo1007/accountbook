@@ -93,10 +93,10 @@ public class DailyPaymentsController {
     @GetMapping("/yearly")
     public ApiResponse<GetYearlyResultResponseDto> getYearlyResult(
             @AuthenticationPrincipal UserDetails user,
-            @RequestParam @DateTimeFormat(pattern = "yyyy")String year
+            @RequestParam @DateTimeFormat(pattern = "yyyy")String date
     ) {
         GetYearlyResultResponseDto response = dailyPaymentsService.
-                getYearlyResult(user.getUsername(), year);
+                getYearlyResult(user.getUsername(), date);
         return ApiResponse.success(response);
     }
 }

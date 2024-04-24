@@ -2,6 +2,7 @@ package com.zerobase.accountbook.domain.monthlytotalamount;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.Optional;
 
@@ -16,5 +17,5 @@ public interface MonthlyTotalAmountRepository extends JpaRepository<MonthlyTotal
                     "where date like :year% " +
                     "  and member_id = :memberId"
     )
-    Integer sumOfTheYearByMemberId(String year, Long memberId);
+    Integer sumOfTheYearByMemberId(@Param("year") String year, @Param("memberId") Long memberId);
 }
