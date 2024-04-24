@@ -204,11 +204,12 @@
     function modal(clickedId) {
         // 모달 헤더 가지고 온 뒤 날짜 동적으로 텍스트 변경하기
         var dateModalLabel = document.getElementById('dateModalLabel');
-        dateModalLabel.innerHTML = currentMonth + '월 ' + clickedId + '일 지출내역';
-
+        var month = zeroFormat(currentMonth);
+        var day = zeroFormat(clickedId);
+        dateModalLabel.innerHTML = month + '월 ' + day + '일 지출내역';
 
         // 클릭한 날짜로 요청 메시지 보내기, 응답 받은 걸로 modal-body 변경하기
-        var requestDate = currentYear + '-' + currentMonth + '-' + clickedId;
+        var requestDate = currentYear + '-' + month + '-' + day;
         $.ajax({
             url : `/v1/daily-payments/list/` + requestDate,
             type : 'get',
@@ -221,13 +222,14 @@
                 modalContent.innerHTML = ''; // 모달 바디 초기화
                 var content = `<ul> `;
                 for(var i = 0; i < data.length; i++) {
-                    var paymentId = data[i].dailyPaymentId;
-                    var paidAmount = data[i].paidAmount;
-                    var payLocation = data[i].payLocation;
-                    var methodOfPayment = data[i].methodOfPayment;
-                    var categoryId = data[i].categoryId;
-                    var categoryName = data[i].categoryName;
-                    var memo = data[i].memo
+                    var each = data[i];
+                    var paymentId = each.dailyPaymentId;
+                    var paidAmount = each.paidAmount;
+                    var payLocation = each.payLocation;
+                    var methodOfPayment = each.methodOfPayment;
+                    var categoryId = each.categoryId;
+                    var categoryName = each.categoryName;
+                    var memo = each.memo;
                     content += `<li id="` + paymentId + `">` +
                                  paidAmount +`|`+ payLocation + `|` + methodOfPayment + `|` + categoryName + `|` + memo + '                  ' +
                                  `<button class="btn btn-success btn-payment" id="`+ paymentId + `" onclick="modifyDailyPayments(this.id);">수정</button></li> `;
@@ -246,6 +248,14 @@
 
     function getAlarm() {
         stompClient.send("/app/v1/budget/alarm/" + memberId, {}, {});
+    }
+
+    function zeroFormat(value) {
+        if (value / 10 < 1) {
+            return '0' + value;
+        } else {
+            return value;
+        }
     }
 </script>
 
