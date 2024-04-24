@@ -48,7 +48,7 @@
             }
         }
 
-        function move() {
+        function myCalendar() {
             location.replace('http://localhost:8080/my-accountbook/' + memberId);
         }
     </script>
@@ -62,11 +62,11 @@
                 <a id="login" role="button" href="/login" >Login</a>
 
                 <!--로그인 후-->
-                <button id="my-accountbook" onclick="move()">가계부 달력</button>
+                <button id="my-accountbook" onclick="myCalendar()">가계부 달력</button>
                 <a id="monthly" href="/monthly">월별 지출 통계</a>
                 <a id="yearly" href="/yearly">연도별 지출 통계</a>
                 <a id="my-page" href="/my-page">마이페이지</a>
-                <a id="logout" onclick="logout();">로그아웃</a>
+                <a id="logout" href="/logout">로그아웃</a>
             </div>
         </div>
     </nav>

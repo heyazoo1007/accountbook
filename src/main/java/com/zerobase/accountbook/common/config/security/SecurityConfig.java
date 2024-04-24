@@ -16,6 +16,8 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
+import javax.servlet.http.HttpSession;
+
 import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
@@ -57,9 +59,21 @@ public class SecurityConfig {
                                         .requestMatchers(new AntPathRequestMatcher("/webjars/**")).permitAll()
                                         .requestMatchers(new AntPathRequestMatcher("/ws-stomp/**")).permitAll()
                                         .anyRequest().authenticated())
-                .logout(withDefaults())
                 .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider),
-                                UsernamePasswordAuthenticationFilter.class);
+                                UsernamePasswordAuthenticationFilter.class)
+                .logout(logout -> logout
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/index")
+                        // 로그아웃 핸들러 추가 (세션 무효화 처리)
+                        .addLogoutHandler((request, response, authentication) -> {
+                            HttpSession session = request.getSession();
+                            session.invalidate();
+                        })
+                        // 로그아웃 성공 핸들러 추가 (리다이렉션 처리)
+                        .logoutSuccessHandler((request, response, authentication) ->
+                                response.sendRedirect("/index"))
+                        .deleteCookies("JSESSIONID", "access_token")
+                );
 
         return http.build();
     }
