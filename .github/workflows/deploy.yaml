@@ -37,10 +37,10 @@ jobs:
       - name: Create spring properties
         run: |
           touch src/main/resources/application-prod.properties
-          echo "$PROD_APPLICATION" > application-prod.properties.b64
+          echo "$PROD_PROPERTIES" > application-prod.properties.b64
           base64 -d -i application-prod.properties.b64 > src/main/resources/application-prod.properties
         env:
-          PROD_APPLICATION: ${{ secrets.PROD_APPLICATION }}
+          PROD_APPLICATION: ${{ secrets.$PROD_PROPERTIES }}
 
       # (4) Gradle build (Test 제외)
       - name: Build with Gradle
