@@ -32,9 +32,14 @@ public class AlarmService {
 
         Member member = memberRepository.findById(memberId).get();
         Integer monthlySum = dailyPaymentsRepository.findMonthlySum(member.getId(), startDate, endDate);
-        int monthlyBudget = budgetRepository.findByMemberIdAndYearMonth(member.getId(), yearMonth.toString());
+        Integer monthlyBudget = budgetRepository.findByMemberIdAndYearMonth(member.getId(), yearMonth.toString());
 
         String message;
+        if (monthlyBudget == null) {
+            message = "이번달 예산이 설정되어 있지 않습니다. 새로 설정하세요!";
+            return SendBudgetAlarmDto.of(member.getId(), message);
+        }
+
         if (monthlySum == null) {
             message = "지출내역이 존재하지 않습니다.";
         } else if (monthlyBudget > monthlySum) {
