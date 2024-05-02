@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
-PROJECT_ROOT="/home/ubuntu/app"
+PROJECT_ROOT="/home/ubuntu/app/deploy"
 JAR_FILE="$PROJECT_ROOT/accountbook-0.0.1-SNAPSHOT.jar"
 
 APP_LOG="$PROJECT_ROOT/application.log"
 ERROR_LOG="$PROJECT_ROOT/error.log"
-DEPLOY_LOG="$PROJECT_ROOT/deploy.log"
+DEPLOY_LOG="$PROJECT_ROOT/deploy-start.log"
 
 TIME_NOW=$(date +%c)
 
