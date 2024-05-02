@@ -143,7 +143,7 @@
     });
 
     function renderCalendar(currentYear, currentMonth, currentDate) {
-        $('#year-month').text(currentYear + '.' + currentMonth);
+        $('#year-month').text(currentYear + '.' + zeroFormat(currentMonth));
 
         // 지난달 마지막 날짜, 요일 구하기
         var startDay = new Date(currentYear, currentMonth - 1, 0);

@@ -5,7 +5,6 @@ import com.zerobase.accountbook.controller.dailypayments.dto.request.CreateDaily
 import com.zerobase.accountbook.controller.dailypayments.dto.request.DeleteDailyPaymentsRequestDto;
 import com.zerobase.accountbook.controller.dailypayments.dto.request.ModifyDailyPaymentsRequestDto;
 import com.zerobase.accountbook.controller.dailypayments.dto.response.*;
-import com.zerobase.accountbook.domain.category.Category;
 import com.zerobase.accountbook.domain.category.CategoryRepository;
 import com.zerobase.accountbook.domain.dailypayments.DailyPayments;
 import com.zerobase.accountbook.domain.dailypayments.DailyPaymentsRepository;
@@ -22,8 +21,6 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.Month;
 import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
@@ -47,7 +44,7 @@ public class DailyPaymentsService {
             String memberEmail,
             CreateDailyPaymentsRequestDto request
     ) {
-        Member member = validateMember(memberEmail);
+        Member member = validateMemberByEmail(memberEmail);
 
         return CreateDailyPaymentsResponseDto.of(
                 dailyPaymentsRepository.save(DailyPayments.builder()
@@ -66,7 +63,7 @@ public class DailyPaymentsService {
             String memberEmail,
             ModifyDailyPaymentsRequestDto request
     ) {
-        Member member = validateMember(memberEmail);
+        Member member = validateMemberByEmail(memberEmail);
 
         DailyPayments dailyPayments =
                 validateDailyPayments(request.getPaymentId());
@@ -89,7 +86,7 @@ public class DailyPaymentsService {
     public void deleteDailyPayments(
             String memberEmail, DeleteDailyPaymentsRequestDto request
     ) {
-        Member member = validateMember(memberEmail);
+        Member member = validateMemberByEmail(memberEmail);
 
         DailyPayments dailyPayments =
                 validateDailyPayments(request.getDailyPaymentsId());
@@ -101,7 +98,6 @@ public class DailyPaymentsService {
 
     public GetDailyPaymentsResponseDto getDailyPayment(Long dailyPaymentId) {
         DailyPayments dailyPayment = validateDailyPayments(dailyPaymentId);
-
         String categoryName = categoryRepository.
                 findById(dailyPayment.getCategoryId()).get().getCategoryName();
 
@@ -114,7 +110,7 @@ public class DailyPaymentsService {
             String date
     ) {
         List<DailyPayments> dailyPayments = dailyPaymentsRepository
-                        .findAllByMemberIdAndDateContaining(validateMember(memberEmail).getId(), date);
+                        .findAllByMemberIdAndDateContaining(validateMemberByEmail(memberEmail).getId(), date);
 
         List<GetDailyPaymentsResponseDto> responseDtos = new ArrayList<>();
         for (DailyPayments dailyPayment : dailyPayments) {
@@ -128,7 +124,7 @@ public class DailyPaymentsService {
     public List<SearchDailyPaymentsResponseDto> searchDailyPayments(
             String memberEmail, String keyword
     ) {
-        Member member = validateMember(memberEmail);
+        Member member = validateMemberByEmail(memberEmail);
 
         return dailyPaymentsRepository
                 .searchKeyword(member.getId(), keyword)
@@ -140,7 +136,7 @@ public class DailyPaymentsService {
     public GetMonthlyResultResponseDto getMonthlyDailyPaymentsResult(
             String memberEmail, String requestDate
     ) {
-        Long memberId = validateMember(memberEmail).getId();
+        Long memberId = validateMemberByEmail(memberEmail).getId();
         YearMonth currentDate = YearMonth.from(LocalDate.now());
         String yearMonth = getYearMonthString(currentDate);
 
@@ -157,7 +153,7 @@ public class DailyPaymentsService {
     public GetYearlyResultResponseDto getYearlyResult(
             String memberEmail, String year
     ) {
-        Long memberId = validateMember(memberEmail).getId();
+        Long memberId = validateMemberByEmail(memberEmail).getId();
 
         // 한달별 총 금액을 다 더하면 연 총 지출금액
         Integer totalAmountOfTheYear = monthlyTotalAmountRepository.sumOfTheYearByMemberId(year, memberId);
@@ -169,6 +165,15 @@ public class DailyPaymentsService {
 
         return GetYearlyResultResponseDto.of(
                 totalAmountOfTheYear, totalAmountOfTheYearPerCategory);
+    }
+
+    public void forbiddenMember(String memberEmail, Long requestMemberId) {
+        if (!(validateMemberByEmail(memberEmail).getId()).equals(validateMemberById(requestMemberId).getId())) {
+            throw new AccountBookException(
+                    "접근할 수 없는 회원 정보입니다.",
+                    FORBIDDEN_EXCEPTION
+            );
+        }
     }
 
     private GetMonthlyResultResponseDto getPastMonthlyResult(
@@ -239,8 +244,15 @@ public class DailyPaymentsService {
                         NOT_FOUND_DAILY_PAYMENTS_EXCEPTION));
     }
 
-    private Member validateMember(String memberEmail) {
+    private Member validateMemberByEmail(String memberEmail) {
         return memberRepository.findByEmail(memberEmail).orElseThrow(
+                () -> new AccountBookException(
+                        "존재하지 않는 회원입니다.",
+                        NOT_FOUND_USER_EXCEPTION));
+    }
+
+    private Member validateMemberById(Long memberId) {
+        return memberRepository.findById(memberId).orElseThrow(
                 () -> new AccountBookException(
                         "존재하지 않는 회원입니다.",
                         NOT_FOUND_USER_EXCEPTION));

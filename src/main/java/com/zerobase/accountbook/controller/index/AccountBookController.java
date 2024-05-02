@@ -5,6 +5,7 @@ import com.zerobase.accountbook.service.dailypaymetns.DailyPaymentsService;
 import lombok.RequiredArgsConstructor;
 import org.apache.catalina.User;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,7 +19,9 @@ public class AccountBookController {
     private final DailyPaymentsService dailyPaymentsService;
 
     @GetMapping("/my-accountbook/{memberId}")
-    public String myAccountBook(@PathVariable long memberId) {
+    public String myAccountBook(@AuthenticationPrincipal UserDetails user,
+                                @PathVariable long memberId) {
+        dailyPaymentsService.forbiddenMember(user.getUsername(), memberId);
         return "my-accountbook";
     }
 
