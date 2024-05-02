@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-PROJECT_ROOT="/home/ubuntu/app/deploy"
+PROJECT_ROOT="/home/ubuntu/app"
 JAR_FILE="$PROJECT_ROOT/accountbook-0.0.1-SNAPSHOT.jar"
 
 DEPLOY_LOG="$PROJECT_ROOT/deploy-stop.log"
