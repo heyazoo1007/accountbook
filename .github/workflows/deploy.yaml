@@ -54,11 +54,11 @@ jobs:
 
       # (6) JAR 파일 복사
       - name: Copy Jar File
-        run: cp ./build/libs/*.jar ./deploy/
+        run: cp ./build/libs/*.jar ./app
 
       # (7) JAR 디렉토리 -> ZIP
       - name: Zip Directory
-        run: zip -r -qq -j ./spring-project.zip ./deploy
+        run: zip -r -qq -j ./spring-project.zip ./app
 
       # (8) AWS 인증 (IAM 사용자 Access Key, Secret Key 활용)
       - name: Configure AWS credentials
