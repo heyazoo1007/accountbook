@@ -91,11 +91,10 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="dateModalLabel">오늘의 지출내역(월/일 받아서 입력하기)</h5>
+                <h5 class="modal-title" id="dateModalLabel"></h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
-            </div>
+            <div class="modal-body"></div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-success" onclick="location.href='/expenditure'">+ 지출 입력하기</button>
             </div>
@@ -107,7 +106,7 @@
 <div class="position-fixed top-0 end-0 p-3" style="z-index: 11">
     <div id="budgetToast" class="toast hide" role="alert" aria-live="assertive" aria-atomic="true">
         <div class="toast-header">
-            <strong class="me-auto">이번 달 예산 알림</strong>
+            <strong class="me-auto"></strong>
             <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
         </div>
         <div class="toast-body"></div>
@@ -119,21 +118,23 @@
 
     var stompClient = null;
     var memberId = window.location.pathname.split('/')[2];
-    var currentYear = '';
-    var currentMonth = '';
-    var currentDate = '';
+    var currentYear = ''; // 현재 페이지에 있는 연도
+    var currentMonth = ''; // 현재 페이지에 있는 월
+    var currentDate = ''; // 현재 페이지에 있는 일
+    var thisMonth = ''; // 실제 이번달, 알림 제목용, 불변
     $(document).ready(function() {
         // 한국 표준시간 가져오기
         var date = new Date();
         var utc = date.getTime() + (date.getTimezoneOffset() * 60 * 1000);
         var kstGap = 9 * 60 * 60 * 1000;
         var today = new Date(utc + kstGap);
-        var thisMonth = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+        var koreaDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
 
         // 연, 월, 일 가져오기
-        currentYear = thisMonth.getFullYear();
-        currentMonth = thisMonth.getMonth() + 1;
-        currentDate = thisMonth.getDate();
+        currentYear = koreaDate.getFullYear();
+        currentMonth = koreaDate.getMonth() + 1;
+        thisMonth = koreaDate.getMonth() + 1;
+        currentDate = koreaDate.getDate();
 
         // 페이지 로딩 초기에 달력 가져오기
         renderCalendar(currentYear, currentMonth, currentDate);
@@ -175,6 +176,7 @@
                              function (frame) {
                                  stompClient.subscribe('/sub/' + memberId, function (response) {
 
+                                 document.querySelector('.me-auto').innerHTML = thisMonth + "월 예산알림";
                                  document.querySelector('.toast-body').innerHTML = JSON.parse(response.body).message;
                                  $('.toast').toast('show');
                              });
