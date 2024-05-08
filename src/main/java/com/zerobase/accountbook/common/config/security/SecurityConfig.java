@@ -48,8 +48,8 @@ public class SecurityConfig {
                 configurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize-> authorize
                                         .requestMatchers(new AntPathRequestMatcher("/index")).permitAll()
-                                        .requestMatchers(new AntPathRequestMatcher("/signup")).permitAll()
-                                        .requestMatchers(new AntPathRequestMatcher("/login")).permitAll()
+                                        .requestMatchers(new AntPathRequestMatcher("/sign-up")).permitAll()
+                                        .requestMatchers(new AntPathRequestMatcher("/sign-in")).permitAll()
                                         .requestMatchers(new AntPathRequestMatcher("/v1/**")).permitAll()
                                         .requestMatchers(new AntPathRequestMatcher("/v2/api-docs")).permitAll()
                                         .requestMatchers(new AntPathRequestMatcher("/swagger-resources/**")).permitAll()

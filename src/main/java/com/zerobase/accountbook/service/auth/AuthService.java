@@ -89,7 +89,7 @@ public class AuthService {
         );
     }
 
-    public CreateMemberResponseDto createMember(CreateMemberRequestDto request) {
+    public CreateMemberResponseDto signUp(CreateMemberRequestDto request) {
 
         String email = request.getEmail();
         String emailAuth = "EMAIL-AUTH:" + email;

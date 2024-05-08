@@ -199,7 +199,7 @@ class AuthServiceTest {
 
         //when
         CreateMemberResponseDto responseDto =
-                authService.createMember(requestDto);
+                authService.signUp(requestDto);
 
         //then
         verify(memberRepository, times(1))
@@ -238,7 +238,7 @@ class AuthServiceTest {
 
         //then
         assertThrows(AccountBookException.class,
-                () -> authService.createMember(requestDto));
+                () -> authService.signUp(requestDto));
     }
 
     @Test
@@ -261,7 +261,7 @@ class AuthServiceTest {
 
         //then
         assertThrows(AccountBookException.class,
-                () -> authService.createMember(requestDto));
+                () -> authService.signUp(requestDto));
     }
 
     // jwtProvider 를 verify 할 방법을 아직 찾지 못해서 테스트 미흡

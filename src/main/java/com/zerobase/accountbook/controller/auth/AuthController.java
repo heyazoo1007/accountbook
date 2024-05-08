@@ -44,11 +44,11 @@ public class AuthController {
     public ApiResponse<LinkResponseDto> signUp(
             @Valid @RequestBody CreateMemberRequestDto request
     ) {
-        authService.createMember(request);
+        authService.signUp(request);
         return ApiResponse.success(LinkResponseDto.of(REDIRECT_URL));
     }
 
-    @PostMapping("/login")
+    @PostMapping("/sign-in")
     @ResponseBody
     public ApiResponse<LinkResponseDto> signIn(
             @Valid @RequestBody LoginRequestDto request, HttpServletResponse response
