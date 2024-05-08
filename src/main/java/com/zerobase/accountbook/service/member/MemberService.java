@@ -10,13 +10,11 @@ import com.zerobase.accountbook.controller.auth.dto.response.ModifyMemberPasswor
 import com.zerobase.accountbook.controller.member.dto.request.DeleteMemberRequestDto;
 import com.zerobase.accountbook.domain.member.Member;
 import com.zerobase.accountbook.domain.member.MemberRepository;
-import com.zerobase.accountbook.domain.member.MemberRole;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static com.zerobase.accountbook.common.exception.ErrorCode.*;

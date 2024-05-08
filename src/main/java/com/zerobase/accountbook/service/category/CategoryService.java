@@ -2,7 +2,6 @@ package com.zerobase.accountbook.service.category;
 
 import com.zerobase.accountbook.common.exception.model.AccountBookException;
 import com.zerobase.accountbook.controller.category.dto.request.CreateCategoryRequestDto;
-import com.zerobase.accountbook.controller.category.dto.request.DeleteCategoryRequestDto;
 import com.zerobase.accountbook.controller.category.dto.request.ModifyCategoryRequestDto;
 import com.zerobase.accountbook.controller.category.dto.response.CreateCategoryResponseDto;
 import com.zerobase.accountbook.controller.category.dto.response.GetCategoryListResponseDto;
@@ -15,7 +14,6 @@ import com.zerobase.accountbook.domain.member.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -38,7 +36,6 @@ public class CategoryService {
         return CreateCategoryResponseDto.of(categoryRepository.save(Category.builder()
                 .member(member)
                 .categoryName(request.getCategoryName())
-                .createdAt(LocalDateTime.now())
                 .build()));
     }
 
@@ -53,7 +50,6 @@ public class CategoryService {
         checkCategoryOwner(member, category);
 
         category.setCategoryName(request.getCategoryName());
-        category.setUpdatedAt(LocalDateTime.now());
         categoryRepository.save(category);
 
         return ModifyCategoryResponseDto.of(category);
