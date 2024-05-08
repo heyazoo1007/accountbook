@@ -1,21 +1,15 @@
 package com.zerobase.accountbook.service.budget;
 
+import com.zerobase.accountbook.common.CommonTime;
 import com.zerobase.accountbook.controller.budget.dto.response.SendBudgetAlarmDto;
 import com.zerobase.accountbook.domain.budget.BudgetRepository;
-import com.zerobase.accountbook.domain.dailypayments.DailyPayments;
 import com.zerobase.accountbook.domain.dailypayments.DailyPaymentsRepository;
 import com.zerobase.accountbook.domain.member.Member;
 import com.zerobase.accountbook.domain.member.MemberRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.time.YearMonth;
-import java.time.format.DateTimeFormatter;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -26,13 +20,12 @@ public class AlarmService {
 
     public SendBudgetAlarmDto sendBudgetAlarm(long memberId) {
         LocalDateTime now = LocalDateTime.now();
-        YearMonth yearMonth = YearMonth.of(now.getYear(), now.getMonth());
-        String startDate = yearMonth + "-01";
-        String endDate = yearMonth + "-" + yearMonth.lengthOfMonth();
 
         Member member = memberRepository.findById(memberId).get();
-        Integer monthlySum = dailyPaymentsRepository.findMonthlySum(member.getId(), startDate, endDate);
-        Integer monthlyBudget = budgetRepository.findByMemberIdAndYearMonth(member.getId(), yearMonth.toString());
+        Integer monthlySum = dailyPaymentsRepository.
+                findMonthlySum(member.getId(), CommonTime.getStartDate(now), CommonTime.getEndDate(now));
+        Integer monthlyBudget = budgetRepository.
+                findByMemberIdAndYearMonth(member.getId(), CommonTime.getYearMonthString(now));
 
         String message;
         if (monthlyBudget == null) {

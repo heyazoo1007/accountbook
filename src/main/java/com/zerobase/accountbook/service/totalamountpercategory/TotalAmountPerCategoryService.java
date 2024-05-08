@@ -1,6 +1,7 @@
 package com.zerobase.accountbook.service.totalamountpercategory;
 
 
+import com.zerobase.accountbook.common.CommonTime;
 import com.zerobase.accountbook.common.exception.model.AccountBookException;
 import com.zerobase.accountbook.domain.dailypayments.DailyPaymentsRepository;
 import com.zerobase.accountbook.domain.member.Member;
@@ -27,11 +28,9 @@ public class TotalAmountPerCategoryService {
     private final DailyPaymentsRepository dailyPaymentsRepository;
     private final TotalAmountPerCategoryRepository totalAmountPerCategoryRepository;
 
-    @Scheduled(cron = "0 0 0 1 * * *") // 매달 1일 정각에 모든 사용자에 지난 한 달 동안의 지출내역 카테고리별로 저장
-    private void saveEachPayments() {
+    //@Scheduled(cron = "0 0 0 1 * * *") // 매달 1일 정각에 모든 사용자에 지난 한 달 동안의 지출내역 카테고리별로 저장
+    public void saveCategoryPayments() {
         LocalDateTime oneMonthBefore = LocalDateTime.now().minusMonths(1);
-        String yearMonth = String.format("%04d", oneMonthBefore.getYear()) + "-" +
-                String.format("%02d", oneMonthBefore.getMonthValue());
 
         // 100명 단위로 페이징한 멤버에 대해서 진행
         int totalMember = Math.toIntExact(memberRepository.countBy());
@@ -42,13 +41,15 @@ public class TotalAmountPerCategoryService {
 
                 // 월마다 카테고리별 지출정보 가져오기
                 List<DailyPaymentsCategoryDto> all = dailyPaymentsRepository.
-                        findMonthlyCategory(yearMonth, yearMonth, member.getId());
+                        findMonthlyCategory(CommonTime.getStartDate(oneMonthBefore),
+                                            CommonTime.getEndDate(oneMonthBefore),
+                                            member.getId());
 
                 for (DailyPaymentsCategoryDto dto : all) {
                     totalAmountPerCategoryRepository.save(
                             TotalAmountPerCategory.builder()
                                     .member(member)
-                                    .date(yearMonth) // YYYY-mm 형태로 저장
+                                    .date(CommonTime.getYearMonthString(oneMonthBefore)) // YYYY-mm 형태로 저장
                                     .categoryId(dto.getCategoryId())
                                     .totalAmount(dto.getTotalAmount())
                                     .build());
