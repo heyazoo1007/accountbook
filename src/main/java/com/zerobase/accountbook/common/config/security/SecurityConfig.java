@@ -57,6 +57,7 @@ public class SecurityConfig {
                                         .requestMatchers(new AntPathRequestMatcher("/configuration/ui")).permitAll()
                                         .requestMatchers(new AntPathRequestMatcher("/configuration/security")).permitAll()
                                         .requestMatchers(new AntPathRequestMatcher("/webjars/**")).permitAll()
+                                        .requestMatchers(new AntPathRequestMatcher("/static/**")).permitAll()
                                         .requestMatchers(new AntPathRequestMatcher("/ws-stomp/**")).permitAll()
                                         .anyRequest().authenticated())
                 .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider),

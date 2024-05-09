@@ -4,53 +4,55 @@
       layout:decorate="layout/default_layout">
 <th:block layout:fragment="content">
     <script>
+        let memberId = 0;
         $(document).ready(function() {
-            indexInit();
-        });
+                // httpOnly 로 설정된 Cookie 는 document.cookie 로 읽을 수 없음
+                const accessToken = document.cookie.split('access_token=')[1];
+                let joinUs = document.getElementById("join-us");
+                let logIn = document.getElementById("login");
+                let myAccountBook = document.getElementById("my-accountbook");
+                let monthly = document.getElementById("monthly");
+                let yearly = document.getElementById("yearly");
+                let myPage = document.getElementById("my-page");
+                let logOut = document.getElementById("logout");
 
-        var memberId = 0;
-        function indexInit() {
-            // httpOnly 로 설정된 Cookie 는 document.cookie 로 읽을 수 없음
-            const accessToken = document.cookie.split('access_token=')[1];
+                if(accessToken != null) { // 쿠키에 access_token 이 있을 때(로그인 했을 때)
+                    joinUs.style.display = 'none';
+                    logIn.style.display = 'none';
 
-            if(accessToken != null) { // 쿠키에 access_token 이 있을 때(로그인 했을 때)
-                document.getElementById("join-us").style.visibility = 'hidden';
-                document.getElementById("login").style.visibility = 'hidden';
+                    myAccountBook.style.display = 'inline-block';
+                    monthly.style.display = 'inline-block';
+                    yearly.style.display = 'inline-block';
+                    myPage.style.display = 'inline-block';
+                    logOut.style.display = 'inline-block';
 
-                document.getElementById("my-accountbook").style.visibility = 'visible';
-                document.getElementById("monthly").style.visibility = 'visible';
-                document.getElementById("yearly").style.visibility = 'visible';
-                document.getElementById("my-page").style.visibility = 'visible';
-                document.getElementById("logout").style.visibility = 'visible';
+                    getMemberId();
+                } else { // 쿠키에 access_token 이 없을 때
+                    joinUs.style.display = 'inline-block';
+                    logIn.style.display = 'inline-block';
 
-                // memberId 가져오기
+                    myAccountBook.style.display = 'none';
+                    monthly.style.display = 'none';
+                    yearly.style.display = 'none';
+                    myPage.style.display = 'none';
+                    logOut.style.display = 'none';
+                }
+
+            function getMemberId() {
                 $.ajax({
                     url : `/v1/member`,
                     type : 'get',
                     contentType : 'application/json; charset=utf-8;',
                     dataType : 'json',
                     success : function(response) {
-                        memberId = response.data.memberId;
+                        memberId =  response.data.memberId;
                     },
                     error : function(request, status, error) {
                         alert(JSON.parse(request.responseText).message);
                     }
                 })
-            } else { // 쿠키에 access_token 이 없을 때
-                document.getElementById("join-us").style.visibility = 'visible';
-                document.getElementById("login").style.visibility = 'visible';
-
-                document.getElementById("my-accountbook").style.visibility = 'hidden';
-                document.getElementById("monthly").style.visibility = 'hidden';
-                document.getElementById("yearly").style.visibility = 'hidden';
-                document.getElementById("my-page").style.visibility = 'hidden';
-                document.getElementById("logout").style.visibility = 'hidden';
             }
-        }
-
-        function myCalendar() {
-            location.replace('http://localhost:8080/my-accountbook/' + memberId);
-        }
+        });
     </script>
 
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
@@ -62,7 +64,7 @@
                 <a id="login" role="button" href="/sign-in" >Login</a>
 
                 <!--로그인 후-->
-                <button id="my-accountbook" onclick="myCalendar()">가계부 달력</button>
+                <button class="btn btn-light" id="my-accountbook" onclick="myCalendar()">가계부 달력</button>
                 <a id="monthly" href="/monthly">월별 지출 통계</a>
                 <a id="yearly" href="/yearly">연도별 지출 통계</a>
                 <a id="my-page" href="/my-page">마이페이지</a>
@@ -70,5 +72,6 @@
             </div>
         </div>
     </nav>
+
 </th:block>
 </html>

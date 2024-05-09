@@ -47,32 +47,5 @@
         </div>
 
     </div>
-
-    <script>
-        function signIn() {
-            var email = $('#email').val();
-            var password = $('#password').val();
-            const params = {
-                'email' : email,
-                'password' : password
-            }
-
-            $.ajax({
-                url : `/v1/auth/sign-in`,
-                type : 'post',
-                contentType : 'application/json; charset=utf-8;',
-                dataType : 'json',
-                data : JSON.stringify(params),
-                success : function(response) {
-                    alert('로그인 되었습니다.');
-                    location.replace(response.data['redirectURL']);
-                },
-                error : function(request, status, error) {
-                    alert(JSON.parse(request.responseText).message);
-                }
-            })
-        }
-
-    </script>
 </th:block>
 </html>
