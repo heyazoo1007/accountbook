@@ -5,53 +5,54 @@
       layout:decorate="layout/default_layout">
 <th:block layout:fragment="content">
 
-    <div class="container text-center">
-        <div class="row">
-            <div class="column"></div>
-            <div class="column">
-                <h1>Join Us!</h1>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light mb-5">
+        <div class="row container-fluid">
+            <div class="col-4 text-center">
+                <a href="/index"><h6>AccountBook</h6></a>
             </div>
-            <div class="column"></div>
+            <div class="col-4 text-center">
+                <h5>Join Us!</h5>
+            </div>
+            <div class="col-4 text-center">
+                <a href="/my-page"><h6>마이 페이지</h6></a>
+            </div>
+
         </div>
-    </div>
+    </nav>
 
     <div class="container text-center">
-        <div class="row-6 justify-content-lg-center">
-            <div class="mb-3">
-                <label for="memberName" class="form-label">MemberName</label>
+        <div class="row justify-content-lg-center">
+            <div class="mt-5 mb-5 col-5">
+                <div style="text-align:left"><label for="memberName" class="form-label">MemberName</label></div>
                 <div class="input-group">
                     <input id="memberName" type="text" class="form-control" placeholder="회원 이름을 입력하세요">
                 </div>
             </div>
         </div>
-    </div>
 
-    <div class="container text-center">
-        <div class="row-6 justify-content-lg-center">
-            <div id="emailButton" class="mb-3">
-                <label for="email" class="form-label">Email</label>
+        <div class="row justify-content-center">
+            <div id="emailButton" class="mt-5 mb-5 col-5">
+                <div style="text-align:left"><label for="email" class="form-label">Email</label></div>
                 <div class="input-group">
                     <input id="email" type="text" class="form-control" placeholder="이메일을 입력하세요">
-                    <button type="button" class="btn-success" onclick="sendAuthEmail();">이메일 인증</button>
+                    <button type="button" class="btn btn-success" onclick="sendAuthEmail();">이메일 인증</button>
                 </div>
             </div>
         </div>
-    </div>
 
-    <div class="container text-center">
-        <div class="row-6 justify-content-lg-center">
-            <div class="mb-3">
-                <label for="password" class="form-label">Password</label>
+        <div class="row justify-content-center">
+            <div class="mt-5 mb-5 col-5">
+                <div style="text-align: left"><label for="password" class="form-label">Password</label></div>
                 <div class="input-group">
                     <input id="password" type="password" class="form-control" placeholder="비밀번호를 입력하세요">
                 </div>
             </div>
         </div>
-    </div>
 
-    <div class="container text-center">
-        <div class="row-6 justify-content-lg-center">
-            <button type="button" class="btn-success" onclick="signUp();">회원가입</button>
+        <div class="row justify-content-lg-center">
+            <div class="mt-3 col-3">
+            <button type="button" class="btn btn-success" onclick="signUp();">회원가입</button>
+            </div>
         </div>
     </div>
 
@@ -81,7 +82,7 @@
             if (count == 0) {
                 const emailButton = document.getElementById('emailButton');
                 const newP = document.createElement('p');
-                newP.innerHTML = "<br> <label for='authKey' class='form-label'>인증번호 입력</label> <div class='input-group'> <input id='authKey' type='text' class='form-control' placeholder='인증번호를 입력하세요'> <button type='button' class='btn-success' onclick='completeAuthEmail();'>인증</button> </div>";
+                newP.innerHTML = "<br> <label for='authKey' class='form-label'>인증번호 입력</label> <div class='input-group'> <input id='authKey' type='text' class='form-control' placeholder='인증번호를 입력하세요'> <button type='button' class='btn btn-success' onclick='completeAuthEmail();'>인증</button> </div>";
                 emailButton.appendChild(newP);
 
                 count++;
