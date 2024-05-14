@@ -11,32 +11,14 @@ import lombok.*;
 public class GetDailyPaymentsResponseDto {
 
     private long dailyPaymentId;
-
     private Integer paidAmount;
-
     private String payLocation;
-
     private String methodOfPayment;
-
     private Long categoryId;
-
     private String categoryName;
-
     private String memo;
-
     private String date;
 
-    public static GetDailyPaymentsResponseDto of(DailyPayments dailyPayments) {
-        return GetDailyPaymentsResponseDto
-                .builder()
-                .dailyPaymentId(dailyPayments.getId())
-                .paidAmount(dailyPayments.getPaidAmount())
-                .payLocation(dailyPayments.getPayLocation())
-                .methodOfPayment(dailyPayments.getMethodOfPayment())
-                .categoryId(dailyPayments.getCategoryId())
-                .memo(dailyPayments.getMemo())
-                .build();
-    }
     public static GetDailyPaymentsResponseDto of(DailyPayments dailyPayments, String categoryName) {
         return GetDailyPaymentsResponseDto
                 .builder()

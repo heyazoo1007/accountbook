@@ -52,7 +52,6 @@ public class DailyPaymentsController {
 
     @GetMapping("/{paymentId}")
     public ApiResponse<GetDailyPaymentsResponseDto> getDailyPayment(
-            @AuthenticationPrincipal UserDetails user,
             @PathVariable Long paymentId
     ) {
         GetDailyPaymentsResponseDto response = dailyPaymentsService.
