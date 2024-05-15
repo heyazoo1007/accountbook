@@ -7,15 +7,9 @@ import com.zerobase.accountbook.controller.auth.dto.response.GetMemberInfoRespon
 import com.zerobase.accountbook.controller.auth.dto.response.ModifyMemberInfoResponseDto;
 import com.zerobase.accountbook.controller.auth.dto.response.ModifyMemberPasswordResponseDto;
 import com.zerobase.accountbook.controller.member.dto.request.DeleteMemberRequestDto;
-import com.zerobase.accountbook.domain.budget.BudgetRepository;
-import com.zerobase.accountbook.domain.category.CategoryRepository;
-import com.zerobase.accountbook.domain.dailypayments.DailyPaymentsRepository;
 import com.zerobase.accountbook.domain.member.Member;
 import com.zerobase.accountbook.domain.member.MemberRepository;
 import com.zerobase.accountbook.domain.member.MemberRole;
-import com.zerobase.accountbook.domain.monthlytotalamount.MonthlyTotalAmountRepository;
-import com.zerobase.accountbook.domain.totalamountpercategory.TotalAmountPerCategoryRepository;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -77,7 +71,7 @@ class MemberServiceTest {
     }
 
     @Test
-    void success_modifyMemberInfo() {
+    void success_modifyMemberName() {
         //given
         Member member = Member.builder()
                 .id(1L)
@@ -93,7 +87,6 @@ class MemberServiceTest {
                 ModifyMemberInfoRequestDto.builder()
                         .memberId(1L)
                         .memberName("hello2")
-                        .monthlyBudget(10000)
                         .build();
 
         ArgumentCaptor<Member> captor = ArgumentCaptor.forClass(Member.class);
@@ -120,7 +113,7 @@ class MemberServiceTest {
     }
 
     @Test
-    void fail_modifyMemberInfo_존재하지_않는_회원_조회() {
+    void fail_modifyMemberName_존재하지_않는_회원_조회() {
         //given
         given(memberRepository.findById(anyLong()))
                 .willReturn(Optional.empty());
@@ -130,7 +123,6 @@ class MemberServiceTest {
                 ModifyMemberInfoRequestDto.builder()
                         .memberId(1L)
                         .memberName("hello1")
-                        .monthlyBudget(10000)
                         .build();
 
         //when
@@ -158,7 +150,6 @@ class MemberServiceTest {
                 ModifyMemberInfoRequestDto.builder()
                         .memberId(memberId)
                         .memberName("hello1")
-                        .monthlyBudget(10000)
                         .build();
 
         //when

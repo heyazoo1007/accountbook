@@ -12,9 +12,7 @@ import javax.validation.constraints.Min;
 public class ModifyMemberInfoRequestDto {
 
     private long memberId;
-
     private String memberName;
-
     @Min(0)
     private Integer monthlyBudget;
 }

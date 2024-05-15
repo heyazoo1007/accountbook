@@ -50,4 +50,8 @@ public class Member {
     public void setMonthlyBudget(Integer monthlyBudget) {
         this.monthlyBudget = monthlyBudget;
     }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
 }
