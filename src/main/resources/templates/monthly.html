@@ -4,6 +4,12 @@
       layout:decorate="layout/default_layout">
 <th:block layout:fragment="content">
 
+    <script>
+        $(document).ready(function () {
+            getMemberId();
+        });
+    </script>
+
     <nav class="navbar navbar-expand-lg navbar-light bg-light mb-5">
         <div class="row container-fluid">
             <div class="col-4 text-center">
@@ -11,9 +17,8 @@
             </div>
             <div class="col-4 text-center" id="monthly-title"></div>
             <div class="col-4 text-center">
-                <a href="/my-page"><h6>마이 페이지</h6></a>
+                <a href="/my-page"><button class="btn btn-light" id="my-page" onclick="myPage()"><h6>마이페이지</h6></button></a>
             </div>
-
         </div>
     </nav>
 

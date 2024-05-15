@@ -2,21 +2,21 @@ package com.zerobase.accountbook.controller.index;
 
 import com.zerobase.accountbook.controller.dailypayments.dto.response.GetDailyPaymentsResponseDto;
 import com.zerobase.accountbook.service.dailypaymetns.DailyPaymentsService;
+import com.zerobase.accountbook.service.member.MemberService;
 import lombok.RequiredArgsConstructor;
-import org.apache.catalina.User;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
 
 @Controller
 @RequiredArgsConstructor
 public class AccountBookController {
 
     private final DailyPaymentsService dailyPaymentsService;
+    private final MemberService memberService;
 
     @GetMapping("/my-accountbook/{memberId}")
     public String myAccountBook(@AuthenticationPrincipal UserDetails user,
@@ -46,5 +46,11 @@ public class AccountBookController {
     @GetMapping("/yearly")
     public String getYearly() {
         return "yearly";
+    }
+
+    @GetMapping("/my-page/{memberId}")
+    public String getMyPage(@PathVariable long memberId, Model model) {
+        model.addAttribute("member", memberService.getMemberInfoById(memberId));
+        return "my-page";
     }
 }

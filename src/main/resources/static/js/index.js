@@ -392,5 +392,32 @@ function signUp() {
     })
 }
 
+function myPage() {
+    location.replace('http://localhost:8080/my-page/' + memberId);
+}
+
+function modifyMemberInfo() {
+    const params = {
+        memberId : memberId,
+        memberName : $('#memberName').val(),
+        monthlyBudget : $('#monthlyBudget').val()
+    };
+
+    $.ajax({
+        url : `/v1/member`,
+        type : 'put',
+        contentType : 'application/json; charset=utf-8;',
+        dataType : 'json',
+        data : JSON.stringify(params),
+        success : function(response) {
+            alert('회원정보 수정이 완료 되었습니다.');
+            myCalendar();
+        },
+        error : function(response, status, error) {
+            alert(JSON.parse(response.responseText).message);
+        }
+    })
+}
+
 
 

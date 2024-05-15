@@ -3,10 +3,17 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="layout/default_layout">
 <th:block layout:fragment="content">
+    <script>
+        $(document).ready(function () {
+            getMemberId();
+        });
+    </script>
 
     <div id="top" class="container text-center">
         <div class="row">
-            <h3>지출 입력하기</h3>
+            <div class="col-2"><a href="/index">AccountBook</a></div>
+            <div class="col-8">지출 입력하기</div>
+            <div class="col-2"><button class="btn btn-light" id="my-page" onclick="myPage()">마이페이지</button></div>
         </div>
     </div>
 
