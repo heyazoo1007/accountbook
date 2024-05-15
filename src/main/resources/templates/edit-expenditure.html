@@ -4,6 +4,11 @@
       layout:decorate="layout/default_layout">
 <th:block layout:fragment="content">
 
+    <script>
+        $(document).ready(function () {
+            getMemberId(); // memberId 가져오기
+        });
+    </script>
     <div id="top" class="container text-center">
         <div class="row">
             <h3>지출 수정하기</h3>
@@ -15,7 +20,7 @@
             <div class="col-6">금액<input id="paid-amount" th:value="${payment.paidAmount}"></div>
             <div class="col-6">
                 카테고리
-                <button class="btn btn-light" type="button" th:text="${payment.categoryName}" id="category-radio" data-bs-toggle="modal" data-bs-target="#categoryModal" onclick="getCategoryList();" ></button>
+                <button class="btn btn-light" type="button" th:value="${payment.categoryId}" th:text="${payment.categoryName}" id="category-radio" data-bs-toggle="modal" data-bs-target="#categoryModal" onclick="getCategoryList();" ></button>
             </div>
         </div>
     </div>

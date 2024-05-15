@@ -1,3 +1,38 @@
+function initIndex() {
+    // httpOnly 로 설정된 Cookie 는 document.cookie 로 읽을 수 없음
+    const accessToken = document.cookie.split('access_token=')[1];
+
+    let joinUs = document.getElementById("join-us");
+    let logIn = document.getElementById("login");
+    let myAccountBook = document.getElementById("my-accountbook");
+    let monthly = document.getElementById("monthly");
+    let yearly = document.getElementById("yearly");
+    let myPage = document.getElementById("my-page");
+    let logOut = document.getElementById("logout");
+
+    if(accessToken != null) { // 쿠키에 access_token 이 있을 때(로그인 했을 때)
+        joinUs.style.display = 'none';
+        logIn.style.display = 'none';
+
+        myAccountBook.style.display = 'inline-block';
+        monthly.style.display = 'inline-block';
+        yearly.style.display = 'inline-block';
+        myPage.style.display = 'inline-block';
+        logOut.style.display = 'inline-block';
+
+        getMemberId();
+    } else { // 쿠키에 access_token 이 없을 때
+        joinUs.style.display = 'inline-block';
+        logIn.style.display = 'inline-block';
+
+        myAccountBook.style.display = 'none';
+        monthly.style.display = 'none';
+        yearly.style.display = 'none';
+        myPage.style.display = 'none';
+        logOut.style.display = 'none';
+    }
+}
+
 function getDate() {
     // 한국 표준시간 가져오기
     var date = new Date();
@@ -18,6 +53,22 @@ function getDate() {
             dateSelect.innerHTML += `<option value="`+ date + zeroFormat(day) + `">`+ date + zeroFormat(day) + `</option>`;
         }
     }
+}
+
+let memberId = 0;
+function getMemberId() {
+    $.ajax({
+        url : `/v1/member`,
+        type : 'get',
+        contentType : 'application/json; charset=utf-8;',
+        dataType : 'json',
+        success : function(response) {
+            memberId = response.data.memberId;
+        },
+        error : function(response, status, error) {
+            alert(JSON.parse(response.responseText).message);
+        }
+    })
 }
 
 function myCalendar() {
@@ -54,15 +105,15 @@ function zeroFormat(value) {
 }
 
 
-var categoryId = 1; // 서버에 넘길 카테고리 id 전역변수 설정
 function selectCategory() {
     // 선택이 된 라디오 버튼의 value 가져오기
     const selectedCategory = document.querySelector('input[type=radio][name="categoryRadio"]:checked');
     const categoryName = selectedCategory.value;
-    categoryId = selectedCategory.id;
 
     // 가져온 카테고리 value 를 버튼 위에 뒤집어 씌우기
-    document.getElementById('category-radio').innerHTML = categoryName;
+    let categoryRadio = document.getElementById('category-radio');
+    categoryRadio.setAttribute('value', selectedCategory.id);
+    categoryRadio.innerHTML = categoryName;
 }
 
 
@@ -188,7 +239,7 @@ function createDailyPayments() {
         'paidAmount': $('#paid-amount').val(),
         'payLocation': $('#pay-location').val(),
         'methodOfPayment' : $('#method-payment').val(),
-        'categoryId': categoryId,
+        'categoryId': $('#category-radio').val(),
         'memo': $('#memo').val(),
         'date' : date.options[date.selectedIndex].value
     };
@@ -216,7 +267,7 @@ function modifyPayment() {
         'paidAmount' : $('#paid-amount').val(),
         'payLocation' : $('#pay-location').val(),
         'methodOfPayment' : $('#method-payment').val(),
-        'categoryId' : categoryId,
+        'categoryId' : $('#category-radio').val(),
         'memo': $('#memo').val(),
         'date' : date.options[date.selectedIndex].value
     };
@@ -228,6 +279,7 @@ function modifyPayment() {
         dataType : 'json',
         data : JSON.stringify(params),
         success : function(response) {
+
             myCalendar();
         },
         error : function(request, status, error) {
