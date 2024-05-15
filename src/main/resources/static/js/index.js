@@ -1,3 +1,5 @@
+let dns = window.location.pathname.split('/')[0];
+
 function initIndex() {
     // httpOnly 로 설정된 Cookie 는 document.cookie 로 읽을 수 없음
     const accessToken = document.cookie.split('access_token=')[1];
@@ -71,8 +73,8 @@ function getMemberId() {
     })
 }
 
-function myCalendar() {
-    location.replace('http://localhost:8080/my-accountbook/' + memberId);
+function redirectUrl(path) {
+    location.replace(dns + path + memberId);
 }
 
 function goPrev() {
@@ -134,7 +136,7 @@ function getCategoryList() {
                     var categoryName = data[i].categoryName;
                     var categoryId = data[i].categoryId;
 
-                    if (categoryName == '미분류') continue;
+                    if (categoryName === '미분류') continue;
 
                     content += `<div class="form-check">
                                   <input class="form-check-input" type="radio" name="categoryRadio" id="`+ categoryId + `" value="`+ categoryName + `">
@@ -279,8 +281,7 @@ function modifyPayment() {
         dataType : 'json',
         data : JSON.stringify(params),
         success : function(response) {
-
-            myCalendar();
+            redirectUrl('/my-accountbook/');
         },
         error : function(request, status, error) {
             alert(JSON.parse(request.responseText).message);
@@ -304,7 +305,7 @@ function signIn() {
         data : JSON.stringify(params),
         success : function(response) {
             alert('로그인 되었습니다.');
-            location.replace(response.data['redirectURL']);
+            redirectUrl('/index/');
         },
         error : function(request, status, error) {
             alert(JSON.parse(request.responseText).message);
@@ -333,7 +334,7 @@ function sendAuthEmail() {
         }
     })
 
-    if (count == 0) {
+    if (count === 0) {
         const emailButton = document.getElementById('emailButton');
         const newP = document.createElement('p');
         newP.innerHTML = "<br> <label for='authKey' class='form-label'>인증번호 입력</label> <div class='input-group'> <input id='authKey' type='text' class='form-control' placeholder='인증번호를 입력하세요'> <button type='button' class='btn btn-success' onclick='completeAuthEmail();'>인증</button> </div>";
@@ -349,7 +350,7 @@ function completeAuthEmail() {
     const params = {
         'email' : email,
         'authKey' : authKey
-    }
+    };
 
     $.ajax({
         url : `/v1/auth/email/complete`,
@@ -384,7 +385,7 @@ function signUp() {
         data : JSON.stringify(params),
         success : function(response) {
             alert('회원가입이 완료 되었습니다.');
-            location.replace(response.data['redirectURL']);
+            redirectUrl('/index/');
         },
         error : function(request, status, error) {
             alert(JSON.parse(request.responseText).message);
@@ -392,9 +393,6 @@ function signUp() {
     })
 }
 
-function myPage() {
-    location.replace('http://localhost:8080/my-page/' + memberId);
-}
 
 function modifyMemberInfo() {
     const params = {
@@ -411,7 +409,7 @@ function modifyMemberInfo() {
         data : JSON.stringify(params),
         success : function(response) {
             alert('회원정보 수정이 완료 되었습니다.');
-            myCalendar();
+            redirectUrl('/my-accountbook/');
         },
         error : function(response, status, error) {
             alert(JSON.parse(response.responseText).message);
