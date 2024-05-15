@@ -21,6 +21,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
@@ -55,10 +56,10 @@ public class DailyPaymentsService {
                 .categoryId(request.getCategoryId())
                 .memo(request.getMemo())
                 .date(request.getDate())
+                .createdAt(LocalDateTime.now())
                 .build()));
     }
 
-    //@CachePut(value = "dailyPayments", key = "#request.dailyPaymentsId")
     public ModifyDailyPaymentsResponseDto modifyDailyPayments(
             String memberEmail,
             ModifyDailyPaymentsRequestDto request
@@ -77,12 +78,13 @@ public class DailyPaymentsService {
         dailyPayments.setCategoryId(request.getCategoryId());
         dailyPayments.setMemo(request.getMemo());
         dailyPayments.setDate(request.getDate());
+        dailyPayments.setUpdatedAt(LocalDateTime.now());
 
         return ModifyDailyPaymentsResponseDto.of(
                 dailyPaymentsRepository.save(dailyPayments));
     }
 
-    @CacheEvict(value = "dailyPayments", allEntries = true)
+    //@CacheEvict(value = "dailyPayments", allEntries = true)
     public void deleteDailyPayments(
             String memberEmail, DeleteDailyPaymentsRequestDto request
     ) {

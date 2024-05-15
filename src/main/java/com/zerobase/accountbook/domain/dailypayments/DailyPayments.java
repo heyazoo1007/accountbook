@@ -6,6 +6,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -20,10 +21,10 @@ public class DailyPayments {
     private Long id;
 
     @CreatedDate
-    private String createdAt;
+    private LocalDateTime createdAt;
 
     @LastModifiedDate
-    private String updatedAt;
+    private LocalDateTime updatedAt;
 
     @ManyToOne
     @JoinColumn(name = "MEMBER_ID")

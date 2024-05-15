@@ -3,6 +3,8 @@ package com.zerobase.accountbook.controller.dailypayments.dto.response;
 import com.zerobase.accountbook.domain.dailypayments.DailyPayments;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @Builder
@@ -22,7 +24,7 @@ public class CreateDailyPaymentsResponseDto {
 
     private String memo;
 
-    private String createdAt;
+    private LocalDateTime createdAt;
 
     public static CreateDailyPaymentsResponseDto of(DailyPayments dailyPayments) {
         return CreateDailyPaymentsResponseDto.builder()
