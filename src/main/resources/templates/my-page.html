@@ -22,36 +22,43 @@
   <div id="middle" class="container text-center mt-5">
     <div class="row justify-content-center">
         <div class="mt-5 mb-5 col-5">
-          <div style="text-align:left; display:flex">MemberName
-            <input id="memberName" type="text" th:value="${member.memberName}">
+          <div style="text-align:left; display:flex">
+            <div style="margin-right: 8%">MemberName</div>
+            <input id="memberName" type="text" style="width: 100%;" th:value="${member.memberName}">
           </div>
         </div>
     </div>
 
     <div class="row justify-content-center">
       <div id="emailButton" class="mt-5 mb-5 col-5">
-        <div style="text-align:left; display:flex">Email<input id="email" type="text" th:value="${member.email}" disabled>
+        <div style="text-align:left; display:flex">
+          <div style="margin-right: 20%;">Email</div>
+          <input id="email" type="text" style="width: 100%;" th:value="${member.email}" disabled>
         </div>
       </div>
     </div>
 
     <div class="row justify-content-center">
       <div class="mt-5 mb-5 col-5">
-        <div style="text-align: left; display:flex">Budget
-          <input id="monthlyBudget" type="text" th:value="${member.monthlyBudget}">
+        <div style="display:flex">
+          <div style="margin-right: 17%;">Budget</div>
+          <input id="monthlyBudget" type="text" style="width: 100%;" th:value="${member.monthlyBudget}">
         </div>
       </div>
     </div>
 
-    <div class="row justify-content-lg-center">
-      <div class="mt-3 col-3">
-        <button type="button" class="btn btn-success" onclick="modifyMemberInfo();">회원 정보 수정</button>
+    <div id="bottom" class="container text-center mt-5">
+      <div class="row justify-content-center">
+        <div class="mt-3 col-3">
+          <button type="button" class="btn btn-success" onclick="modifyMemberInfo();">회원 정보 수정</button>
+        </div>
       </div>
-      <div class="mt-3 col-3" style="text-align: left">
-        <button type="button" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#modifyPassword">비밀번호 수정</button>
-        <button type="button" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#disableMember">회원 탈퇴</button>
+      <div class="row justify-content-end">
+        <div class="mt-3 col-3" style="text-align: right">
+          <button type="button" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#modifyPassword">비밀번호 수정</button>
+          <button type="button" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#disableMember">회원 탈퇴</button>
+        </div>
       </div>
-    </div>
   </div>
 
 
