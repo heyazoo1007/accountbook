@@ -61,7 +61,7 @@ public class MemberService {
                 request.getBeforePassword(), member.getPassword())
         ) {
             throw new AccountBookException(
-                    "비밀번호를 잘못 입력하셨습니다.",
+                    "이전 비밀번호 잘못 입력",
                     VALIDATION_WRONG_PASSWORD_EXCEPTION
             );
         }
@@ -77,12 +77,12 @@ public class MemberService {
         if (!targetMember.getEmail().equals(memberEmail)) {
             throw new AccountBookException(
                     "본인 계정만 삭제할 수 있습니다.",
-                    FORBIDDEN_EXCEPTION
-            );
+                    FORBIDDEN_EXCEPTION);
         }
 
         // soft delete 로 회원 삭제. DB 에는 회원 정보 존재
         targetMember.setRole(DELETED);
+        targetMember.setUpdatedAt(LocalDateTime.now());
         memberRepository.save(targetMember);
     }
 

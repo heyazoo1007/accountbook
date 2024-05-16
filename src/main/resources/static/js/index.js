@@ -73,8 +73,12 @@ function getMemberId() {
     })
 }
 
-function redirectUrl(path) {
+function redirectMemberId(path) {
     location.replace(dns + path + memberId);
+}
+
+function redirectUrl(path) {
+    location.replace(dns + path);
 }
 
 function goPrev() {
@@ -281,7 +285,7 @@ function modifyPayment() {
         dataType : 'json',
         data : JSON.stringify(params),
         success : function(response) {
-            redirectUrl('/my-accountbook/');
+            redirectMemberId('/my-accountbook/');
         },
         error : function(request, status, error) {
             alert(JSON.parse(request.responseText).message);
@@ -305,7 +309,7 @@ function signIn() {
         data : JSON.stringify(params),
         success : function(response) {
             alert('로그인 되었습니다.');
-            redirectUrl('/index/');
+            redirectUrl('/index');
         },
         error : function(request, status, error) {
             alert(JSON.parse(request.responseText).message);
@@ -385,7 +389,7 @@ function signUp() {
         data : JSON.stringify(params),
         success : function(response) {
             alert('회원가입이 완료 되었습니다.');
-            redirectUrl('/index/');
+            redirectUrl('/index');
         },
         error : function(request, status, error) {
             alert(JSON.parse(request.responseText).message);
@@ -409,7 +413,52 @@ function modifyMemberInfo() {
         data : JSON.stringify(params),
         success : function(response) {
             alert('회원정보 수정이 완료 되었습니다.');
-            redirectUrl('/my-accountbook/');
+            redirectMemberId('/my-accountbook/');
+        },
+        error : function(response, status, error) {
+            alert(JSON.parse(response.responseText).message);
+        }
+    })
+}
+
+function modifyPassword() {
+    const params = {
+        memberId : memberId,
+        beforePassword : $('#beforePassword').val(),
+        afterPassword : $('#afterPassword').val()
+    };
+
+    $.ajax({
+        url : `/v1/member/password`,
+        type : 'patch',
+        contentType : 'application/json; charset=utf-8;',
+        dataType : 'json',
+        data : JSON.stringify(params),
+        success : function(response) {
+            alert('비밀번호 수정이 완료 되었습니다.');
+            redirectMemberId('/my-page/');
+        },
+        error : function(response, status, error) {
+            alert(JSON.parse(response.responseText).message);
+        }
+    })
+}
+
+function disableMember() {
+    const params = {
+        memberId : memberId
+    };
+
+    $.ajax({
+        url : `/v1/member`,
+        type : 'delete',
+        contentType : 'application/json; charset=utf-8;',
+        dataType : 'json',
+        data : JSON.stringify(params),
+        success : function(response) {
+            alert('회원탈퇴가 완료되었습니다.');
+            window.location.href = "/logout";
+            redirectUrl('/index');
         },
         error : function(response, status, error) {
             alert(JSON.parse(response.responseText).message);
